@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام كلية التقنية الهندسية - تسجيل الدخول</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/tajawal@5.0.0/index.min.css">
+<link rel="stylesheet" href="/static/css/login.css">
+</head>
+<body>
+
+<!-- Background -->
+<div class="auth-bg">
+  <div class="auth-bg-gradient"></div>
+  <div class="auth-bg-pattern"></div>
+  <div class="auth-bg-shapes">
+    <div class="auth-bg-shape"></div>
+    <div class="auth-bg-shape"></div>
+    <div class="auth-bg-shape"></div>
+    <div class="auth-bg-shape"></div>
+    <div class="auth-bg-shape"></div>
+  </div>
+</div>
+
+<!-- Auth Screen -->
+<section class="auth-screen">
+  <div class="auth-layout">
+
+    <!-- Brand Panel -->
+    <div class="auth-brand-panel">
+      <div class="brand-top">
+        <div class="brand-logo-large"><div class="site-logo">
+    <img src="/static/image/logo.png" alt="logo">
+  </div></div>
+        <h1 class="brand-title">نظام كلية التقنية الهندسية</h1>
+        <p class="brand-subtitle">منصة متكاملة لإدارة العمليات الأكاديمية والإدارية للكلية — الجداول، المقررات، القاعات، والحضور.</p>
+      </div>
+
+      <div class="brand-features">
+        <div class="brand-feature">
+          <div class="brand-feature-icon">▦</div>
+          <span>إدارة الجداول الدراسية والمقررات</span>
+        </div>
+        <div class="brand-feature">
+          <div class="brand-feature-icon">👨‍🏫</div>
+          <span>متابعة هيئة التدريس والحضور</span>
+        </div>
+        <div class="brand-feature">
+          <div class="brand-feature-icon">🚪</div>
+          <span>إدارة القاعات والمعامل والمسارح</span>
+        </div>
+        <div class="brand-feature">
+          <div class="brand-feature-icon">📊</div>
+          <span>تقارير وإحصائيات شاملة</span>
+        </div>
+      </div>
+
+      <div class="brand-bottom">
+        <div class="brand-footer-text">© 2025 كلية التقنية الهندسية — جميع الحقوق محفوظة</div>
+      </div>
+    </div>
+
+    <!-- Login Card -->
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo"><div class="site-logo">
+    <img src="/static/image/logo.png" alt="logo">
+  </div></div>
+        <h2 class="auth-title">تسجيل الدخول</h2>
+        <p class="auth-subtitle">أدخل بياناتك للوصول إلى لوحة التحكم</p>
+      </div>
+
+      <form method="post" class="auth-form" id="loginForm" onsubmit="return handleLogin(event)">
+        <div class="form-group">
+          <label for="username">اسم المستخدم</label>
+          <input type="text" id="username" name="username" class="form-control" placeholder="أدخل اسم المستخدم" autocomplete="username" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">كلمة المرور</label>
+          <div class="auth-password-group">
+            <input type="password" name="password" id="password" class="form-control auth-password-input" placeholder="أدخل كلمة المرور" autocomplete="current-password" required>
+            <button type="button" class="auth-password-toggle" id="togglePassword" onclick="togglePass()" aria-label="إظهار كلمة المرور">
+              <span class="password-toggle-label" id="toggleLabel">إظهار</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn auth-submit-btn">دخول ←</button>
+      </form>
+
+      <div class="auth-footer">
+        <span>نظام إدارة الأكاديمية — College Management System</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Toast -->
+<div class="notification-toast" id="toast">
+  <div class="toast-icon" id="toastIcon">✓</div>
+  <span id="toastMsg">تم بنجاح</span>
+</div>
+
+<script src="/static/js/login.js"></script>
+</body>
+</html>
+

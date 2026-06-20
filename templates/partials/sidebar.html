@@ -1,0 +1,44 @@
+<aside class="app-sidebar" id="appSidebar">
+  <nav class="sidebar-nav">
+    <a class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}" href="/">
+      <span class="sidebar-icon">⌂</span><span>الرئيسية</span>
+    </a>
+    <a class="sidebar-link {% if active_page == 'users' %}active{% endif %}" href="/users">
+      <span class="sidebar-icon">👥</span><span>المستخدمون</span>
+    </a>
+    <a class="sidebar-link {% if active_page == 'departments' %}active{% endif %}" href="/departments">
+      <span class="sidebar-icon">🏛</span><span>الأقسام</span>
+    </a>
+    <a class="sidebar-link {% if active_page == 'rooms' %}active{% endif %}" href="/rooms">
+      <span class="sidebar-icon">🚪</span><span>القاعات</span>
+    </a>
+    <a class="sidebar-link {% if active_page == 'teachers' %}active{% endif %}" href="/teachers">
+      <span class="sidebar-icon">👨‍🏫</span><span>هيئة التدريس</span>
+    </a>
+    <a class="sidebar-link {% if active_page == 'attendance' %}active{% endif %}" href="/attendance">
+      <span class="sidebar-icon">✓</span><span>الحضور</span>
+    </a>
+    <a class="sidebar-link {% if active_page == 'courses' %}active{% endif %}" href="/courses">
+      <span class="sidebar-icon">📚</span><span>المقررات</span>
+    </a>
+    <a class="sidebar-link {% if active_page == 'timetable' %}active{% endif %}" href="/timetable">
+      <span class="sidebar-icon">▦</span><span>الجدول الدراسي</span>
+    </a>
+    <a class="sidebar-link {% if active_page == 'students' %}active{% endif %}" href="/students">
+      <span class="sidebar-icon">🎓</span><span>الطلاب</span>
+    </a>
+    <a class="sidebar-link {% if active_page == 'history' %}active{% endif %}" href="/history">
+      <span class="sidebar-icon">📋</span><span>سجل التغييرات</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-settings">
+      <button type="button" onclick="window.setTheme && setTheme('light')" class="active" data-theme-btn="light">نهار</button>
+      <button type="button" onclick="window.setTheme && setTheme('dark')" data-theme-btn="dark">ليل</button>
+      <button type="button" onclick="window.setTheme && setTheme('colorful')" data-theme-btn="colorful">ملون</button>
+    </div>
+    <a class="sidebar-link" href="#"><span class="sidebar-icon">⚙</span><span>حسابي</span></a>
+    <a class="sidebar-link logout-link" href="#"><span class="sidebar-icon">↩</span><span>تسجيل الخروج</span></a>
+  </div>
+</aside>

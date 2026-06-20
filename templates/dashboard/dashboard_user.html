@@ -1,0 +1,199 @@
+{% set active_page = 'dashboard' %}
+{% extends 'base.html' %}
+{% block title %}نظام كلية التقنية الهندسية - لوحة المستخدم{% endblock %}
+{% block body_attrs %}data-theme="light"{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/dashboard_user.css">
+{% endblock %}
+{% block content %}
+<!-- WELCOME HERO -->
+   
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon i1">📚</div>
+        <div><div class="stat-label">المقررات</div><div class="stat-value">6</div><div class="stat-change up">↑ الفصل الأول</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon i2">▦</div>
+        <div><div class="stat-label">الحصص المجدولة</div><div class="stat-value">18</div><div class="stat-change up">↑ هذا الأسبوع</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon i3">👨‍🏫</div>
+        <div><div class="stat-label">المدرسون</div><div class="stat-value">5</div><div class="stat-change up">↑ نشطون</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon i4">✓</div>
+        <div><div class="stat-label">نسبة الحضور</div><div class="stat-value">92%</div><div class="stat-change up">↑ ممتاز</div></div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+   
+    <!-- TWO COLUMNS -->
+    <div class="two-col">
+
+      <!-- TODAY'S LECTURES -->
+      <div class="page-card">
+        <div class="card-header">
+          <div><h3>📖 محاضرات اليوم</h3><p>الأحد 18 يناير 2025 — 3 محاضرات</p></div>
+          <a href="#" class="btn btn-sm btn-outline-primary">عرض الجدول ←</a>
+        </div>
+        <div class="card-body">
+          <div class="lectures-grid">
+
+            <div class="lecture-card c1">
+              <div class="lecture-time">
+                <div class="lecture-time-start">09:00</div>
+                <div class="lecture-time-end">11:00</div>
+              </div>
+              <div class="lecture-info">
+                <div class="lecture-course">رسم هندسي</div>
+                <div class="lecture-meta">
+                  <span>👤 نادر الغالي</span>
+                  <span class="lecture-status done">✓ انتهت</span>
+                </div>
+              </div>
+              <span class="lecture-room">📍 قاعة 11</span>
+            </div>
+
+            <div class="lecture-card c2">
+              <div class="lecture-time">
+                <div class="lecture-time-start">11:00</div>
+                <div class="lecture-time-end">13:00</div>
+              </div>
+              <div class="lecture-info">
+                <div class="lecture-course">رسم هندسي (عملي)</div>
+                <div class="lecture-meta">
+                  <span>👤 نادر الغالي</span>
+                  <span class="lecture-status ongoing">● جارية الآن</span>
+                </div>
+              </div>
+              <span class="lecture-room">📍 قاعة 10</span>
+            </div>
+
+            <div class="lecture-card c3">
+              <div class="lecture-time">
+                <div class="lecture-time-start">15:00</div>
+                <div class="lecture-time-end">17:00</div>
+              </div>
+              <div class="lecture-info">
+                <div class="lecture-course">رياضة 1</div>
+                <div class="lecture-meta">
+                  <span>👤 غادة أبو السعود</span>
+                  <span class="lecture-status upcoming">◷ قادمة</span>
+                </div>
+              </div>
+              <span class="lecture-room">📍 قاعة 5</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT ACTIVITY -->
+      <div class="page-card">
+        <div class="card-header">
+          <div><h3>📋 النشاط الأخير</h3><p>آخر التحديثات على النظام</p></div>
+        </div>
+        <div class="card-body">
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon edit">✏️</div>
+              <div class="activity-content">
+                <div class="activity-text">تم تعديل حصة <strong>"رسم هندسي"</strong> — تغيير القاعة إلى قاعة 11</div>
+                <div class="activity-time">منذ 30 دقيقة</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon add">➕</div>
+              <div class="activity-content">
+                <div class="activity-text">تمت إضافة حصة جديدة <strong>"فيزياء عملي"</strong> يوم الثلاثاء</div>
+                <div class="activity-time">منذ ساعتين</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon login">🔑</div>
+              <div class="activity-content">
+                <div class="activity-text">تسجيل دخول ناجح — <strong>مرحباً بك!</strong></div>
+                <div class="activity-time">منذ 3 ساعات</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon edit">✏️</div>
+              <div class="activity-content">
+                <div class="activity-text">تم تحديث بيانات المقرر <strong>"برمجة حاسوب"</strong></div>
+                <div class="activity-time">أمس · 14:22</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon add">➕</div>
+              <div class="activity-content">
+                <div class="activity-text">تمت إضافة <strong>"كيمياء"</strong> إلى الجدول الدراسي</div>
+                <div class="activity-time">أمس · 10:15</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE PREVIEW -->
+    <div class="page-card">
+      <div class="card-header">
+        <div><h3>▦ ملخص الجدول — هذا الأسبوع</h3><p>نظرة عامة على حصصك القادمة</p></div>
+        <a href="#" class="btn btn-primary">عرض الجدول الكامل ←</a>
+      </div>
+      <div class="card-body" style="padding:0;overflow-x:auto">
+        <table style="width:100%;border-collapse:separate;border-spacing:0;min-width:700px">
+          <thead>
+            <tr>
+              <th style="padding:12px 14px;font-size:12px;font-weight:700;background:var(--surface-2);border-bottom:2px solid var(--border);text-align:center;color:var(--text-sec);width:90px">اليوم</th>
+              <th style="padding:12px 14px;font-size:12px;font-weight:700;background:var(--surface-2);border-bottom:2px solid var(--border);text-align:center;color:var(--text-sec)">الفترة أ<br><small style="font-weight:400;color:var(--text-muted)">09-12</small></th>
+              <th style="padding:12px 14px;font-size:12px;font-weight:700;background:var(--surface-2);border-bottom:2px solid var(--border);text-align:center;color:var(--text-sec)">الفترة ب<br><small style="font-weight:400;color:var(--text-muted)">12-15</small></th>
+              <th style="padding:12px 14px;font-size:12px;font-weight:700;background:var(--surface-2);border-bottom:2px solid var(--border);text-align:center;color:var(--text-sec)">الفترة ج<br><small style="font-weight:400;color:var(--text-muted)">15-18</small></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:10px;font-size:12px;font-weight:700;text-align:center;border-bottom:1px solid var(--border-light);background:var(--surface-2)">السبت</td>
+              <td style="padding:8px;text-align:center;border-bottom:1px solid var(--border-light);font-size:11px;color:var(--text-muted)">—</td>
+              <td style="padding:8px;text-align:center;border-bottom:1px solid var(--border-light);font-size:11px;color:var(--text-muted)">—</td>
+              <td style="padding:8px;text-align:center;border-bottom:1px solid var(--border-light);font-size:11px;color:var(--text-muted)">—</td>
+            </tr>
+            <tr style="background:var(--primary-s)">
+              <td style="padding:10px;font-size:12px;font-weight:700;text-align:center;border-bottom:1px solid var(--border-light);background:var(--primary-s);color:var(--primary)">الأحد ← اليوم</td>
+              <td style="padding:6px;text-align:center;border-bottom:1px solid var(--border-light)"><span style="display:inline-block;padding:4px 10px;background:var(--primary-s);color:var(--primary);border-radius:6px;font-size:10px;font-weight:600">رسم هندسي</span></td>
+              <td style="padding:6px;text-align:center;border-bottom:1px solid var(--border-light)"><span style="display:inline-block;padding:4px 10px;background:var(--success-s);color:var(--success);border-radius:6px;font-size:10px;font-weight:600">رسم هندسي (ع)</span></td>
+              <td style="padding:6px;text-align:center;border-bottom:1px solid var(--border-light)"><span style="display:inline-block;padding:4px 10px;background:var(--warning-s);color:var(--warning);border-radius:6px;font-size:10px;font-weight:600">رياضة 1</span></td>
+            </tr>
+            <tr>
+              <td style="padding:10px;font-size:12px;font-weight:700;text-align:center;border-bottom:1px solid var(--border-light);background:var(--surface-2)">الاثنين</td>
+              <td style="padding:6px;text-align:center;border-bottom:1px solid var(--border-light)"><span style="display:inline-block;padding:4px 10px;background:var(--info-s);color:var(--info);border-radius:6px;font-size:10px;font-weight:600">الانجليزية</span></td>
+              <td style="padding:6px;text-align:center;border-bottom:1px solid var(--border-light);font-size:11px;color:var(--text-muted)">—</td>
+              <td style="padding:6px;text-align:center;border-bottom:1px solid var(--border-light);font-size:11px;color:var(--text-muted)">—</td>
+            </tr>
+            <tr>
+              <td style="padding:10px;font-size:12px;font-weight:700;text-align:center;border-bottom:1px solid var(--border-light);background:var(--surface-2)">الثلاثاء</td>
+              <td style="padding:6px;text-align:center;border-bottom:1px solid var(--border-light)"><span style="display:inline-block;padding:4px 10px;background:var(--danger-s);color:var(--danger);border-radius:6px;font-size:10px;font-weight:600">فيزياء نظري</span></td>
+              <td style="padding:6px;text-align:center;border-bottom:1px solid var(--border-light)"><span style="display:inline-block;padding:4px 10px;background:var(--purple-s);color:var(--purple);border-radius:6px;font-size:10px;font-weight:600">فيزياء عملي</span></td>
+              <td style="padding:6px;text-align:center;border-bottom:1px solid var(--border-light);font-size:11px;color:var(--text-muted)">—</td>
+            </tr>
+            <tr>
+              <td style="padding:10px;font-size:12px;font-weight:700;text-align:center;border-bottom:1px solid var(--border-light);background:var(--surface-2)">الأربعاء</td>
+              <td style="padding:6px;text-align:center;border-bottom:1px solid var(--border-light);font-size:11px;color:var(--text-muted)">—</td>
+              <td style="padding:6px;text-align:center;border-bottom:1px solid var(--border-light)"><span style="display:inline-block;padding:4px 10px;background:var(--pink-s);color:var(--pink);border-radius:6px;font-size:10px;font-weight:600">كيمياء</span></td>
+              <td style="padding:6px;text-align:center;border-bottom:1px solid var(--border-light);font-size:11px;color:var(--text-muted)">—</td>
+            </tr>
+            <tr>
+              <td style="padding:10px;font-size:12px;font-weight:700;text-align:center;background:var(--surface-2)">الخميس</td>
+              <td style="padding:6px;text-align:center"><span style="display:inline-block;padding:4px 10px;background:var(--primary-s);color:var(--primary);border-radius:6px;font-size:10px;font-weight:600">حاسب عملي</span></td>
+              <td style="padding:6px;text-align:center"><span style="display:inline-block;padding:4px 10px;background:var(--success-s);color:var(--success);border-radius:6px;font-size:10px;font-weight:600">حاسب نظري</span></td>
+              <td style="padding:6px;text-align:center;font-size:11px;color:var(--text-muted)">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% set active_page = 'teachers' %}
+{% extends 'base.html' %}
+{% block title %}نظام كلية التقنية الهندسية - المقررات{% endblock %}
+{% block body_attrs %}data-theme="light"{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/teachers.css">
+{% endblock %}
+{% block content %}
+<div class="page-header animate-in">
+    <div class="page-header-info">
+      <div class="page-header-icon">📚</div>
+      <div>
+        <h1 class="page-title-text">المقررات الدراسية</h1>
+        <p class="page-subtitle">إدارة المقررات والمواد الدراسية لجميع الأقسام والسنوات</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card animate-in"><div class="stat-icon i1">📚</div><div><div class="stat-label">إجمالي المقررات</div><div class="stat-value" id="statTotal">91</div><div class="stat-change">↑ 3 هذا الأسبوع</div></div></div>
+    <div class="stat-card animate-in"><div class="stat-icon i2">🏛</div><div><div class="stat-label">الأقسام</div><div class="stat-value">7</div><div class="stat-change">جميعها نشطة</div></div></div>
+    <div class="stat-card animate-in"><div class="stat-icon i3">📅</div><div><div class="stat-label">السنوات الدراسية</div><div class="stat-value">4</div><div class="stat-change">من السنة 1 إلى 4</div></div></div>
+    <div class="stat-card animate-in"><div class="stat-icon i4">⏱</div><div><div class="stat-label">إجمالي الساعات</div><div class="stat-value" id="statHours">56</div><div class="stat-change">ساعات معتمدة</div></div></div>
+  </div>
+
+  <div class="page-card animate-in">
+    <div class="hero-actions">
+      <div><h3 style="font-size:16px;font-weight:700;margin-bottom:4px">إدارة المقررات</h3><p style="font-size:12px;color:var(--text-muted);margin:0">أضف مقرراً جديداً أو استورد من ملف Excel</p></div>
+      <div class="hero-actions-right">
+        <button class="btn btn-success" onclick="openAddModal()">➕ إضافة مقرر</button>
+        <button class="btn btn-outline-primary" onclick="downloadExcel()">📥 تنزيل Excel</button>
+        <button class="btn btn-primary" onclick="openUploadModal()">📤 استيراد Excel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-card animate-in">
+    <div class="filter-panel">
+      <div class="section-header"><h3>🔍 البحث والفلترة</h3><p>ابحث بالاسم أو الرمز، ثم صفّ النتائج حسب القسم والسنة</p></div>
+      <div class="mini-grid">
+        <div class="form-group"><label>بحث</label><input type="search" class="form-control" id="searchQuery" placeholder="مثال: ت101 أو ميكانيكا الموائع" oninput="applyFilters()"></div>
+        <div class="form-group"><label>القسم</label><select class="form-control" id="deptFilter" onchange="applyFilters()"><option value="">كل الأقسام</option><option value="القسم العام">القسم العام</option><option value="قسم الاتصالات">قسم الاتصالات</option><option value="قسم البحث والتطوير والمناهج">قسم البحث والتطوير والمناهج</option><option value="قسم الحاسوب">قسم الحاسوب</option><option value="قسم المدني">قسم المدني</option><option value="قسم المعماري">قسم المعماري</option><option value="قسم النفط">قسم النفط</option></select></div>
+        <div class="form-group"><label>السنة</label><select class="form-control" id="yearFilter" onchange="applyFilters()"><option value="">كل السنوات</option><option value="1">السنة 1</option><option value="2">السنة 2</option><option value="3">السنة 3</option><option value="4">السنة 4</option></select></div>
+        <div class="form-actions"><button class="btn btn-outline-secondary" onclick="resetFilters()">↺ إعادة الضبط</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-card animate-in">
+    <div class="table-head"><div><h3>📋 قائمة المقررات</h3><p>عدد النتائج الحالية: <span class="count-badge" id="resultCount">91</span></p></div></div>
+    <div class="courses-table-wrap">
+      <table class="courses-table">
+        <thead><tr><th style="width:50px">#</th><th style="width:90px">الرمز</th><th>اسم المقرر</th><th>القسم</th><th style="width:90px">السنة</th><th style="width:120px">الساعات</th><th>الاعتمادية</th><th>المفردات</th><th class="no-print" style="width:140px">الإجراءات</th></tr></thead>
+        <tbody id="coursesBody"></tbody>
+      </table>
+      <div class="empty-state" id="emptyState" style="display:none"><div class="empty-state-icon">📭</div><div class="empty-state-text">لا توجد نتائج</div><div class="empty-state-sub">جرّب تغيير معايير البحث أو الفلترة</div></div>
+    </div>
+  </div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/teachers.js"></script>
+{% endblock %}

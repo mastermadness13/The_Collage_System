@@ -1,0 +1,69 @@
+{% set active_page = 'attendance' %}
+{% extends 'base.html' %}
+{% block content %}
+<div class="faculty-page">
+  <section class="page-card faculty-head">
+    <div>
+      <h2 class="mb-1">حضور أعضاء هيئة التدريس</h2>
+      <p class="text-muted mb-0">متابعة الحضور حسب الفترات A و B و C.</p>
+    </div>
+    <a href="{{ url_for('attendance.create_attendance') }}" class="btn btn-success">إضافة سجل حضور</a>
+  </section>
+
+  <section class="filter-panel">
+    <form class="filters-grid" method="get">
+      <div class="form-group mb-0">
+        <label>عضو هيئة التدريس</label>
+        <select class="form-control" name="teacher_id">
+          <option value="">جميع الأعضاء</option>
+          {% for t in teachers %}
+          <option value="{{ t.id }}" {% if teacher_id == t.id %}selected{% endif %}>{{ t.name }} - {{ t.department }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-actions mb-0">
+        <button class="btn btn-primary" type="submit">تصفية</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="table-card">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>عضو هيئة التدريس</th>
+            <th>القسم</th>
+            <th>التاريخ</th>
+            <th>الفترة</th>
+            <th>الحالة</th>
+            <th>ملاحظات</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for r in records %}
+          <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.teacher_name }}</td>
+            <td>{{ r.teacher_department }}</td>
+            <td>{{ r.date }}</td>
+            <td><span class="badge-soft">Period {{ r.period }}</span></td>
+            <td>{{ r.status }}</td>
+            <td>{{ r.note or '-' }}</td>
+            <td>
+              <form method="post" action="{{ url_for('attendance.delete_attendance', id=r.id) }}" onsubmit="return confirm('هل تريد حذف هذا السجل؟');">
+                <button class="btn btn-sm btn-outline-danger">حذف</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="8" class="text-center text-muted py-4">لا توجد سجلات حضور حالياً.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

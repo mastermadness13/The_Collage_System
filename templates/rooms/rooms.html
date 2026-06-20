@@ -1,0 +1,99 @@
+{% set active_page = 'rooms' %}
+{% extends 'base.html' %}
+{% block title %}نظام كلية التقنية الهندسية - القاعات{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/classRooms.css">
+{% endblock %}
+{% block content %}
+<div class="page-header">
+      <div class="page-header-info">
+        <div class="page-header-icon">🚪</div>
+        <div>
+          <h1 class="page-title-text">إدارة القاعات</h1>
+          <p class="page-subtitle">إدارة القاعات والمعامل والمسارح في الكلية</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon i1">🚪</div><div><div class="stat-label">إجمالي القاعات</div><div class="stat-value">25</div><div class="stat-change">↑ 2 جديدة</div></div></div>
+      <div class="stat-card"><div class="stat-icon i2">🏫</div><div><div class="stat-label">قاعات دراسية</div><div class="stat-value">14</div><div class="stat-change">متاحة الآن</div></div></div>
+      <div class="stat-card"><div class="stat-icon i3">🔬</div><div><div class="stat-label">المعامل</div><div class="stat-value">7</div><div class="stat-change">5 حاسوب + 2 إلكترونيات</div></div></div>
+      <div class="stat-card"><div class="stat-icon i4">🎭</div><div><div class="stat-label">المسارح</div><div class="stat-value">1</div><div class="stat-change">سعة 100 مقعد</div></div></div>
+      <div class="stat-card"><div class="stat-icon i5">💺</div><div><div class="stat-label">إجمالي المقاعد</div><div class="stat-value">830</div><div class="stat-change">عبر جميع القاعات</div></div></div>
+    </div>
+
+    <div class="page-card">
+      <div class="hero-actions">
+        <div><h3 style="font-size:16px;font-weight:700;margin-bottom:4px">إدارة القاعات</h3><p style="font-size:12px;color:var(--text-muted);margin:0">أضف قاعة جديدة أو صدّر البيانات</p></div>
+        <div class="hero-actions-right">
+          <a href="#" class="btn btn-success">➕ إضافة قاعة</a>
+          <a href="#" class="btn btn-outline-primary">📥 تصدير Excel</a>
+          <div class="view-toggle">
+            <button class="view-toggle-btn active">📋 جدول</button>
+            <button class="view-toggle-btn">🗂 بطاقات</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-card">
+      <div class="filter-panel">
+        <div class="section-header"><h3>🔍 البحث والفلترة</h3><p>ابحث باسم القاعة أو صفّ النتائج حسب النوع والحالة والموقع</p></div>
+        <div class="mini-grid">
+          <div class="form-group"><label>بحث بالاسم</label><input type="text" class="form-control" placeholder="اسم القاعة..."></div>
+          <div class="form-group"><label>نوع القاعة</label><select class="form-control"><option>الكل</option><option>قاعة</option><option>معمل</option><option>مسرح</option></select></div>
+          <div class="form-group"><label>الحالة</label><select class="form-control"><option>الكل</option><option>متاحة</option><option>مستخدمة</option><option>صيانة</option><option>مقفلة</option></select></div>
+          <div class="form-group"><label>الموقع</label><select class="form-control"><option>الكل</option><option>الدور الأرضي</option><option>الدور الأول</option><option>الدور الثاني</option><option>الدور الثالث</option><option>الدور الرابع</option></select></div>
+          <div class="form-actions"><a href="#" class="btn btn-primary">تطبيق</a><a href="#" class="btn btn-outline-secondary">↺ إعادة</a></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-card">
+      <div class="table-head"><div><h3>📋 قائمة القاعات</h3><p>عدد النتائج الحالية: <span class="count-badge">25</span></p></div></div>
+      <div class="rooms-table-wrap">
+        <table class="rooms-table">
+          <thead>
+            <tr>
+              <th style="width:50px">#</th>
+              <th>اسم القاعة</th>
+              <th>النوع</th>
+              <th>الحالة</th>
+              <th style="width:90px">المقاعد</th>
+              <th style="width:90px">الأجهزة</th>
+              <th>الموقع</th>
+              <th style="width:140px">الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="room-num">1</span></td><td class="room-name">قاعة 1</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأرضي</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">2</span></td><td class="room-name">قاعة 2</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأرضي</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">3</span></td><td class="room-name">قاعة 3</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأول</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">4</span></td><td class="room-name">قاعة 4</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأول</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">5</span></td><td class="room-name">قاعة 5</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثاني</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">6</span></td><td class="room-name">قاعة 6</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثاني</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">7</span></td><td class="room-name">قاعة 7</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثالث</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">8</span></td><td class="room-name">قاعة 8</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثالث</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">9</span></td><td class="room-name">قاعة 9</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الرابع</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">10</span></td><td class="room-name">قاعة 10</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الرابع</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">11</span></td><td class="room-name">قاعة 11</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأرضي</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">12</span></td><td class="room-name">قاعة 12</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأول</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">13</span></td><td class="room-name">قاعة 13</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثاني</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">14</span></td><td class="room-name">قاعة 14</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثالث</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">15</span></td><td class="room-name">معمل حاسوب 1</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">30</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأرضي</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">16</span></td><td class="room-name">معمل حاسوب 2</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">30</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأول</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">17</span></td><td class="room-name">معمل حاسوب 3</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">30</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثاني</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">18</span></td><td class="room-name">معمل حاسوب 4</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">30</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثالث</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">19</span></td><td class="room-name">معمل حاسوب 5</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">30</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الرابع</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">20</span></td><td class="room-name">معمل إلكترونيات 1</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">25</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأرضي</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">21</span></td><td class="room-name">معمل إلكترونيات 2</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">25</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأول</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">22</span></td><td class="room-name">مرسم 1</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">20</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثاني</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">23</span></td><td class="room-name">مرسم 2</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">20</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثالث</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">24</span></td><td class="room-name">مرسم 3</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">20</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الرابع</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+            <tr><td><span class="room-num">25</span></td><td class="room-name">مسرح</td><td><span class="type-badge theater">🎭 مسرح</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">100</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأرضي</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+{% endblock %}

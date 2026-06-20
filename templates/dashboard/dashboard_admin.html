@@ -1,0 +1,305 @@
+{% set active_page = 'dashboard' %}
+{% extends 'base.html' %}
+{% block title %}نظام كلية التقنية الهندسية - لوحة القيادة{% endblock %}
+{% block body_attrs %}data-theme="light"{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/dashboard_admin.css">
+{% endblock %}
+{% block content %}
+<!-- WELCOME HERO -->
+    <div class="welcome-hero">
+      <div class="welcome-hero-content">
+        <div class="welcome-text">
+          <h1>مرحباً بك، المشرف العام 👋</h1>
+          <p>لوحة التحكم الرئيسية — نظرة شاملة على جميع بيانات الكلية</p>
+          <div class="welcome-actions">
+            <a href="#" class="btn-white">▦ عرض الجدول الدراسي</a>
+            <a href="#" class="btn-white">📚 إدارة المقررات</a>
+            <a href="#" class="btn-white">👨‍🏫 هيئة التدريس</a>
+          </div>
+        </div>
+        <div class="welcome-date">
+          <div class="welcome-date-day">18</div>
+          <div class="welcome-date-month">الأحد · يناير 2025</div>
+          <div class="welcome-date-time">14:32:15</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <a class="stat-card" href="#">
+        <div class="stat-icon i1">🏛</div>
+        <div><div class="stat-label">الأقسام</div><div class="stat-value">7</div><div class="stat-change up">↑ 6 أكاديمية + 1 إداري</div></div>
+      </a>
+      <a class="stat-card" href="#">
+        <div class="stat-icon i2">🚪</div>
+        <div><div class="stat-label">القاعات والمعامل</div><div class="stat-value">25</div><div class="stat-change up">↑ 14 قاعة · 7 معمل · 1 مسرح</div></div>
+      </a>
+      <a class="stat-card" href="#">
+        <div class="stat-icon i3">👨‍🏫</div>
+        <div><div class="stat-label">هيئة التدريس</div><div class="stat-value">42</div><div class="stat-change up">↑ 3 أعضاء جدد</div></div>
+      </a>
+      <a class="stat-card" href="#">
+        <div class="stat-icon i4">📚</div>
+        <div><div class="stat-label">المقررات</div><div class="stat-value">91</div><div class="stat-change up">↑ عبر 7 أقسام</div></div>
+      </a>
+      <a class="stat-card" href="#">
+        <div class="stat-icon i5">📅</div>
+        <div><div class="stat-label">الحصص المجدولة</div><div class="stat-value">156</div><div class="stat-change up">↑ الفصل الحالي</div></div>
+      </a>
+      <a class="stat-card" href="#">
+        <div class="stat-icon i6">👥</div>
+        <div><div class="stat-label">المستخدمون</div><div class="stat-value">12</div><div class="stat-change up">↑ 2 نشطون الآن</div></div>
+      </a>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="page-card">
+    
+      <div class="card-body">
+        <div class="quick-grid">
+          <a class="quick-action" href="#">
+            <div class="quick-action-icon" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)">▦</div>
+            <div class="quick-action-label">الجدول الدراسي</div>
+          </a>
+          <a class="quick-action" href="#">
+            <div class="quick-action-icon" style="background:linear-gradient(135deg,#059669,#06b6d4)">📚</div>
+            <div class="quick-action-label">المقررات</div>
+          </a>
+          <a class="quick-action" href="#">
+            <div class="quick-action-icon" style="background:linear-gradient(135deg,#d97706,#ef4444)">👨‍🏫</div>
+            <div class="quick-action-label">هيئة التدريس</div>
+          </a>
+          <a class="quick-action" href="#">
+            <div class="quick-action-icon" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)">🚪</div>
+            <div class="quick-action-label">القاعات</div>
+          </a>
+          <a class="quick-action" href="#">
+            <div class="quick-action-icon" style="background:linear-gradient(135deg,#0284c7,#06b6d4)">✓</div>
+            <div class="quick-action-label">الحضور</div>
+          </a>
+          <a class="quick-action" href="#">
+            <div class="quick-action-icon" style="background:linear-gradient(135deg,#7c3aed,#ec4899)">🏛</div>
+            <div class="quick-action-label">الأقسام</div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TWO COLUMNS -->
+    <div class="two-col">
+
+      <!-- TIMETABLE PREVIEW -->
+      <div class="page-card">
+        <div class="card-header">
+          <div><h3>▦ جدول اليوم</h3><p>حصص الأسبوع — الفصل 1</p></div>
+          <a href="#" class="btn btn-sm btn-outline-primary">عرض الكل ←</a>
+        </div>
+        <div class="card-body" style="padding:0;overflow-x:auto">
+          <table class="mini-timetable">
+            <thead>
+              <tr>
+                <th>اليوم</th>
+                <th>الفترة أ<br><small style="font-weight:400;color:var(--text-muted)">09-12</small></th>
+                <th>الفترة ب<br><small style="font-weight:400;color:var(--text-muted)">12-15</small></th>
+                <th>الفترة ج<br><small style="font-weight:400;color:var(--text-muted)">15-18</small></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>السبت</td>
+                <td><span class="mini-cell empty">—</span></td>
+                <td><span class="mini-cell empty">—</span></td>
+                <td><span class="mini-cell empty">—</span></td>
+              </tr>
+              <tr>
+                <td>الأحد</td>
+                <td><span class="mini-cell filled">رسم هندسي</span></td>
+                <td><span class="mini-cell filled">رسم هندسي</span></td>
+                <td><span class="mini-cell empty">—</span></td>
+              </tr>
+              <tr>
+                <td>الاثنين</td>
+                <td><span class="mini-cell filled">رياضة 1</span></td>
+                <td><span class="mini-cell filled">الانجليزية</span></td>
+                <td><span class="mini-cell empty">—</span></td>
+              </tr>
+              <tr>
+                <td>الثلاثاء</td>
+                <td><span class="mini-cell filled">فيزياء نظري</span></td>
+                <td><span class="mini-cell filled">فيزياء عملي</span></td>
+                <td><span class="mini-cell empty">—</span></td>
+              </tr>
+              <tr>
+                <td>الأربعاء</td>
+                <td><span class="mini-cell empty">—</span></td>
+                <td><span class="mini-cell filled">كيمياء</span></td>
+                <td><span class="mini-cell empty">—</span></td>
+              </tr>
+              <tr>
+                <td>الخميس</td>
+                <td><span class="mini-cell filled">حاسب عملي</span></td>
+                <td><span class="mini-cell filled">حاسب نظري</span></td>
+                <td><span class="mini-cell empty">—</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RECENT ACTIVITY -->
+      <div class="page-card">
+        <div class="card-header">
+          <div><h3>📋 آخر النشاطات</h3><p>أحدث العمليات على النظام</p></div>
+          <a href="#" class="btn btn-sm btn-outline-primary">السجل الكامل ←</a>
+        </div>
+        <div class="card-body">
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon add">➕</div>
+              <div class="activity-content">
+                <div class="activity-text">تمت <strong>إضافة</strong> حصة "برمجة حاسوب" في الجدول الدراسي</div>
+                <div class="activity-time">أحمد المصراتي · منذ 15 دقيقة</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon edit">✏️</div>
+              <div class="activity-content">
+                <div class="activity-text">تم <strong>تعديل</strong> بيانات المقرر "رياضة 2" — تغيير الساعات</div>
+                <div class="activity-time">سالم المنصوري · منذ ساعة</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon add">➕</div>
+              <div class="activity-content">
+                <div class="activity-text">تمت <strong>إضافة</strong> عضو تدريس جديد "د. فاطمة الطاهر"</div>
+                <div class="activity-time">هند بلقاسم · منذ 3 ساعات</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon delete">🗑</div>
+              <div class="activity-content">
+                <div class="activity-text">تم <strong>حذف</strong> القاعة "معمل حاسوب قديم"</div>
+                <div class="activity-time">محمد العريبي · منذ 5 ساعات</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon login">🔑</div>
+              <div class="activity-content">
+                <div class="activity-text"><strong>تسجيل دخول</strong> جديد من "نجلاء بن غشير"</div>
+                <div class="activity-time">منذ 6 ساعات</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECOND TWO COLUMNS -->
+    <div class="two-col">
+
+      <!-- DEPARTMENTS DISTRIBUTION -->
+      <div class="page-card">
+        <div class="card-header">
+          <div><h3>🏛 توزيع المقررات على الأقسام</h3><p>عدد المقررات لكل قسم أكاديمي</p></div>
+        </div>
+        <div class="card-body">
+          <div class="donut-container">
+            <div class="donut-chart">
+              <div class="donut-center">
+                <div class="donut-center-value">91</div>
+                <div class="donut-center-label">مقرر</div>
+              </div>
+            </div>
+            <div class="donut-legend">
+              <div class="legend-item"><span class="legend-dot" style="background:#4f46e5"></span><span class="legend-label">القسم العام</span><span class="legend-value">24</span></div>
+              <div class="legend-item"><span class="legend-dot" style="background:#059669"></span><span class="legend-label">قسم الحاسوب</span><span class="legend-value">16</span></div>
+              <div class="legend-item"><span class="legend-dot" style="background:#d97706"></span><span class="legend-label">قسم الاتصالات</span><span class="legend-value">13</span></div>
+              <div class="legend-item"><span class="legend-dot" style="background:#ec4899"></span><span class="legend-label">قسم النفط</span><span class="legend-value">13</span></div>
+              <div class="legend-item"><span class="legend-dot" style="background:#0284c7"></span><span class="legend-label">قسم المدني</span><span class="legend-value">11</span></div>
+              <div class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span><span class="legend-label">قسم المعماري</span><span class="legend-value">14</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROOMS UTILIZATION -->
+      <div class="page-card">
+        <div class="card-header">
+          <div><h3>🚪 استخدام القاعات حسب الدور</h3><p>نسبة الإشغال لكل دور</p></div>
+        </div>
+        <div class="card-body">
+          <div class="progress-list">
+            <div class="progress-item">
+              <div class="progress-header"><span class="progress-label">🏢 الدور الأرضي</span><span class="progress-value">7 قاعات · 85%</span></div>
+              <div class="progress-bar"><div class="progress-fill c1"></div></div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-header"><span class="progress-label">🏢 الدور الأول</span><span class="progress-value">5 قاعات · 72%</span></div>
+              <div class="progress-bar"><div class="progress-fill c2"></div></div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-header"><span class="progress-label">🏢 الدور الثاني</span><span class="progress-value">5 قاعات · 68%</span></div>
+              <div class="progress-bar"><div class="progress-fill c3"></div></div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-header"><span class="progress-label">🏢 الدور الثالث</span><span class="progress-value">5 قاعات · 60%</span></div>
+              <div class="progress-bar"><div class="progress-fill c4"></div></div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-header"><span class="progress-label">🏢 الدور الرابع</span><span class="progress-value">4 قاعات · 50%</span></div>
+              <div class="progress-bar"><div class="progress-fill c5"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WEEKLY CHART -->
+    <div class="page-card">
+      <div class="card-header">
+        <div><h3>📊 الحصص المجدولة هذا الأسبوع</h3><p>توزيع الحصص على أيام الأسبوع</p></div>
+        <span class="btn btn-sm btn-outline-secondary" style="cursor:default">الأسبوع الحالي</span>
+      </div>
+      <div class="card-body">
+        <div class="bar-chart">
+          <div class="bar-col">
+            <div class="bar-value">18</div>
+            <div class="bar" style="height:60%"></div>
+            <div class="bar-label">السبت</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">28</div>
+            <div class="bar" style="height:93%"></div>
+            <div class="bar-label">الأحد</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">26</div>
+            <div class="bar" style="height:87%"></div>
+            <div class="bar-label">الاثنين</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">24</div>
+            <div class="bar" style="height:80%"></div>
+            <div class="bar-label">الثلاثاء</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">22</div>
+            <div class="bar" style="height:73%"></div>
+            <div class="bar-label">الأربعاء</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">24</div>
+            <div class="bar" style="height:80%"></div>
+            <div class="bar-label">الخميس</div>
+          </div>
+        </div>
+        <div class="bar-chart-summary">
+          <span>📈 إجمالي الأسبوع: <strong>142 حصة</strong></span>
+          <span>📊 المتوسط اليومي: <strong>23.7 حصة</strong></span>
+          <span>🔺 أعلى يوم: <strong>الأحد (28)</strong></span>
+        </div>
+      </div>
+    </div>
+{% endblock %}
