@@ -1,0 +1,1145 @@
+??<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>???? ????? ???????</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; }
+        .rtl { direction: rtl; text-align: right; }
+        .navbar .dropdown-menu { text-align: right; }
+        .table td, .table th { vertical-align: middle; }
+    </style>
+</head>
+<body class="dark font-medium">
+    
+        
+
+
+<nav class="navbar navbar-expand-lg custom-navbar rtl shadow-sm no-print">
+  <div class="container-fluid px-4">
+
+    <!-- Brand -->
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/dashboard">
+      <span class="brand-title">???? ????? ??????????</span>
+
+      
+      <span class="brand-subtitle ml-2">
+        <span class="user-icon">??</span> superadmin
+        <span class="role-badge">
+          ???? ???
+        </span>
+      </span>
+      
+    </a>
+
+    <!-- Toggle -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Nav -->
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <ul class="navbar-nav ml-auto align-items-lg-center gap-lg-2">
+
+        <!-- Home -->
+        <li class="nav-item ">
+          <a class="nav-link" href="/dashboard">????????</a>
+        </li>
+
+        
+        <!-- Academic Data -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+            ???????? ??????????
+          </a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="/history/">??? ?????????</a>
+            <a class="dropdown-item" href="/teachers/">?????????</a>
+            <a class="dropdown-item" href="/students/">??????</a>
+            <a class="dropdown-item" href="/attendance/">??????</a>
+            <a class="dropdown-item" href="/courses/">????????</a>
+          </div>
+        </li>
+
+        <!-- System Management -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+            ????? ??????
+          </a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="/users/">????? ??????????</a>
+            <a class="dropdown-item" href="/departments/">???????</a>
+            <a class="dropdown-item" href="/rooms/">???????</a>
+          </div>
+        </li>
+        
+
+        
+        <li class="nav-item active">
+          <a class="nav-link" href="/timetable/">?????? ???????</a>
+        </li>
+        
+
+        <!-- UI Settings -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+            ??????
+          </a>
+          <div class="dropdown-menu dropdown-menu-right">
+            <h6 class="dropdown-header">???? ?????</h6>
+            <a class="dropdown-item" href="#" onclick="setTheme('light'); return false;">??? ??????</a>
+            <a class="dropdown-item" href="#" onclick="setTheme('dark'); return false;">??? ?????</a>
+            <a class="dropdown-item" href="#" onclick="setTheme('colorful'); return false;">??? ????</a>
+
+            <div class="dropdown-divider"></div>
+
+            <h6 class="dropdown-header">??? ????</h6>
+            <a class="dropdown-item" href="#" onclick="setFontSize('font-small'); return false;">????</a>
+            <a class="dropdown-item" href="#" onclick="setFontSize('font-medium'); return false;">?????</a>
+            <a class="dropdown-item" href="#" onclick="setFontSize('font-large'); return false;">????</a>
+
+            <div class="dropdown-divider"></div>
+
+            <h6 class="dropdown-header">????? ?????</h6>
+            <a class="dropdown-item" href="#" onclick="setTimeFormat('24'); return false;">?? ????</a>
+            <a class="dropdown-item" href="#" onclick="setTimeFormat('12'); return false;">?? ????</a>
+          </div>
+        </li>
+
+        <!-- Logout -->
+        <li class="nav-item">
+          <a class="nav-link" href="/logout">????? ??????</a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+    
+
+    <div class="container mt-4">
+        
+            
+        
+
+        
+
+<div class="timetable-layout">
+  
+    
+  
+
+  <section class="page-card timetable-card print-area">
+    <div class="timetable-shell">
+      <!-- Toolbar ???? ???? -->
+      <div class="timetable-toolbar no-print">
+        <div class="toolbar-group">
+          <button type="button" class="btn btn-success" data-create-url="/timetable/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">? ????? ??????</button>
+          <button type="button" class="btn btn-outline-primary" data-print-table>?? ????? ??????</button>
+        </div>
+        <div class="toolbar-group">
+          <form method="get" class="toolbar-inline-form semester-filter-form">
+            
+              <label for="timetableDepartmentSelect">?????:</label>
+              <select id="timetableDepartmentSelect" class="form-control d-inline-block" name="department_id" data-autosubmit>
+                <option value="" >?? ???????</option>
+                
+                  <option value="1" >????? ?????</option>
+                
+                  <option value="2" >??? ?????????</option>
+                
+                  <option value="3" >??? ???????</option>
+                
+                  <option value="4" >??? ??????</option>
+                
+                  <option value="5" >??? ????????</option>
+                
+                  <option value="6" selected>??? ?????</option>
+                
+              </select>
+            
+            
+            <div class="badge-stack semester-badge-stack">
+              
+                <label class="badge-soft semester-pill is-active">
+                  <input type="checkbox" name="semester" value="1" checked data-autosubmit>
+                  <span>????? 1</span>
+                </label>
+              
+                <label class="badge-soft semester-pill ">
+                  <input type="checkbox" name="semester" value="2"  data-autosubmit>
+                  <span>????? 2</span>
+                </label>
+              
+                <label class="badge-soft semester-pill ">
+                  <input type="checkbox" name="semester" value="3"  data-autosubmit>
+                  <span>????? 3</span>
+                </label>
+              
+                <label class="badge-soft semester-pill ">
+                  <input type="checkbox" name="semester" value="4"  data-autosubmit>
+                  <span>????? 4</span>
+                </label>
+              
+                <label class="badge-soft semester-pill ">
+                  <input type="checkbox" name="semester" value="5"  data-autosubmit>
+                  <span>????? 5</span>
+                </label>
+              
+                <label class="badge-soft semester-pill ">
+                  <input type="checkbox" name="semester" value="6"  data-autosubmit>
+                  <span>????? 6</span>
+                </label>
+              
+                <label class="badge-soft semester-pill ">
+                  <input type="checkbox" name="semester" value="7"  data-autosubmit>
+                  <span>????? 7</span>
+                </label>
+              
+                <label class="badge-soft semester-pill ">
+                  <input type="checkbox" name="semester" value="8"  data-autosubmit>
+                  <span>????? 8</span>
+                </label>
+              
+            </div>
+            
+          </form>
+        </div>
+      </div>
+
+    
+      <div class="timetable-print-header">
+        <h2>
+          
+            ??? ?????
+          
+        </h2>
+      </div>
+
+      <div class="semester-stack">
+        
+          <section class="timetable-subsection" data-semester="1">
+            <div class="table-head mb-3 no-print">
+              <div>
+                <h3 class="mb-1">????? 1</h3>
+                <p class="mb-0">
+                  ??? ?????
+                </p>
+              </div>
+            </div>
+
+            <div class="timetable-table-wrap">
+              <table class="table table-bordered timetable-print-table">
+                <colgroup>
+                  <col class="day-col">
+                  
+                    <col>
+                  
+                    <col>
+                  
+                    <col>
+                  
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>?????</th>
+                    
+                      <th data-period-code="A">
+                        <div>?????? ?</div>
+                        <small class="metadata-only text-muted">09:00 ? 12:00</small>
+                      </th>
+                    
+                      <th data-period-code="B">
+                        <div>?????? ?</div>
+                        <small class="metadata-only text-muted">12:00 ? 15:00</small>
+                      </th>
+                    
+                      <th data-period-code="C">
+                        <div>?????? ?</div>
+                        <small class="metadata-only text-muted">15:00 ? 18:00</small>
+                      </th>
+                    
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                    <tr>
+                      <td><div class="day-label" data-day-value="?????">?????</div></td>
+                      
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                              
+                                
+                                
+                                
+                                  
+                                  
+                                
+                              
+                            
+                              
+                            
+                          
+
+                        <td data-day="?????" data-semester="1" data-period="A" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/393/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">??? ????? ???? ?????</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>09:00 ? 12:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="393">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                              
+                                
+                                
+                                
+                                  
+                                  
+                                
+                              
+                            
+                          
+
+                        <td data-day="?????" data-semester="1" data-period="B" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/394/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">??? ????? ???? ?????</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>12:00 ? 15:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="394">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                          
+
+                        <td data-day="?????" data-semester="1" data-period="C" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/395/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">??? ????? ???? ?????</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>15:00 ? 18:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="395">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                    </tr>
+                  
+                    <tr>
+                      <td><div class="day-label" data-day-value="???????">???????</div></td>
+                      
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                              
+                                
+                                
+                                
+                                  
+                                  
+                                
+                              
+                            
+                              
+                            
+                          
+
+                        <td data-day="???????" data-semester="1" data-period="A" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/396/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">?????? ?? ???????? ???????</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>09:00 ? 12:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="396">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                              
+                                
+                                
+                                
+                                  
+                                  
+                                
+                              
+                            
+                          
+
+                        <td data-day="???????" data-semester="1" data-period="B" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/397/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">?????? ?? ???????? ???????</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>12:00 ? 15:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="397">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                          
+
+                        <td data-day="???????" data-semester="1" data-period="C" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/398/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">?????? ?? ???????? ???????</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>15:00 ? 18:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="398">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                    </tr>
+                  
+                    <tr>
+                      <td><div class="day-label" data-day-value="????????">????????</div></td>
+                      
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                              
+                                
+                                
+                                
+                                  
+                                  
+                                
+                              
+                            
+                              
+                            
+                          
+
+                        <td data-day="????????" data-semester="1" data-period="A" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/399/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">??????? ???? ?????</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>09:00 ? 12:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="399">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                              
+                                
+                                
+                                
+                                  
+                                  
+                                
+                              
+                            
+                          
+
+                        <td data-day="????????" data-semester="1" data-period="B" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/400/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">??????? ???? ?????</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>12:00 ? 15:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="400">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                          
+
+                        <td data-day="????????" data-semester="1" data-period="C" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/401/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">??????? ???? ?????</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>15:00 ? 18:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="401">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                    </tr>
+                  
+                    <tr>
+                      <td><div class="day-label" data-day-value="????????">????????</div></td>
+                      
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                              
+                                
+                                
+                                
+                                  
+                                  
+                                
+                              
+                            
+                              
+                            
+                          
+
+                        <td data-day="????????" data-semester="1" data-period="A" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/402/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">??????? ??????? ?? ??????? ???????</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>09:00 ? 12:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="402">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                              
+                                
+                                
+                                
+                                  
+                                  
+                                
+                              
+                            
+                          
+
+                        <td data-day="????????" data-semester="1" data-period="B" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/403/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">??????? ??????? ?? ??????? ???????</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>12:00 ? 15:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="403">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                          
+
+                        <td data-day="????????" data-semester="1" data-period="C" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/404/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">??????? ??????? ?? ??????? ???????</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>15:00 ? 18:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="404">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                    </tr>
+                  
+                    <tr>
+                      <td><div class="day-label" data-day-value="??????">??????</div></td>
+                      
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                              
+                                
+                                
+                                
+                                  
+                                  
+                                
+                              
+                            
+                              
+                            
+                          
+
+                        <td data-day="??????" data-semester="1" data-period="A" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/405/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">????? ???</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>09:00 ? 12:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="405">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                              
+                                
+                                
+                                
+                                  
+                                  
+                                
+                              
+                            
+                          
+
+                        <td data-day="??????" data-semester="1" data-period="B" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/406/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">????? ???</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>12:00 ? 15:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="406">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                        
+                          
+                          
+                          
+                          
+                          
+                            
+                            
+                            
+                            
+                            
+                          
+
+                        <td data-day="??????" data-semester="1" data-period="C" 
+                            colspan="1" 
+                            class="">
+                          
+                          
+                          <div style="background:rgba(0,0,0,0.05); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                          <div style="background:rgba(0,0,0,0.03); color:var(--muted); font-size:10px; padding:2px;" class="no-print">
+                              Sem: 1 | Count: 1
+                          </div>
+
+                          
+                            
+                            <div class="schedule-item" data-edit-url="/timetable/407/form?next=/timetable/?department_id%3D6&amp;department_id=6&amp;modal=1">
+                              
+                              <div class="schedule-course">????? ???</div>
+                              
+                              <div class="schedule-teacher">?. ????? ?????</div>
+                              <div class="schedule-room">???? 1</div>
+                              <div class="schedule-time">
+                                
+                                
+                                <span>15:00 ? 18:00</span>
+                                
+                              </div>
+                              <div class="schedule-actions no-print">
+                                
+                                  <button class="btn btn-sm btn-outline-danger delete-entry-btn" type="button" data-id="407">???</button>
+                                
+                              </div>
+                            </div>
+                            
+                          
+                        </td>
+                        
+                      
+                    </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+          </section>
+        
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="/static/js/timetable.js"></script>
+<script src="/static/js/timetable-smart-borders.js"></script>
+
+    </div>
+
+    
+    <button type="button" class="back-to-top no-print" id="backToTop" aria-label="?????? ??? ??????" data-haptic="medium">?</button>
+    
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="/static/js/settings.js"></script>
+</body>
+</html>

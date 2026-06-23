@@ -5,12 +5,7 @@ function setTheme(theme){
   localStorage.setItem('theme',theme);
 }
 
-// Sidebar toggle
-document.getElementById('sidebarToggle').addEventListener('click',()=>{
-  if(window.innerWidth<=900){
-    document.getElementById('appSidebar').classList.toggle('mobile-open');
-  }
-});
+// sidebar removed — toggle logic no longer needed
 
 // Back to top
 window.addEventListener('scroll',()=>{

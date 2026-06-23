@@ -1,162 +1,393 @@
 {% set active_page = 'courses' %}
 {% extends 'base.html' %}
 {% block title %}نظام كلية التقنية الهندسية - المقررات{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
+{% endblock %}
 {% block content %}
-
-
-{% include 'partials/sidebar.html' %}
-
 <div class="page-header">
-      <div class="page-header-info">
-        <div class="page-header-icon">📚</div>
-        <div>
-          <h1 class="page-title-text">المقررات الدراسية</h1>
-          <p class="page-subtitle">إدارة المقررات والمواد الدراسية لجميع الأقسام والسنوات</p>
-        </div>
+  <div class="page-header-info">
+    <div class="page-header-icon">📚</div>
+    <div>
+      <h1 class="page-title-text">المقررات الدراسية</h1>
+      <p class="page-subtitle">إدارة المقررات والمواد الدراسية لجميع الأقسام والسنوات</p>
+    </div>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-icon i1">📚</div><div><div class="stat-label">إجمالي المقررات</div><div class="stat-value">{{ total_courses }}</div><div class="stat-change">مقرر مسجل</div></div></div>
+  <div class="stat-card"><div class="stat-icon i2">🏛</div><div><div class="stat-label">الأقسام</div><div class="stat-value">{{ total_departments }}</div><div class="stat-change">جميعها نشطة</div></div></div>
+  <div class="stat-card"><div class="stat-icon i3">⏱</div><div><div class="stat-label">إجمالي الساعات</div><div class="stat-value">{{ total_hours }}</div><div class="stat-change">({{ total_theory }} ن / {{ total_practical }} ع)</div></div></div>
+  <div class="stat-card"><div class="stat-icon i4">📊</div><div><div class="stat-label">متوسط الساعات</div><div class="stat-value">{{ avg_hours }}</div><div class="stat-change">لكل مقرر</div></div></div>
+</div>
+
+<div class="page-card">
+  <div class="hero-actions">
+    <div><h3 style="font-size:16px;font-weight:700;margin-bottom:4px">إدارة المقررات</h3><p style="font-size:12px;color:var(--text-muted);margin:0">أضف مقرراً جديداً أو استورد من ملف CSV</p></div>
+    <div class="hero-actions-right">
+      <a href="{{ url_for('courses.create_course') }}" class="btn btn-success">➕ إضافة مقرر</a>
+      <button class="btn btn-outline-primary" onclick="document.getElementById('importInput').click()">📥 استيراد CSV</button>
+      <form method="post" action="{{ url_for('courses.import_courses') }}" enctype="multipart/form-data" style="display:none" id="importForm">
+        <input type="file" name="file" accept=".csv" id="importInput" onchange="document.getElementById('importForm').submit()">
+      </form>
+      <a href="{{ url_for('courses.export_courses') }}" class="btn btn-outline-primary">📤 تصدير CSV</a>
+      <a href="{{ url_for('courses.print_courses') }}" target="_blank" class="btn btn-outline-secondary">🖨️ طباعة</a>
+    </div>
+  </div>
+
+  <div class="filter-panel">
+    <div class="section-header">
+      <h3>🔍 فلترة وبحث</h3>
+      <p>ابحث عن مقرر أو فلتر حسب القسم سمستر أو السنة الدراسية</p>
+    </div>
+    <div class="mini-grid" style="grid-template-columns:1fr 1fr 1fr auto auto">
+      <div class="form-group">
+        <label>بحث</label>
+        <input type="text" class="form-control" id="searchInput" placeholder="اسم أو كود المقرر">
+      </div>
+      <div class="form-group">
+        <label>القسم</label>
+        <select class="form-control" id="filterDept">
+          <option value="">جميع الأقسام</option>
+          {% for d in departments %}
+          <option value="{{ d.name }}">{{ d.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>السنة</label>
+        <select class="form-control" id="filterYear">
+          <option value="">جميع السنوات</option>
+          <option value="1"> رقم المادة</option>
+          <option value="2">الوحدات</option>
+          <option value="3" >الاسبوعية الساعات</option><!--  عمود الناظري و عمواد العاملي -->
+
+          <option value="4">الاعتمادية </option>
+        </select>
+      </div>
+     
+      <div class="form-actions" style="padding-top:22px">
+        <button class="btn btn-primary" id="filterBtn">تصفية</button>
+        <button class="btn btn-outline-secondary" id="resetBtn">إعادة تعيين</button>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-icon i1">📚</div><div><div class="stat-label">إجمالي المقررات</div><div class="stat-value">91</div><div class="stat-change">↑ 3 هذا الأسبوع</div></div></div>
-      <div class="stat-card"><div class="stat-icon i2">🏛</div><div><div class="stat-label">الأقسام</div><div class="stat-value">7</div><div class="stat-change">جميعها نشطة</div></div></div>
-      <div class="stat-card"><div class="stat-icon i3">📅</div><div><div class="stat-label">السنوات الدراسية</div><div class="stat-value">4</div><div class="stat-change">من السنة 1 إلى 4</div></div></div>
-      <div class="stat-card"><div class="stat-icon i4">⏱</div><div><div class="stat-label">إجمالي الساعات</div><div class="stat-value">56</div><div class="stat-change">ساعات معتمدة</div></div></div>
-    </div>
+<div class="page-card" id="matrixCard" style="margin-bottom:20px">
+  <div class="table-head">
+    <div><h3>📊 مصفوفة التوزيع: قسم × سنة × عدد المقررات</h3></div>
+  </div>
+  <div style="overflow-x:auto;padding:16px 20px">
+    <table class="matrix-table">
+      <thead>
+        <tr>
+          <th>القسم</th>
+          {% for y in years %}
+          <th>السنة {{ y }}</th>
+          {% endfor %}
+          <th>الإجمالي</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dept in dept_names %}
+        <tr>
+          <td class="matrix-dept">{{ dept }}</td>
+          {% for y in years %}
+          <td class="matrix-cell">{{ matrix[dept][y] }}</td>
+          {% endfor %}
+          <td class="matrix-total">{{ totals_by_dept[dept] }}</td>
+        </tr>
+        {% endfor %}
+        <tr class="matrix-total-row">
+          <td class="matrix-dept">الإجمالي</td>
+          {% for y in years %}
+          <td class="matrix-cell matrix-grand">{{ totals_by_year[y] }}</td>
+          {% endfor %}
+          <td class="matrix-total matrix-grand">{{ total_courses }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-    <div class="page-card">
-      <div class="hero-actions">
-        <div><h3 style="font-size:16px;font-weight:700;margin-bottom:4px">إدارة المقررات</h3><p style="font-size:12px;color:var(--text-muted);margin:0">أضف مقرراً جديداً أو استورد من ملف Excel</p></div>
-        <div class="hero-actions-right">
-          <a href="#" class="btn btn-success">➕ إضافة مقرر</a>
-          <a href="#" class="btn btn-outline-primary">📥 تنزيل Excel</a>
-          <a href="#" class="btn btn-primary">📤 استيراد Excel</a>
-        </div>
-      </div>
+<div class="page-card">
+  <div class="table-head">
+    <div><h3>📋 قائمة المقررات</h3><p>عدد النتائج: <span class="count-badge" id="resultCount">{{ courses|length }}</span></p></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn btn-sm btn-outline-danger" id="bulkDeleteBtn" style="display:none" onclick="bulkDelete()">🗑️ حذف المحدد</button>
     </div>
+  </div>
+  <div class="courses-table-wrap">
+    <table class="courses-table" id="coursesTable">
+      <thead>
+        <tr>
+          <th style="width:40px"><input type="checkbox" id="selectAll"></th>
+          <th style="width:50px">#</th>
+          <th style="width:90px">الرمز</th>
+          <th>اسم المقرر</th>
+          <th>القسم</th>
+          <th style="width:80px">السنة</th>
+          <th style="width:130px">الساعات</th>
+          <th>المتطلب السابق</th>
+          <th style="width:40px">ملف</th>
+          <th style="width:160px">الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if courses %}
+          {% for course in courses %}
+          <tr data-id="{{ course.id }}">
+            <td><input type="checkbox" class="course-checkbox" value="{{ course.id }}"></td>
+            <td><span class="row-num">{{ loop.index }}</span></td>
+            <td><span class="course-code">{{ course.code or '' }}</span></td>
+            <td class="course-name">
+              <a href="#" class="course-detail-link" data-id="{{ course.id }}">{{ course.name }}</a>
+            </td>
+            <td><span class="dept-badge dept-{{ loop.index0 % 7 }}">{{ course.department_name or 'غير محدد' }}</span></td>
+            <td><span class="year-badge">سنة {{ course.year }}</span></td>
+            <td><span class="hours-cell">{{ course.total_hours or 0 }}<div class="hours-sub">({{ course.theory_hours or 0 }} ن / {{ course.practical_hours or 0 }} ع)</div></span></td>
+            <td>{{ course.accreditation or '<span class="muted">—</span>' | safe }}</td>
+            <td>
+              {% if course.syllabus_file %}
+              <a href="{{ url_for('static', filename='uploads/syllabi/' + course.syllabus_file) }}" target="_blank" title="تحميل الملف">📎</a>
+              {% else %}
+              <span class="muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn btn-sm btn-outline-primary course-detail-link" data-id="{{ course.id }}">تفاصيل</button>
+                <a href="{{ url_for('courses.edit_course', course_id=course.id) }}" class="btn btn-sm btn-outline-primary">تعديل</a>
+                <form method="post" action="{{ url_for('courses.delete_course', course_id=course.id) }}" style="display:inline" onsubmit="return confirm('تأكيد حذف مقرر {{ course.name }}؟')">
+                  <button class="btn btn-sm btn-outline-danger" type="submit">حذف</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="10" style="text-align:center;padding:40px;color:var(--text-muted)">لا توجد مقررات للعرض</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
 
-    <div class="page-card">
-      <div class="filter-panel">
-        <div class="section-header"><h3>🔍 البحث والفلترة</h3><p>ابحث بالاسم أو الرمز، ثم صفّ النتائج حسب القسم والسنة</p></div>
-        <div class="mini-grid">
-          <div class="form-group"><label>بحث</label><input type="search" class="form-control" placeholder="مثال: ت101 أو ميكانيكا الموائع"></div>
-          <div class="form-group"><label>القسم</label><select class="form-control"><option>كل الأقسام</option><option>القسم العام</option><option>قسم الاتصالات</option><option>قسم البحث والتطوير والمناهج</option><option>قسم الحاسوب</option><option>قسم المدني</option><option>قسم المعماري</option><option>قسم النفط</option></select></div>
-          <div class="form-group"><label>السنة</label><select class="form-control"><option>كل السنوات</option><option>السنة 1</option><option>السنة 2</option><option>السنة 3</option><option>السنة 4</option></select></div>
-          <div class="form-actions"><a href="#" class="btn btn-primary">تطبيق</a><a href="#" class="btn btn-outline-secondary">↺ إعادة</a></div>
-        </div>
-      </div>
-    </div>
+<div class="page-card" style="margin-bottom:20px">
+  <div class="table-head"><div><h3>📈 توزيع المقررات على الأقسام</h3></div></div>
+  <div style="padding:20px;max-width:500px;margin:0 auto">
+    <canvas id="deptChart" height="250"></canvas>
+  </div>
+</div>
 
-    <div class="page-card">
-      <div class="table-head"><div><h3>📋 قائمة المقررات</h3><p>عدد النتائج الحالية: <span class="count-badge">91</span></p></div></div>
-      <div class="courses-table-wrap">
-        <table class="courses-table">
-          <thead>
-            <tr>
-              <th style="width:50px">#</th>
-              <th style="width:90px">الرمز</th>
-              <th>اسم المقرر</th>
-              <th>القسم</th>
-              <th style="width:90px">السنة</th>
-              <th style="width:120px">الساعات</th>
-              <th>الاعتمادية</th>
-              <th>المفردات</th>
-              <th style="width:140px">الإجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td><span class="row-num">1</span></td><td><span class="course-code">ت101</span></td><td class="course-name">برمجة حاسوب</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">10<div class="hours-sub">(5 ن / 5 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">2</span></td><td><span class="course-code">ت102</span></td><td class="course-name">دوائر كهربائية</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">3</span></td><td><span class="course-code">ت103</span></td><td class="course-name">دوائر الكترونية</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">4</span></td><td><span class="course-code">ت104</span></td><td class="course-name">مبادئ هندسة الكترونية</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">5</span></td><td><span class="course-code">ت105</span></td><td class="course-name">عمارة الحاسوب</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">6</span></td><td><span class="course-code">ت106</span></td><td class="course-name">تطبيقات الحاسوب</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">7</span></td><td><span class="course-code">ع101</span></td><td class="course-name">هندسة وصفية</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">8</span></td><td><span class="course-code">ع102</span></td><td class="course-name">أسس كهرباء</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">9</span></td><td><span class="course-code">ع102</span></td><td class="course-name">رياضة 2</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">3<div class="hours-sub">(3 ن / 0 ع)</div></span></td><td>رياضة 1</td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">10</span></td><td><span class="course-code">ع102</span></td><td class="course-name">رياضة 2</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">3<div class="hours-sub">(3 ن / 0 ع)</div></span></td><td>رياضة1</td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">11</span></td><td><span class="course-code">ع103</span></td><td class="course-name">استاتيكا</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">12</span></td><td><span class="course-code">ع104</span></td><td class="course-name">تقنية ورش</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">13</span></td><td><span class="course-code">ع105</span></td><td class="course-name">رياضة 2، 3</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">14</span></td><td><span class="course-code">ع106</span></td><td class="course-name">كتابة تقارير</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">15</span></td><td><span class="course-code">ع107</span></td><td class="course-name">مصطلحات فنية</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">16</span></td><td><span class="course-code">ع108</span></td><td class="course-name">فيزياء نسبية</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">17</span></td><td><span class="course-code">ع109</span></td><td class="course-name">رياضة 1</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">3<div class="hours-sub">(3 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">18</span></td><td><span class="course-code">ع110</span></td><td class="course-name">رسم هندسي</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">4<div class="hours-sub">(1 ن / 3 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">19</span></td><td><span class="course-code">ع111</span></td><td class="course-name">اللغة الانجليزية</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">3<div class="hours-sub">(3 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">20</span></td><td><span class="course-code">ع112</span></td><td class="course-name">فيزياء نظري</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">3<div class="hours-sub">(3 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">21</span></td><td><span class="course-code">ع113</span></td><td class="course-name">فيزياء عملي</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">3<div class="hours-sub">(0 ن / 3 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">22</span></td><td><span class="course-code">ع114</span></td><td class="course-name">كيمياء</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">3<div class="hours-sub">(3 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">23</span></td><td><span class="course-code">ع115</span></td><td class="course-name">حاسب آلي ( عملي )</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">3<div class="hours-sub">(0 ن / 3 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">24</span></td><td><span class="course-code">ع116</span></td><td class="course-name">حاسب آلي ( نظري )</td><td><span class="dept-badge dept-0">القسم العام</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">3<div class="hours-sub">(3 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">25</span></td><td><span class="course-code">ه101</span></td><td class="course-name">مقدمة هندسة نفط</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">26</span></td><td><span class="course-code">ه102</span></td><td class="course-name">جيولوجيا عامة</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">27</span></td><td><span class="course-code">ه103</span></td><td class="course-name">كيمياء عضوية</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">28</span></td><td><span class="course-code">ه104</span></td><td class="course-name">جيولوجيا نفط</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">29</span></td><td><span class="course-code">ه105</span></td><td class="course-name">تاريخ عمارة</td><td><span class="dept-badge dept-5">قسم المعماري</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">30</span></td><td><span class="course-code">ه106</span></td><td class="course-name">قوانين المباني</td><td><span class="dept-badge dept-5">قسم المعماري</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">31</span></td><td><span class="course-code">ه107</span></td><td class="course-name">مواد الانشاء</td><td><span class="dept-badge dept-4">قسم المدني</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">32</span></td><td><span class="course-code">ه108</span></td><td class="course-name">تنسيق مواقع</td><td><span class="dept-badge dept-5">قسم المعماري</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">33</span></td><td><span class="course-code">ه109</span></td><td class="course-name">تخطيط اقليمي</td><td><span class="dept-badge dept-5">قسم المعماري</span></td><td><span class="year-badge">السنة 1</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">34</span></td><td><span class="course-code">ت201</span></td><td class="course-name">الكترونات رقمية</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">35</span></td><td><span class="course-code">ت202</span></td><td class="course-name">ورشة الكترونية</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">36</span></td><td><span class="course-code">ت203</span></td><td class="course-name">معالجات دقيقة</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">37</span></td><td><span class="course-code">ت204</span></td><td class="course-name">نظم قواعد البيانات</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">38</span></td><td><span class="course-code">ت205</span></td><td class="course-name">البرمجة المرئية</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">39</span></td><td><span class="course-code">ت206</span></td><td class="course-name">وسائط متعددة</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">40</span></td><td><span class="course-code">ت207</span></td><td class="course-name">نظم التشغيل</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">41</span></td><td><span class="course-code">ت208</span></td><td class="course-name">تحليل البيانات باستخدام Excel</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">42</span></td><td><span class="course-code">ت209</span></td><td class="course-name">إحصاء واحتمالات</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">43</span></td><td><span class="course-code">ه201</span></td><td class="course-name">ديناميكا حرارية</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">44</span></td><td><span class="course-code">ه202</span></td><td class="course-name">ميكانيكا موائع</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">45</span></td><td><span class="course-code">ه203</span></td><td class="course-name">سريان الموائع</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">46</span></td><td><span class="course-code">ه204</span></td><td class="course-name">خواص موائع المكمن</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">47</span></td><td><span class="course-code">ه205</span></td><td class="course-name">خواص صخور المكمن</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">48</span></td><td><span class="course-code">ه206</span></td><td class="course-name">صخور رسوبية</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">49</span></td><td><span class="course-code">ه207</span></td><td class="course-name">جيولوجيا تركيبية</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">50</span></td><td><span class="course-code">ه208</span></td><td class="course-name">معدات حقول النفط</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">51</span></td><td><span class="course-code">ه209</span></td><td class="course-name">خرسانة مسلحة</td><td><span class="dept-badge dept-4">قسم المدني</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">52</span></td><td><span class="course-code">ه210</span></td><td class="course-name">انشاء مباني</td><td><span class="dept-badge dept-4">قسم المدني</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">53</span></td><td><span class="course-code">ه211</span></td><td class="course-name">انظمة تكيف</td><td><span class="dept-badge dept-5">قسم المعماري</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">54</span></td><td><span class="course-code">ه212</span></td><td class="course-name">ميكانيكا الجوامد</td><td><span class="dept-badge dept-4">قسم المدني</span></td><td><span class="year-badge">السنة 2</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">55</span></td><td><span class="course-code">ت301</span></td><td class="course-name">نظم اتصالات</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">56</span></td><td><span class="course-code">ت302</span></td><td class="course-name">هوائيات</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">57</span></td><td><span class="course-code">ت303</span></td><td class="course-name">انظمة تحكم</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">58</span></td><td><span class="course-code">ت304</span></td><td class="course-name">انظمة مقسمات والهواتف</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">59</span></td><td><span class="course-code">ت305</span></td><td class="course-name">معالجة اشارة رقمية</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">60</span></td><td><span class="course-code">ت306</span></td><td class="course-name">اتصالات رقمية</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">61</span></td><td><span class="course-code">ت307</span></td><td class="course-name">انظمة الهواتف المحمولة</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">62</span></td><td><span class="course-code">ت308</span></td><td class="course-name">برمجة الانترنت</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">63</span></td><td><span class="course-code">ت309</span></td><td class="course-name">تراكيب البيانات والخوارزميات</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">64</span></td><td><span class="course-code">ت310</span></td><td class="course-name">تصميم منطقي</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">65</span></td><td><span class="course-code">ه301</span></td><td class="course-name">حفر وتصميم الابار</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">66</span></td><td><span class="course-code">ه302</span></td><td class="course-name">تقنية سوائل الحفر</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">67</span></td><td><span class="course-code">ه303</span></td><td class="course-name">هندسة انتاج</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">68</span></td><td><span class="course-code">ه304</span></td><td class="course-name">هندسة غاز</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">69</span></td><td><span class="course-code">ه305</span></td><td class="course-name">تطبيقات الحاسوب في الهندسة النفطية</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">70</span></td><td><span class="course-code">ه306</span></td><td class="course-name">التآكل في الصناعات النفطية</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">71</span></td><td><span class="course-code">ه307</span></td><td class="course-name">تصميم معماري</td><td><span class="dept-badge dept-5">قسم المعماري</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">72</span></td><td><span class="course-code">ه308</span></td><td class="course-name">كميات والمواصفات</td><td><span class="dept-badge dept-4">قسم المدني</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">73</span></td><td><span class="course-code">ه309</span></td><td class="course-name">اسكان وتصميم حضري</td><td><span class="dept-badge dept-5">قسم المعماري</span></td><td><span class="year-badge">السنة 3</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">74</span></td><td><span class="course-code">ت401</span></td><td class="course-name">أمن البرمجيات</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">75</span></td><td><span class="course-code">ت402</span></td><td class="course-name">التجارة الالكترونية</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">76</span></td><td><span class="course-code">ت403</span></td><td class="course-name">اختبار وجودة البرمجيات</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">77</span></td><td><span class="course-code">ت404</span></td><td class="course-name">قواعد بيانات متقدمة</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">78</span></td><td><span class="course-code">ت405</span></td><td class="course-name">مواضيع مختارة</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">79</span></td><td><span class="course-code">ت406</span></td><td class="course-name">أسس هندسة البرمجيات</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">80</span></td><td><span class="course-code">ت407</span></td><td class="course-name">تحليل متطلبات البرمجيات</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">81</span></td><td><span class="course-code">ت408</span></td><td class="course-name">شبكات الحاسوب</td><td><span class="dept-badge dept-3">قسم الحاسوب</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">82</span></td><td><span class="course-code">ت409</span></td><td class="course-name">وسائط نقل</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">83</span></td><td><span class="course-code">ت410</span></td><td class="course-name">أجهزة قياس كهربائية</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">84</span></td><td><span class="course-code">ت411</span></td><td class="course-name">فيزياء 2</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">85</span></td><td><span class="course-code">ت412</span></td><td class="course-name">كهرومغناطيسية</td><td><span class="dept-badge dept-1">قسم الاتصالات</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">86</span></td><td><span class="course-code">ه401</span></td><td class="course-name">طرق تحسين ابار النفط</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">87</span></td><td><span class="course-code">ه402</span></td><td class="course-name">صيانة واصلاح الابار</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">88</span></td><td><span class="course-code">ه403</span></td><td class="course-name">تقييم المكامن النفطية</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">89</span></td><td><span class="course-code">ه404</span></td><td class="course-name">استكمال ابار النفط</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">90</span></td><td><span class="course-code">ه405</span></td><td class="course-name">اقتصاديات هندسة نفط</td><td><span class="dept-badge dept-6">قسم النفط</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="row-num">91</span></td><td><span class="course-code">ه406</span></td><td class="course-name">ادارة مشاريع هندسية</td><td><span class="dept-badge dept-4">قسم المدني</span></td><td><span class="year-badge">السنة 4</span></td><td><span class="hours-cell">0<div class="hours-sub">(0 ن / 0 ع)</div></span></td><td><span class="muted">غير محدد</span></td><td>—</td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-          </tbody>
-        </table>
-      </div>
+<div id="detailDrawer" class="detail-drawer">
+  <div class="drawer-backdrop" onclick="closeDrawer()"></div>
+  <div class="drawer-content">
+    <div class="drawer-header">
+      <h3 id="drawerTitle">تفاصيل المقرر</h3>
+      <button class="modal-close" onclick="closeDrawer()">✕</button>
     </div>
+    <div class="drawer-body" id="drawerBody">
+      <div class="detail-loading">جاري التحميل...</div>
+    </div>
+  </div>
+</div>
+
+<form id="bulkDeleteForm" method="post" action="{{ url_for('courses.bulk_delete') }}" style="display:none"></form>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var selectAll = document.getElementById('selectAll');
+  var checkboxes = document.querySelectorAll('.course-checkbox');
+  var bulkBtn = document.getElementById('bulkDeleteBtn');
+  var searchInput = document.getElementById('searchInput');
+  var filterDept = document.getElementById('filterDept');
+  var filterYear = document.getElementById('filterYear');
+  var filterBtn = document.getElementById('filterBtn');
+  var resetBtn = document.getElementById('resetBtn');
+
+  if (selectAll) {
+    selectAll.addEventListener('change', function() {
+      checkboxes.forEach(function(cb) { cb.checked = selectAll.checked; });
+      updateBulkBtn();
+    });
+  }
+
+  checkboxes.forEach(function(cb) {
+    cb.addEventListener('change', updateBulkBtn);
+  });
+
+  function updateBulkBtn() {
+    var checked = document.querySelectorAll('.course-checkbox:checked');
+    bulkBtn.style.display = checked.length > 0 ? 'inline-flex' : 'none';
+    bulkBtn.textContent = '🗑️ حذف (' + checked.length + ')';
+  }
+
+  window.bulkDelete = function() {
+    var checked = document.querySelectorAll('.course-checkbox:checked');
+    if (checked.length === 0) return;
+    if (!confirm('تأكيد حذف ' + checked.length + ' مقرر؟')) return;
+    var form = document.getElementById('bulkDeleteForm');
+    form.innerHTML = '';
+    checked.forEach(function(cb) {
+      var input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'course_ids';
+      input.value = cb.value;
+      form.appendChild(input);
+    });
+    form.submit();
+  };
+
+  function applyFilter() {
+    var q = searchInput.value.trim();
+    var dept = filterDept.value;
+    var year = filterYear.value;
+
+    var url = q ? ('{{ url_for("courses.search_courses") }}?q=' + encodeURIComponent(q))
+                : ('{{ url_for("courses.filter_courses") }}?' + 
+                   (dept ? 'department=' + encodeURIComponent(dept) : '') +
+                   (dept && year ? '&' : '') +
+                   (year ? 'year=' + year : ''));
+
+    fetch(url)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var tbody = document.querySelector('#coursesTable tbody');
+        var countBadge = document.getElementById('resultCount');
+        countBadge.textContent = data.length;
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-muted)">لا توجد نتائج</td></tr>';
+          return;
+        }
+        var html = '';
+        data.forEach(function(c, i) {
+          html += '<tr data-id="' + c.id + '">' +
+            '<td><input type="checkbox" class="course-checkbox" value="' + c.id + '"></td>' +
+            '<td><span class="row-num">' + (i+1) + '</span></td>' +
+            '<td><span class="course-code">' + (c.code || '') + '</span></td>' +
+            '<td class="course-name"><a href="#" class="course-detail-link" data-id="' + c.id + '">' + c.name + '</a></td>' +
+            '<td><span class="dept-badge dept-' + (i % 7) + '">' + (c.department_name || 'غير محدد') + '</span></td>' +
+            '<td><span class="year-badge">سنة ' + (c.year || 1) + '</span></td>' +
+            '<td><span class="hours-cell">' + (c.total_hours || 0) + '<div class="hours-sub">(' + (c.theory_hours || 0) + ' ن / ' + (c.practical_hours || 0) + ' ع)</div></span></td>' +
+            '<td>' + (c.accreditation || '<span class="muted">—</span>') + '</td>' +
+            '<td>' + (c.syllabus_file ? '<a href="/static/uploads/syllabi/' + c.syllabus_file + '" target="_blank" title="تحميل الملف">📎</a>' : '<span class="muted">—</span>') + '</td>' +
+            '<td><div class="actions-cell">' +
+            '<button class="btn btn-sm btn-outline-primary course-detail-link" data-id="' + c.id + '">تفاصيل</button>' +
+            '<a href="/courses/' + c.id + '/edit" class="btn btn-sm btn-outline-primary">تعديل</a>' +
+            '<form method="post" action="/courses/' + c.id + '/delete" style="display:inline" onsubmit="return confirm(\'تأكيد الحذف؟\')">' +
+            '<button class="btn btn-sm btn-outline-danger" type="submit">حذف</button></form></div></td></tr>';
+        });
+        tbody.innerHTML = html;
+
+        document.querySelectorAll('.course-detail-link').forEach(function(el) {
+          el.addEventListener('click', function(e) {
+            e.preventDefault();
+            openDetail(this.dataset.id);
+          });
+        });
+        document.querySelectorAll('.course-checkbox').forEach(function(cb) {
+          cb.addEventListener('change', updateBulkBtn);
+        });
+        if (selectAll) selectAll.checked = false;
+        updateBulkBtn();
+      });
+  }
+
+  filterBtn.addEventListener('click', applyFilter);
+  resetBtn.addEventListener('click', function() {
+    searchInput.value = '';
+    filterDept.value = '';
+    filterYear.value = '';
+    window.location.reload();
+  });
+
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') applyFilter();
+  });
+
+  window.openDetail = function(id) {
+    var drawer = document.getElementById('detailDrawer');
+    var body = document.getElementById('drawerBody');
+    var title = document.getElementById('drawerTitle');
+    drawer.classList.add('show');
+    body.innerHTML = '<div class="detail-loading">جاري التحميل...</div>';
+    title.textContent = 'تفاصيل المقرر';
+
+    var course = window._allCourses ? window._allCourses.find(function(c) { return c.id == id; }) : null;
+    if (course) {
+      renderDetail(course);
+    } else {
+      fetch('{{ url_for("courses.filter_courses") }}')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          window._allCourses = data;
+          var c = data.find(function(x) { return x.id == id; });
+          if (c) renderDetail(c);
+          else body.innerHTML = '<p>لم يتم العثور على المقرر</p>';
+        });
+    }
+  };
+
+  function renderDetail(c) {
+    var body = document.getElementById('drawerBody');
+    document.getElementById('drawerTitle').textContent = c.name;
+    body.innerHTML =
+      '<div class="detail-grid">' +
+      '<div class="detail-field"><label>الرمز</label><span>' + (c.code || '—') + '</span></div>' +
+      '<div class="detail-field"><label>القسم</label><span>' + (c.department_name || 'غير محدد') + '</span></div>' +
+      '<div class="detail-field"><label>سمستر</label><span>' + (c.semester || 'غير محدد') + '</span></div>' +
+      '<div class="detail-field"><label>شعبهpan>' + (c.year || 1) + '</span></div>' +
+      '<div class="detail-field"><label>الساعات النظرية</label><span>' + (c.theory_hours || 0) + '</span></div>' +
+      '<div class="detail-field"><label>الساعات العملية</label><span>' + (c.practical_hours || 0) + '</span></div>' +
+      '<div class="detail-field"><label>الإجمالي</label><span>' + (c.total_hours || 0) + '</span></div>' +
+      '<div class="detail-field"><label>المتطلب السابق</label><span>' + (c.accreditation || '—') + '</span></div>' +
+      '</div>' +
+      (c.vocabulary ? '<div class="detail-section"><label>📋 المفردات</label><p>' + c.vocabulary + '</p></div>' : '') +
+      (c.notes ? '<div class="detail-section"><label>📝 ملاحظات</label><p>' + c.notes + '</p></div>' : '') +
+      (c.syllabus_file ? '<div class="detail-section"><label>📎 ملف المنهج</label><p><a href="/static/uploads/syllabi/' + c.syllabus_file + '" target="_blank">تحميل الملف</a></p></div>' : '') +
+      '<div class="form-actions" style="margin-top:16px"><a href="/courses/' + c.id + '/edit" class="btn btn-primary">✏️ تعديل</a></div>';
+  }
+
+  window.closeDrawer = function() {
+    document.getElementById('detailDrawer').classList.remove('show');
+  };
+
+  document.querySelectorAll('.course-detail-link').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.preventDefault();
+      openDetail(this.dataset.id);
+    });
+  });
+
+  var ctx = document.getElementById('deptChart');
+  if (ctx) {
+    fetch('{{ url_for("courses.stats_courses") }}')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var labels = Object.keys(data.by_department);
+        var values = Object.values(data.by_department);
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: values,
+              backgroundColor: ['#4f46e5','#059669','#d97706','#dc2626','#7c3aed','#0284c7','#ec4899','#84cc16']
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom', labels: { font: { family: 'Tajawal', size: 12 } } } }
+          }
+        });
+      });
+  }
+});
+</script>
 {% endblock %}

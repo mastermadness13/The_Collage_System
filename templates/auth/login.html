@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نظام كلية التقنية الهندسية - تسجيل الدخول</title>
+<title>نظام كلية التقنية الهندسية زوارة - تسجيل الدخول</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/tajawal@5.0.0/index.min.css">
-<link rel="stylesheet" href="/static/css/login.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/timetable.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
@@ -32,7 +33,7 @@
         <div class="brand-logo-large"><div class="site-logo">
     <img src="/static/image/logo.png" alt="logo">
   </div></div>
-        <h1 class="brand-title">نظام كلية التقنية الهندسية</h1>
+        <h1 class="brand-title">نظام كلية التقنية الهندسية زوارة</h1>
         <p class="brand-subtitle">منصة متكاملة لإدارة العمليات الأكاديمية والإدارية للكلية — الجداول، المقررات، القاعات، والحضور.</p>
       </div>
 
@@ -67,13 +68,17 @@
     <img src="/static/image/logo.png" alt="logo">
   </div></div>
         <h2 class="auth-title">تسجيل الدخول</h2>
-        <p class="auth-subtitle">أدخل بياناتك للوصول إلى لوحة التحكم</p>
+        <p class="auth-subtitle">     كلية التقنية الهندسية زوارة - نظام إدارة الأكاديمية</p>
       </div>
 
-      <form method="post" class="auth-form" id="loginForm" onsubmit="return handleLogin(event)">
+      <form method="post" class="auth-form" id="loginForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="form-group">
           <label for="username">اسم المستخدم</label>
-          <input type="text" id="username" name="username" class="form-control" placeholder="أدخل اسم المستخدم" autocomplete="username" required>
+          <input type="text" id="username" name="username" class="form-control" placeholder="أدخل اسم المستخدم" autocomplete="username" required value="{{ username_value or '' }}">
+          {% if username_error %}
+          <span class="field-error">{{ username_error }}</span>
+          {% endif %}
         </div>
 
         <div class="form-group">
@@ -84,6 +89,9 @@
               <span class="password-toggle-label" id="toggleLabel">إظهار</span>
             </button>
           </div>
+          {% if password_error %}
+          <span class="field-error">{{ password_error }}</span>
+          {% endif %}
         </div>
 
         <button type="submit" class="btn auth-submit-btn">دخول ←</button>
@@ -106,4 +114,3 @@
 <script src="/static/js/login.js"></script>
 </body>
 </html>
-

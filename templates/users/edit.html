@@ -1,0 +1,54 @@
+{% set active_page = 'users' %}
+{% extends 'base.html' %}
+{% block title %}تعديل المستخدم{% endblock %}
+{% block content %}
+<div class="user-form-shell">
+  <div class="user-form-card">
+    <div class="page-title mb-4">
+      <div>
+        <h2 class="mb-1">تعديل بيانات المستخدم</h2>
+        <p class="text-muted mb-0">تعديل بيانات المستخدم {{ user.username }}</p>
+      </div>
+    </div>
+    <form method="post" class="form-grid">
+      <div class="form-group full">
+        <label>اسم المستخدم</label>
+        <input type="text" class="form-control" name="username" value="{{ user.username }}" required>
+      </div>
+      <div class="form-group">
+        <label>التسمية</label>
+        <input type="text" class="form-control" name="label" value="{{ user.label or '' }}">
+      </div>
+      {% if session.get('role') == 'super_admin' %}
+      <div class="form-group">
+        <label>الدور</label>
+        <select class="form-control" name="role">
+          <option value="super_admin" {% if user.role == 'super_admin' %}selected{% endif %}>مشرف عام</option>
+          <option value="head_of_department" {% if user.role == 'head_of_department' %}selected{% endif %}>رئيس قسم</option>
+          <option value="head_of_exams" {% if user.role == 'head_of_exams' %}selected{% endif %}>رئيس اللجان</option>
+          <option value="teacher" {% if user.role == 'teacher' %}selected{% endif %}>أستاذ</option>
+          <option value="student" {% if user.role == 'student' %}selected{% endif %}>طالب</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>القسم</label>
+        <select class="form-control" name="department_id">
+          <option value="">بدون قسم</option>
+          {% for d in departments %}
+          <option value="{{ d.id }}" {% if user.department_id == d.id %}selected{% endif %}>{{ d.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      <div class="form-actions full">
+        <button class="btn btn-success" type="submit">حفظ التغييرات</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('users.list_users') }}">إلغاء</a>
+      </div>
+    </form>
+    <hr>
+    <div class="form-actions">
+      <a class="btn btn-outline-primary" href="{{ url_for('users.change_password', user_id=user.id) }}">تغيير كلمة المرور</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

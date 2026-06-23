@@ -3,7 +3,7 @@
 {% block title %}نظام كلية التقنية الهندسية - لوحة القيادة{% endblock %}
 {% block body_attrs %}data-theme="light"{% endblock %}
 {% block extra_head %}
-<link rel="stylesheet" href="/static/css/dashboard_admin.css">
+
 {% endblock %}
 {% block content %}
 <!-- WELCOME HERO -->
@@ -13,44 +13,44 @@
           <h1>مرحباً بك، المشرف العام 👋</h1>
           <p>لوحة التحكم الرئيسية — نظرة شاملة على جميع بيانات الكلية</p>
           <div class="welcome-actions">
-            <a href="#" class="btn-white">▦ عرض الجدول الدراسي</a>
-            <a href="#" class="btn-white">📚 إدارة المقررات</a>
-            <a href="#" class="btn-white">👨‍🏫 هيئة التدريس</a>
+            <a href="{{ url_for('timetable.timetable') }}" class="btn-white">▦ عرض الجدول الدراسي</a>
+            <a href="{{ url_for('courses.courses') }}" class="btn-white">📚 إدارة المقررات</a>
+            <a href="{{ url_for('teachers.list_teachers') }}" class="btn-white">👨‍🏫 هيئة التدريس</a>
           </div>
         </div>
-        <div class="welcome-date">
-          <div class="welcome-date-day">18</div>
-          <div class="welcome-date-month">الأحد · يناير 2025</div>
-          <div class="welcome-date-time">14:32:15</div>
+        <div class="welcome-date" id="welcomeDate">
+          <div class="welcome-date-day" id="welcomeDay">—</div>
+          <div class="welcome-date-month" id="welcomeMonth">—</div>
+          <div class="welcome-date-time" id="welcomeTime">—</div>
         </div>
       </div>
     </div>
 
     <!-- STATS -->
-    <div class="stats-grid">
-      <a class="stat-card" href="#">
+        <div class="stats-grid">
+      <a class="stat-card" href="{{ url_for('departments.departments') }}">
         <div class="stat-icon i1">🏛</div>
-        <div><div class="stat-label">الأقسام</div><div class="stat-value">7</div><div class="stat-change up">↑ 6 أكاديمية + 1 إداري</div></div>
+        <div><div class="stat-label">الأقسام</div><div class="stat-value">{{ dept_count }}</div></div>
       </a>
-      <a class="stat-card" href="#">
+      <a class="stat-card" href="{{ url_for('rooms.rooms') }}">
         <div class="stat-icon i2">🚪</div>
-        <div><div class="stat-label">القاعات والمعامل</div><div class="stat-value">25</div><div class="stat-change up">↑ 14 قاعة · 7 معمل · 1 مسرح</div></div>
+        <div><div class="stat-label">القاعات والمعامل</div><div class="stat-value">{{ room_count }}</div></div>
       </a>
-      <a class="stat-card" href="#">
+      <a class="stat-card" href="{{ url_for('teachers.list_teachers') }}">
         <div class="stat-icon i3">👨‍🏫</div>
-        <div><div class="stat-label">هيئة التدريس</div><div class="stat-value">42</div><div class="stat-change up">↑ 3 أعضاء جدد</div></div>
+        <div><div class="stat-label">هيئة التدريس</div><div class="stat-value">{{ teacher_count }}</div></div>
       </a>
-      <a class="stat-card" href="#">
+      <a class="stat-card" href="{{ url_for('courses.courses') }}">
         <div class="stat-icon i4">📚</div>
-        <div><div class="stat-label">المقررات</div><div class="stat-value">91</div><div class="stat-change up">↑ عبر 7 أقسام</div></div>
+        <div><div class="stat-label">المقررات</div><div class="stat-value">{{ course_count }}</div></div>
       </a>
-      <a class="stat-card" href="#">
+      <a class="stat-card" href="{{ url_for('timetable.timetable') }}">
         <div class="stat-icon i5">📅</div>
-        <div><div class="stat-label">الحصص المجدولة</div><div class="stat-value">156</div><div class="stat-change up">↑ الفصل الحالي</div></div>
+        <div><div class="stat-label">الحصص المجدولة</div><div class="stat-value">{{ lecture_count }}</div></div>
       </a>
-      <a class="stat-card" href="#">
+      <a class="stat-card" href="{{ url_for('users.list_users') }}">
         <div class="stat-icon i6">👥</div>
-        <div><div class="stat-label">المستخدمون</div><div class="stat-value">12</div><div class="stat-change up">↑ 2 نشطون الآن</div></div>
+        <div><div class="stat-label">المستخدمون</div><div class="stat-value">{{ user_count }}</div></div>
       </a>
     </div>
 
@@ -59,28 +59,28 @@
     
       <div class="card-body">
         <div class="quick-grid">
-          <a class="quick-action" href="#">
-            <div class="quick-action-icon" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)">▦</div>
+          <a class="quick-action" href="{{ url_for('timetable.timetable') }}">
+            <div class="quick-action-icon qicon-schedule">▦</div>
             <div class="quick-action-label">الجدول الدراسي</div>
           </a>
-          <a class="quick-action" href="#">
-            <div class="quick-action-icon" style="background:linear-gradient(135deg,#059669,#06b6d4)">📚</div>
+          <a class="quick-action" href="{{ url_for('courses.courses') }}">
+            <div class="quick-action-icon qicon-courses">📚</div>
             <div class="quick-action-label">المقررات</div>
           </a>
-          <a class="quick-action" href="#">
-            <div class="quick-action-icon" style="background:linear-gradient(135deg,#d97706,#ef4444)">👨‍🏫</div>
+          <a class="quick-action" href="{{ url_for('teachers.list_teachers') }}">
+            <div class="quick-action-icon qicon-teachers">👨‍🏫</div>
             <div class="quick-action-label">هيئة التدريس</div>
           </a>
-          <a class="quick-action" href="#">
-            <div class="quick-action-icon" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)">🚪</div>
+          <a class="quick-action" href="{{ url_for('rooms.rooms') }}">
+            <div class="quick-action-icon qicon-rooms">🚪</div>
             <div class="quick-action-label">القاعات</div>
           </a>
-          <a class="quick-action" href="#">
-            <div class="quick-action-icon" style="background:linear-gradient(135deg,#0284c7,#06b6d4)">✓</div>
+          <a class="quick-action" href="{{ url_for('attendance.list_attendance') }}">
+            <div class="quick-action-icon qicon-attendance">✓</div>
             <div class="quick-action-label">الحضور</div>
           </a>
-          <a class="quick-action" href="#">
-            <div class="quick-action-icon" style="background:linear-gradient(135deg,#7c3aed,#ec4899)">🏛</div>
+          <a class="quick-action" href="{{ url_for('departments.departments') }}">
+            <div class="quick-action-icon qicon-depts">🏛</div>
             <div class="quick-action-label">الأقسام</div>
           </a>
         </div>
@@ -94,7 +94,7 @@
       <div class="page-card">
         <div class="card-header">
           <div><h3>▦ جدول اليوم</h3><p>حصص الأسبوع — الفصل 1</p></div>
-          <a href="#" class="btn btn-sm btn-outline-primary">عرض الكل ←</a>
+          <a href="{{ url_for('timetable.timetable') }}" class="btn btn-sm btn-outline-primary">عرض الكل ←</a>
         </div>
         <div class="card-body" style="padding:0;overflow-x:auto">
           <table class="mini-timetable">
@@ -152,14 +152,14 @@
       <div class="page-card">
         <div class="card-header">
           <div><h3>📋 آخر النشاطات</h3><p>أحدث العمليات على النظام</p></div>
-          <a href="#" class="btn btn-sm btn-outline-primary">السجل الكامل ←</a>
+          <a href="{{ url_for('history.list_history') }}" class="btn btn-sm btn-outline-primary">السجل الكامل ←</a>
         </div>
         <div class="card-body">
           <div class="activity-list">
             <div class="activity-item">
               <div class="activity-icon add">➕</div>
               <div class="activity-content">
-                <div class="activity-text">تمت <strong>إضافة</strong> حصة "برمجة حاسوب" في الجدول الدراسي</div>
+                <div class="activity-text">تمت <strong>إضافة</strong> محاضرة "برمجة حاسوب" في الجدول الدراسي</div>
                 <div class="activity-time">أحمد المصراتي · منذ 15 دقيقة</div>
               </div>
             </div>
@@ -296,10 +296,25 @@
           </div>
         </div>
         <div class="bar-chart-summary">
-          <span>📈 إجمالي الأسبوع: <strong>142 حصة</strong></span>
-          <span>📊 المتوسط اليومي: <strong>23.7 حصة</strong></span>
+          <span>📈 إجمالي الأسبوع: <strong>142 محاضرة</strong></span>
+          <span>📊 المتوسط اليومي: <strong>23.7 محاضرة</strong></span>
           <span>🔺 أعلى يوم: <strong>الأحد (28)</strong></span>
         </div>
       </div>
     </div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function() {
+  var d = new Date();
+  var dayNames = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  var monthNames = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  var day = document.getElementById('welcomeDay');
+  var month = document.getElementById('welcomeMonth');
+  var time = document.getElementById('welcomeTime');
+  if (day) day.textContent = d.getDate();
+  if (month) month.textContent = dayNames[d.getDay()] + ' · ' + monthNames[d.getMonth()] + ' ' + d.getFullYear();
+  if (time) time.textContent = d.toLocaleTimeString('ar-EG', {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+})();
+</script>
 {% endblock %}

@@ -1,0 +1,3591 @@
+# Full Fix Plan - COMPLETE ✅
+
+## Problems Found
+1. **Missing `db.py`** - App imports `db` but doesn't exist
+2. **Incomplete timetable route** - No API endpoints (only static template)
+3. **Frontend hardcoded data** - No backend integration
+4. **DB schema mismatch** - courses/teachers use `department TEXT`, not `department_id`
+
+## Fixes Applied
+
+### ✅ 1. Created `db.py`
+- Database connection manager via Flask `g` context
+- `get_db()` - returns cached connection with `sqlite3.Row` factory
+- `close_db()` - teardown handler
+- `init_app(app)` - registers teardown
+
+### ✅ 2. Updated `app.py`
+- Added `import db` + `db.init_app(app)` after app creation
+
+### ✅ 3. Rewrote `routes/timetable.py`
+- Added `url_prefix='/timetable'` to Blueprint (fixes root `/` collision)
+- **11 REST API endpoints:**
+
+| Endpoint | Method | Auth | Purpose |
+|----------|--------|------|---------|
+| `/timetable/` | GET | login_required + admin_department_required | Render page |
+| `/timetable/api/entries` | GET | login_required + admin_department_required | List entries with filters (semester, department_id, section) |
+| `/timetable/api/entries` | POST | login_required + courses_timetable_admin_required | Create entry with conflict check |
+| `/timetable/api/entries/<id>` | PUT | login_required + courses_timetable_admin_required | Update entry |
+| `/timetable/api/entries/<id>` | DELETE | login_required + courses_timetable_admin_required | Delete entry |
+| `/timetable/api/check-conflict` | POST | login_required | Check conflict without saving |
+| `/timetable/api/courses` | GET | login_required | Dropdown (filters by department name via subquery) |
+| `/timetable/api/teachers` | GET | login_required | Dropdown (filters by department name via subquery) |
+| `/timetable/api/rooms` | GET | login_required | Dropdown (filters by department_id) |
+| `/timetable/api/departments` | GET | super_admin_required | Department list |
+| `/timetable/api/periods` | GET | login_required | Time slots from period_settings |
+
+### ✅ 4. Updated Frontend `templates/timetable/timetable.html`
+- Removed all hardcoded JS arrays (`courses`, `teachers`, `rooms`, `entries`)
+- Added `loadReferenceData()` - fetches courses/teachers/rooms from API
+- Added `loadEntries()` - fetches timetable entries from API
+- `renderTimetable()` - now async, fetches data on each render
+- `saveEntry()` - POST/PUT to API with server-side conflict check
+- `executeDelete()` - DELETE via API
+- Department filter triggers re-render
+- Preserved all UI: modal, semester pills, searchable dropdowns, color coding, toast, theme toggle, global search
+
+### ✅ 5. Fixed API Schema Mismatches
+- courses: `department TEXT` → subquery `(SELECT name FROM departments WHERE id = ?)`
+- teachers: `department TEXT` → subquery `(SELECT name FROM departments WHERE id = ?)`
+- rooms: `department_id` → works directly
+- period_settings: uses `label` column (not `name`) + `sort_order` (not `code`)
+
+### ✅ 6. CSS Already Exists
+- `static/css/timetable.css` - 1147 lines, comprehensive styling with dark/colorful themes
+- Referenced correctly in HTML as `/static/css/timetable.css`
+
+### ✅ 7. Database Connection Verified
+- Config uses `clean_data.db` (147KB, populated with departments, rooms, users, courses, teachers)
+- `db.get_db()` works correctly with app context
+- 7 departments, rooms with data, period_settings with A/B/C periods
+
+### ✅ 8. Application Startup Tested
+- `python app.py` - starts without errors
+- `GET /timetable/` → 302 redirect to login (correct)
+- `GET /auth/login` → 200 (login page renders)
+- All 11 timetable routes registered
+- No import errors
+[{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"int | Unknown | None\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 7,
+	"startColumn": 5,
+	"endLineNumber": 7,
+	"endColumn": 14,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"value\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 7,
+	"startColumn": 15,
+	"endLineNumber": 7,
+	"endColumn": 20,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"value\"",
+	"source": "Pylance",
+	"startLineNumber": 7,
+	"startColumn": 15,
+	"endLineNumber": 7,
+	"endColumn": 20,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"default\" is partially unknown\n  Parameter type is \"Unknown | None\"",
+	"source": "Pylance",
+	"startLineNumber": 7,
+	"startColumn": 22,
+	"endLineNumber": 7,
+	"endColumn": 29,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"default\"",
+	"source": "Pylance",
+	"startLineNumber": 7,
+	"startColumn": 22,
+	"endLineNumber": 7,
+	"endColumn": 29,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is unknown\n  Argument corresponds to parameter \"x\" in function \"__new__\"",
+	"source": "Pylance",
+	"startLineNumber": 9,
+	"startColumn": 20,
+	"endLineNumber": 9,
+	"endColumn": 25,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"Unknown | None\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 11,
+	"startColumn": 16,
+	"endLineNumber": 11,
+	"endColumn": 23,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"name\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 24,
+	"startColumn": 27,
+	"endLineNumber": 24,
+	"endColumn": 31,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"name\"",
+	"source": "Pylance",
+	"startLineNumber": 24,
+	"startColumn": 27,
+	"endLineNumber": 24,
+	"endColumn": 31,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"normalized\" is partially unknown\n  Type of \"normalized\" is \"LiteralString | Unknown\"",
+	"source": "Pylance",
+	"startLineNumber": 25,
+	"startColumn": 5,
+	"endLineNumber": 25,
+	"endColumn": 15,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"strip\" is partially unknown\n  Type of \"strip\" is \"Unknown | Overload[(chars: LiteralString | None = None, /) -> LiteralString, (chars: str | None = None, /) -> str]\"",
+	"source": "Pylance",
+	"startLineNumber": 25,
+	"startColumn": 18,
+	"endLineNumber": 25,
+	"endColumn": 36,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"Any | Unknown | None\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 50,
+	"startColumn": 5,
+	"endLineNumber": 50,
+	"endColumn": 23,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"conn\" is partially unknown\n  Parameter type is \"Unknown | None\"",
+	"source": "Pylance",
+	"startLineNumber": 50,
+	"startColumn": 24,
+	"endLineNumber": 50,
+	"endColumn": 28,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"conn\"",
+	"source": "Pylance",
+	"startLineNumber": 50,
+	"startColumn": 24,
+	"endLineNumber": 50,
+	"endColumn": 28,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"connection\" is partially unknown\n  Type of \"connection\" is \"Unknown | Connection | Any\"",
+	"source": "Pylance",
+	"startLineNumber": 57,
+	"startColumn": 13,
+	"endLineNumber": 57,
+	"endColumn": 23,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"execute\" is partially unknown\n  Type of \"execute\" is \"Unknown | ((sql: str, parameters: SupportsLenAndGetItem[str | Buffer | int | float | Any | None] | Mapping[str, str | Buffer | int | float | Any | None] = ..., /) -> Cursor) | Any\"",
+	"source": "Pylance",
+	"startLineNumber": 58,
+	"startColumn": 37,
+	"endLineNumber": 58,
+	"endColumn": 55,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"fetchone\" is partially unknown\n  Type of \"fetchone\" is \"(() -> Any) | Any | Unknown\"",
+	"source": "Pylance",
+	"startLineNumber": 58,
+	"startColumn": 37,
+	"endLineNumber": 60,
+	"endColumn": 23,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"current_dept_cached\" is partially unknown\n  Type of \"current_dept_cached\" is \"Any | Unknown | None\"",
+	"source": "Pylance",
+	"startLineNumber": 61,
+	"startColumn": 12,
+	"endLineNumber": 61,
+	"endColumn": 33,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"Any | Unknown | None\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 61,
+	"startColumn": 12,
+	"endLineNumber": 61,
+	"endColumn": 33,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"Any | Unknown | None\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 64,
+	"startColumn": 5,
+	"endLineNumber": 64,
+	"endColumn": 28,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"conn\" is partially unknown\n  Parameter type is \"Unknown | None\"",
+	"source": "Pylance",
+	"startLineNumber": 64,
+	"startColumn": 29,
+	"endLineNumber": 64,
+	"endColumn": 33,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"conn\"",
+	"source": "Pylance",
+	"startLineNumber": 64,
+	"startColumn": 29,
+	"endLineNumber": 64,
+	"endColumn": 33,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"department\" is partially unknown\n  Type of \"department\" is \"Any | Unknown | None\"",
+	"source": "Pylance",
+	"startLineNumber": 65,
+	"startColumn": 5,
+	"endLineNumber": 65,
+	"endColumn": 15,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"Any | Unknown | None\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 66,
+	"startColumn": 12,
+	"endLineNumber": 66,
+	"endColumn": 54,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"conn\" is partially unknown\n  Parameter type is \"Unknown | None\"",
+	"source": "Pylance",
+	"startLineNumber": 69,
+	"startColumn": 33,
+	"endLineNumber": 69,
+	"endColumn": 37,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"conn\"",
+	"source": "Pylance",
+	"startLineNumber": 69,
+	"startColumn": 33,
+	"endLineNumber": 69,
+	"endColumn": 37,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"_Wrapped[..., Unknown, ..., Response | Unknown]\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 90,
+	"startColumn": 5,
+	"endLineNumber": 90,
+	"endColumn": 19,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"view\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 90,
+	"startColumn": 20,
+	"endLineNumber": 90,
+	"endColumn": 24,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"view\"",
+	"source": "Pylance",
+	"startLineNumber": 90,
+	"startColumn": 20,
+	"endLineNumber": 90,
+	"endColumn": 24,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is unknown\n  Argument corresponds to parameter \"wrapped\" in function \"wraps\"",
+	"source": "Pylance",
+	"startLineNumber": 91,
+	"startColumn": 12,
+	"endLineNumber": 91,
+	"endColumn": 16,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"Response | Unknown\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 92,
+	"startColumn": 9,
+	"endLineNumber": 92,
+	"endColumn": 16,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"args\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 92,
+	"startColumn": 18,
+	"endLineNumber": 92,
+	"endColumn": 22,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"args\"",
+	"source": "Pylance",
+	"startLineNumber": 92,
+	"startColumn": 18,
+	"endLineNumber": 92,
+	"endColumn": 22,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"kwargs\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 92,
+	"startColumn": 26,
+	"endLineNumber": 92,
+	"endColumn": 32,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"kwargs\"",
+	"source": "Pylance",
+	"startLineNumber": 92,
+	"startColumn": 26,
+	"endLineNumber": 92,
+	"endColumn": 32,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type is unknown",
+	"source": "Pylance",
+	"startLineNumber": 104,
+	"startColumn": 16,
+	"endLineNumber": 104,
+	"endColumn": 37,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"_Wrapped[..., Unknown, ..., Response | Unknown]\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 106,
+	"startColumn": 12,
+	"endLineNumber": 106,
+	"endColumn": 19,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"(view: Unknown) -> _Wrapped[..., Unknown, ..., Response | Unknown]\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 109,
+	"startColumn": 5,
+	"endLineNumber": 109,
+	"endColumn": 18,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"allowed_roles\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 109,
+	"startColumn": 20,
+	"endLineNumber": 109,
+	"endColumn": 33,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"allowed_roles\"",
+	"source": "Pylance",
+	"startLineNumber": 109,
+	"startColumn": 20,
+	"endLineNumber": 109,
+	"endColumn": 33,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"_Wrapped[..., Unknown, ..., Response | Unknown]\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 110,
+	"startColumn": 9,
+	"endLineNumber": 110,
+	"endColumn": 18,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"view\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 110,
+	"startColumn": 19,
+	"endLineNumber": 110,
+	"endColumn": 23,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"view\"",
+	"source": "Pylance",
+	"startLineNumber": 110,
+	"startColumn": 19,
+	"endLineNumber": 110,
+	"endColumn": 23,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is unknown\n  Argument corresponds to parameter \"wrapped\" in function \"wraps\"",
+	"source": "Pylance",
+	"startLineNumber": 111,
+	"startColumn": 16,
+	"endLineNumber": 111,
+	"endColumn": 20,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"Response | Unknown\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 112,
+	"startColumn": 13,
+	"endLineNumber": 112,
+	"endColumn": 20,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"args\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 112,
+	"startColumn": 22,
+	"endLineNumber": 112,
+	"endColumn": 26,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"args\"",
+	"source": "Pylance",
+	"startLineNumber": 112,
+	"startColumn": 22,
+	"endLineNumber": 112,
+	"endColumn": 26,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"kwargs\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 112,
+	"startColumn": 30,
+	"endLineNumber": 112,
+	"endColumn": 36,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"kwargs\"",
+	"source": "Pylance",
+	"startLineNumber": 112,
+	"startColumn": 30,
+	"endLineNumber": 112,
+	"endColumn": 36,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type is unknown",
+	"source": "Pylance",
+	"startLineNumber": 116,
+	"startColumn": 20,
+	"endLineNumber": 116,
+	"endColumn": 41,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"_Wrapped[..., Unknown, ..., Response | Unknown]\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 118,
+	"startColumn": 16,
+	"endLineNumber": 118,
+	"endColumn": 23,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"(view: Unknown) -> _Wrapped[..., Unknown, ..., Response | Unknown]\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 120,
+	"startColumn": 12,
+	"endLineNumber": 120,
+	"endColumn": 21,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"_Wrapped[..., Unknown, ..., Response | Unknown]\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 123,
+	"startColumn": 5,
+	"endLineNumber": 123,
+	"endColumn": 25,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"view\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 123,
+	"startColumn": 26,
+	"endLineNumber": 123,
+	"endColumn": 30,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"view\"",
+	"source": "Pylance",
+	"startLineNumber": 123,
+	"startColumn": 26,
+	"endLineNumber": 123,
+	"endColumn": 30,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"_Wrapped[..., Unknown, ..., Response | Unknown]\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 124,
+	"startColumn": 12,
+	"endLineNumber": 124,
+	"endColumn": 46,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is unknown\n  Argument corresponds to parameter \"view\" in function \"decorator\"",
+	"source": "Pylance",
+	"startLineNumber": 124,
+	"startColumn": 41,
+	"endLineNumber": 124,
+	"endColumn": 45,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"_Wrapped[..., Unknown, ..., Response | Unknown]\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 127,
+	"startColumn": 5,
+	"endLineNumber": 127,
+	"endColumn": 37,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"view\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 127,
+	"startColumn": 38,
+	"endLineNumber": 127,
+	"endColumn": 42,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"view\"",
+	"source": "Pylance",
+	"startLineNumber": 127,
+	"startColumn": 38,
+	"endLineNumber": 127,
+	"endColumn": 42,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Return type, \"_Wrapped[..., Unknown, ..., Response | Unknown]\", is partially unknown",
+	"source": "Pylance",
+	"startLineNumber": 128,
+	"startColumn": 12,
+	"endLineNumber": 128,
+	"endColumn": 55,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is unknown\n  Argument corresponds to parameter \"view\" in function \"decorator\"",
+	"source": "Pylance",
+	"startLineNumber": 128,
+	"startColumn": 50,
+	"endLineNumber": 128,
+	"endColumn": 54,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0114:missing-module-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-module-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing module docstring",
+	"source": "Pylint",
+	"startLineNumber": 1,
+	"startColumn": 1,
+	"endLineNumber": 1,
+	"endColumn": 1,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0116:missing-function-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-function-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing function or method docstring",
+	"source": "Pylint",
+	"startLineNumber": 14,
+	"startColumn": 1,
+	"endLineNumber": 14,
+	"endColumn": 19,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0116:missing-function-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-function-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing function or method docstring",
+	"source": "Pylint",
+	"startLineNumber": 18,
+	"startColumn": 1,
+	"endLineNumber": 18,
+	"endColumn": 18,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0116:missing-function-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-function-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing function or method docstring",
+	"source": "Pylint",
+	"startLineNumber": 24,
+	"startColumn": 1,
+	"endLineNumber": 24,
+	"endColumn": 26,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"القسم\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 26,
+	"startColumn": 28,
+	"endLineNumber": 26,
+	"endColumn": 33,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"العام\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 26,
+	"startColumn": 34,
+	"endLineNumber": 26,
+	"endColumn": 39,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"العام\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 26,
+	"startColumn": 68,
+	"endLineNumber": 26,
+	"endColumn": 73,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0116:missing-function-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-function-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing function or method docstring",
+	"source": "Pylint",
+	"startLineNumber": 64,
+	"startColumn": 1,
+	"endLineNumber": 64,
+	"endColumn": 28,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0116:missing-function-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-function-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing function or method docstring",
+	"source": "Pylint",
+	"startLineNumber": 69,
+	"startColumn": 1,
+	"endLineNumber": 69,
+	"endColumn": 32,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0116:missing-function-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-function-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing function or method docstring",
+	"source": "Pylint",
+	"startLineNumber": 90,
+	"startColumn": 1,
+	"endLineNumber": 90,
+	"endColumn": 19,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"تسجيل\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 94,
+	"startColumn": 24,
+	"endLineNumber": 94,
+	"endColumn": 29,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"الدخول\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 94,
+	"startColumn": 30,
+	"endLineNumber": 94,
+	"endColumn": 36,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"أولاً\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 94,
+	"startColumn": 37,
+	"endLineNumber": 94,
+	"endColumn": 42,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"انتهت\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 98,
+	"startColumn": 20,
+	"endLineNumber": 98,
+	"endColumn": 25,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"الجلسة\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 98,
+	"startColumn": 26,
+	"endLineNumber": 98,
+	"endColumn": 32,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"الحالية\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 98,
+	"startColumn": 33,
+	"endLineNumber": 98,
+	"endColumn": 40,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"أصبحت\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 98,
+	"startColumn": 44,
+	"endLineNumber": 98,
+	"endColumn": 49,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"صالحة\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 98,
+	"startColumn": 54,
+	"endLineNumber": 98,
+	"endColumn": 59,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"يرجى\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 98,
+	"startColumn": 61,
+	"endLineNumber": 98,
+	"endColumn": 65,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"تسجيل\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 98,
+	"startColumn": 66,
+	"endLineNumber": 98,
+	"endColumn": 71,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"الدخول\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 98,
+	"startColumn": 72,
+	"endLineNumber": 98,
+	"endColumn": 78,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"أخرى\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 98,
+	"startColumn": 83,
+	"endLineNumber": 98,
+	"endColumn": 87,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"حساب\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 102,
+	"startColumn": 20,
+	"endLineNumber": 102,
+	"endColumn": 24,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"الأدمن\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 102,
+	"startColumn": 25,
+	"endLineNumber": 102,
+	"endColumn": 31,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"مرتبط\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 102,
+	"startColumn": 36,
+	"endLineNumber": 102,
+	"endColumn": 41,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"بقسم\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 102,
+	"startColumn": 42,
+	"endLineNumber": 102,
+	"endColumn": 46,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"صالح\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 102,
+	"startColumn": 47,
+	"endLineNumber": 102,
+	"endColumn": 51,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"تسجيل\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 102,
+	"startColumn": 56,
+	"endLineNumber": 102,
+	"endColumn": 61,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"الخروج\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 102,
+	"startColumn": 62,
+	"endLineNumber": 102,
+	"endColumn": 68,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"لحماية\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 102,
+	"startColumn": 69,
+	"endLineNumber": 102,
+	"endColumn": 75,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"النظام\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 102,
+	"startColumn": 76,
+	"endLineNumber": 102,
+	"endColumn": 82,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0116:missing-function-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-function-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing function or method docstring",
+	"source": "Pylint",
+	"startLineNumber": 109,
+	"startColumn": 1,
+	"endLineNumber": 109,
+	"endColumn": 18,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"لديك\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 114,
+	"startColumn": 28,
+	"endLineNumber": 114,
+	"endColumn": 32,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"صلاحية\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 114,
+	"startColumn": 33,
+	"endLineNumber": 114,
+	"endColumn": 39,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"الوصول\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 114,
+	"startColumn": 40,
+	"endLineNumber": 114,
+	"endColumn": 46,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"الصفحة\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 114,
+	"startColumn": 55,
+	"endLineNumber": 114,
+	"endColumn": 61,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0116:missing-function-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-function-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing function or method docstring",
+	"source": "Pylint",
+	"startLineNumber": 123,
+	"startColumn": 1,
+	"endLineNumber": 123,
+	"endColumn": 25,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/__init__.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0116:missing-function-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-function-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing function or method docstring",
+	"source": "Pylint",
+	"startLineNumber": 127,
+	"startColumn": 1,
+	"endLineNumber": 127,
+	"endColumn": 37,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+}][{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"BytesIO\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 2,
+	"startColumn": 16,
+	"endLineNumber": 2,
+	"endColumn": 23,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"re\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 3,
+	"startColumn": 8,
+	"endLineNumber": 3,
+	"endColumn": 10,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"flash\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 12,
+	"startColumn": 5,
+	"endLineNumber": 12,
+	"endColumn": 10,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"jsonify\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 13,
+	"startColumn": 5,
+	"endLineNumber": 13,
+	"endColumn": 12,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"redirect\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 14,
+	"startColumn": 5,
+	"endLineNumber": 14,
+	"endColumn": 13,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"request\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 16,
+	"startColumn": 5,
+	"endLineNumber": 16,
+	"endColumn": 12,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"send_file\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 17,
+	"startColumn": 5,
+	"endLineNumber": 17,
+	"endColumn": 14,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"session\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 18,
+	"startColumn": 5,
+	"endLineNumber": 18,
+	"endColumn": 12,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"url_for\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 19,
+	"startColumn": 5,
+	"endLineNumber": 19,
+	"endColumn": 12,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"Workbook\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 27,
+	"startColumn": 22,
+	"endLineNumber": 27,
+	"endColumn": 30,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"load_workbook\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 27,
+	"startColumn": 32,
+	"endLineNumber": 27,
+	"endColumn": 45,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"Font\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 28,
+	"startColumn": 29,
+	"endLineNumber": 28,
+	"endColumn": 33,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"db\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 30,
+	"startColumn": 8,
+	"endLineNumber": 30,
+	"endColumn": 10,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"courses_timetable_admin_required\" is partially unknown\n  Type of \"courses_timetable_admin_required\" is \"(view: Unknown) -> _Wrapped[..., Unknown, ..., Response | Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 32,
+	"startColumn": 5,
+	"endLineNumber": 32,
+	"endColumn": 37,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"courses_timetable_admin_required\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 32,
+	"startColumn": 5,
+	"endLineNumber": 32,
+	"endColumn": 37,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"current_department_name\" is partially unknown\n  Type of \"current_department_name\" is \"(conn: Unknown | None = None) -> (Any | Unknown | None)\"",
+	"source": "Pylance",
+	"startLineNumber": 33,
+	"startColumn": 5,
+	"endLineNumber": 33,
+	"endColumn": 28,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"current_department_name\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 33,
+	"startColumn": 5,
+	"endLineNumber": 33,
+	"endColumn": 28,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"current_role\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 34,
+	"startColumn": 5,
+	"endLineNumber": 34,
+	"endColumn": 17,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"current_user_id\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 35,
+	"startColumn": 5,
+	"endLineNumber": 35,
+	"endColumn": 20,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"history_actor\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 36,
+	"startColumn": 5,
+	"endLineNumber": 36,
+	"endColumn": 18,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"is_super_admin\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 37,
+	"startColumn": 5,
+	"endLineNumber": 37,
+	"endColumn": 19,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"login_required\" is partially unknown\n  Type of \"login_required\" is \"(view: Unknown) -> _Wrapped[..., Unknown, ..., Response | Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 38,
+	"startColumn": 5,
+	"endLineNumber": 38,
+	"endColumn": 19,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"login_required\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 38,
+	"startColumn": 5,
+	"endLineNumber": 38,
+	"endColumn": 19,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"admin_department_required\" is partially unknown\n  Type of \"admin_department_required\" is \"(view: Unknown) -> _Wrapped[..., Unknown, ..., Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 40,
+	"startColumn": 27,
+	"endLineNumber": 40,
+	"endColumn": 52,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"admin_department_required\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 40,
+	"startColumn": 27,
+	"endLineNumber": 40,
+	"endColumn": 52,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"department_name_allowed\" is partially unknown\n  Type of \"department_name_allowed\" is \"(department_name: Unknown, conn: Unknown | None = None) -> bool\"",
+	"source": "Pylance",
+	"startLineNumber": 40,
+	"startColumn": 54,
+	"endLineNumber": 40,
+	"endColumn": 77,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnusedImport",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnusedImport.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Import \"department_name_allowed\" is not accessed",
+	"source": "Pylance",
+	"startLineNumber": 40,
+	"startColumn": 54,
+	"endLineNumber": 40,
+	"endColumn": 77,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingModuleSource",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingModuleSource.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 4,
+	"message": "Import \"openpyxl\" could not be resolved from source",
+	"source": "Pylance",
+	"startLineNumber": 27,
+	"startColumn": 6,
+	"endLineNumber": 27,
+	"endColumn": 14,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/courses.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingModuleSource",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingModuleSource.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 4,
+	"message": "Import \"openpyxl.styles\" could not be resolved from source",
+	"source": "Pylance",
+	"startLineNumber": 28,
+	"startColumn": 6,
+	"endLineNumber": 28,
+	"endColumn": 21,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+}][{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/dashboard.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"append\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 123,
+	"startColumn": 13,
+	"endLineNumber": 123,
+	"endColumn": 49,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/dashboard.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"append\" is partially unknown\n  Type of \"append\" is \"(object: Unknown, /) -> None\"",
+	"source": "Pylance",
+	"startLineNumber": 126,
+	"startColumn": 13,
+	"endLineNumber": 126,
+	"endColumn": 46,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/dashboard.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+	"source": "Pylance",
+	"startLineNumber": 129,
+	"startColumn": 30,
+	"endLineNumber": 129,
+	"endColumn": 52,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/dashboard.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"يرجى\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 31,
+	"startColumn": 16,
+	"endLineNumber": 31,
+	"endColumn": 20,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/dashboard.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"تسجيل\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 31,
+	"startColumn": 21,
+	"endLineNumber": 31,
+	"endColumn": 26,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/dashboard.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"الدخول\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 31,
+	"startColumn": 27,
+	"endLineNumber": 31,
+	"endColumn": 33,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/dashboard.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"أولاً\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 31,
+	"startColumn": 34,
+	"endLineNumber": 31,
+	"endColumn": 39,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/dashboard.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"يوجد\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 135,
+	"startColumn": 23,
+	"endLineNumber": 135,
+	"endColumn": 27,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/dashboard.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"مرتبط\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 135,
+	"startColumn": 32,
+	"endLineNumber": 135,
+	"endColumn": 37,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/dashboard.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"بحسابك\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 135,
+	"startColumn": 38,
+	"endLineNumber": 135,
+	"endColumn": 44,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/dashboard.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"محدد\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 142,
+	"startColumn": 58,
+	"endLineNumber": 142,
+	"endColumn": 62,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+}][{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"login_required\" is partially unknown\n  Type of \"login_required\" is \"(view: Unknown) -> _Wrapped[..., Unknown, ..., Response | Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 4,
+	"startColumn": 5,
+	"endLineNumber": 4,
+	"endColumn": 19,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"courses_timetable_admin_required\" is partially unknown\n  Type of \"courses_timetable_admin_required\" is \"(view: Unknown) -> _Wrapped[..., Unknown, ..., Response | Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 5,
+	"startColumn": 5,
+	"endLineNumber": 5,
+	"endColumn": 37,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"admin_department_required\" is partially unknown\n  Type of \"admin_department_required\" is \"(view: Unknown) -> _Wrapped[..., Unknown, ..., Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 10,
+	"startColumn": 27,
+	"endLineNumber": 10,
+	"endColumn": 52,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument of type \"str\" cannot be assigned to parameter \"object\" of type \"int\" in function \"append\"\n  \"str\" is not assignable to \"int\"",
+	"source": "Pylance",
+	"startLineNumber": 52,
+	"startColumn": 23,
+	"endLineNumber": 52,
+	"endColumn": 30,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"data\" is partially unknown\n  Type of \"data\" is \"Any | dict[Unknown, Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 63,
+	"startColumn": 5,
+	"endLineNumber": 63,
+	"endColumn": 9,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is partially unknown\n  Argument corresponds to parameter \"parameters\" in function \"execute\"\n  Argument type is \"tuple[Any | Unknown, Any | Unknown, Any | Unknown, Any | Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 74,
+	"startColumn": 10,
+	"endLineNumber": 74,
+	"endColumn": 81,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Any | Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+	"source": "Pylance",
+	"startLineNumber": 76,
+	"startColumn": 25,
+	"endLineNumber": 76,
+	"endColumn": 33,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is partially unknown\n  Argument corresponds to parameter \"parameters\" in function \"execute\"\n  Argument type is \"tuple[int | None, Any | Unknown, Any | Unknown, Any | Unknown, Any | Unknown, Any | Unknown, Any | Unknown, Unknown | Any | None, Unknown | Any | None, Any | Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 83,
+	"startColumn": 10,
+	"endLineNumber": 85,
+	"endColumn": 79,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Any | Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+	"source": "Pylance",
+	"startLineNumber": 85,
+	"startColumn": 11,
+	"endLineNumber": 85,
+	"endColumn": 19,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Any | Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+	"source": "Pylance",
+	"startLineNumber": 85,
+	"startColumn": 35,
+	"endLineNumber": 85,
+	"endColumn": 43,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"id\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 93,
+	"startColumn": 18,
+	"endLineNumber": 93,
+	"endColumn": 20,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"id\"",
+	"source": "Pylance",
+	"startLineNumber": 93,
+	"startColumn": 18,
+	"endLineNumber": 93,
+	"endColumn": 20,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"data\" is partially unknown\n  Type of \"data\" is \"Any | dict[Unknown, Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 94,
+	"startColumn": 5,
+	"endLineNumber": 94,
+	"endColumn": 9,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is partially unknown\n  Argument corresponds to parameter \"parameters\" in function \"execute\"\n  Argument type is \"tuple[Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 96,
+	"startColumn": 64,
+	"endLineNumber": 96,
+	"endColumn": 69,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is partially unknown\n  Argument corresponds to parameter \"parameters\" in function \"execute\"\n  Argument type is \"tuple[Any | Unknown, Any | Unknown, Any | Unknown, Any | Unknown, Any | Unknown, Any | Unknown, Unknown | Any | None, Unknown | Any | None, Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 104,
+	"startColumn": 10,
+	"endLineNumber": 106,
+	"endColumn": 36,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Any | Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+	"source": "Pylance",
+	"startLineNumber": 105,
+	"startColumn": 48,
+	"endLineNumber": 105,
+	"endColumn": 56,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"get\" is partially unknown\n  Type of \"get\" is \"Any | Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\"",
+	"source": "Pylance",
+	"startLineNumber": 106,
+	"startColumn": 11,
+	"endLineNumber": 106,
+	"endColumn": 19,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"id\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 114,
+	"startColumn": 18,
+	"endLineNumber": 114,
+	"endColumn": 20,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"id\"",
+	"source": "Pylance",
+	"startLineNumber": 114,
+	"startColumn": 18,
+	"endLineNumber": 114,
+	"endColumn": 20,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is partially unknown\n  Argument corresponds to parameter \"parameters\" in function \"execute\"\n  Argument type is \"tuple[Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 116,
+	"startColumn": 64,
+	"endLineNumber": 116,
+	"endColumn": 69,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is partially unknown\n  Argument corresponds to parameter \"parameters\" in function \"execute\"\n  Argument type is \"tuple[Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 119,
+	"startColumn": 54,
+	"endLineNumber": 119,
+	"endColumn": 59,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownVariableType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownVariableType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"data\" is partially unknown\n  Type of \"data\" is \"Any | dict[Unknown, Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 127,
+	"startColumn": 5,
+	"endLineNumber": 127,
+	"endColumn": 9,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is partially unknown\n  Argument corresponds to parameter \"parameters\" in function \"execute\"\n  Argument type is \"tuple[Any | Unknown, Any | Unknown, Any | Unknown, Any | Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 136,
+	"startColumn": 10,
+	"endLineNumber": 136,
+	"endColumn": 81,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"append\" is partially unknown\n  Type of \"append\" is \"(object: Unknown, /) -> None\"",
+	"source": "Pylance",
+	"startLineNumber": 154,
+	"startColumn": 9,
+	"endLineNumber": 154,
+	"endColumn": 22,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is partially unknown\n  Argument corresponds to parameter \"parameters\" in function \"execute\"\n  Argument type is \"list[Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 156,
+	"startColumn": 32,
+	"endLineNumber": 156,
+	"endColumn": 38,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"append\" is partially unknown\n  Type of \"append\" is \"(object: Unknown, /) -> None\"",
+	"source": "Pylance",
+	"startLineNumber": 171,
+	"startColumn": 9,
+	"endLineNumber": 171,
+	"endColumn": 22,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is partially unknown\n  Argument corresponds to parameter \"parameters\" in function \"execute\"\n  Argument type is \"list[Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 173,
+	"startColumn": 32,
+	"endLineNumber": 173,
+	"endColumn": 38,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"append\" is partially unknown\n  Type of \"append\" is \"(object: Unknown, /) -> None\"",
+	"source": "Pylance",
+	"startLineNumber": 188,
+	"startColumn": 9,
+	"endLineNumber": 188,
+	"endColumn": 22,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownArgumentType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownArgumentType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Argument type is partially unknown\n  Argument corresponds to parameter \"parameters\" in function \"execute\"\n  Argument type is \"list[Unknown]\"",
+	"source": "Pylance",
+	"startLineNumber": 189,
+	"startColumn": 32,
+	"endLineNumber": 189,
+	"endColumn": 38,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/routes/timetable.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"lastrowid\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 87,
+	"startColumn": 31,
+	"endLineNumber": 87,
+	"endColumn": 40,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+}][{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/db.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"e\" is partially unknown\n  Parameter type is \"Unknown | None\"",
+	"source": "Pylance",
+	"startLineNumber": 11,
+	"startColumn": 14,
+	"endLineNumber": 11,
+	"endColumn": 15,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/db.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"e\"",
+	"source": "Pylance",
+	"startLineNumber": 11,
+	"startColumn": 14,
+	"endLineNumber": 11,
+	"endColumn": 15,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/db.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of parameter \"app\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 16,
+	"startColumn": 14,
+	"endLineNumber": 16,
+	"endColumn": 17,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/db.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportMissingParameterType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportMissingParameterType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type annotation is missing for parameter \"app\"",
+	"source": "Pylance",
+	"startLineNumber": 16,
+	"startColumn": 14,
+	"endLineNumber": 16,
+	"endColumn": 17,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/db.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"teardown_appcontext\" is unknown",
+	"source": "Pylance",
+	"startLineNumber": 17,
+	"startColumn": 5,
+	"endLineNumber": 17,
+	"endColumn": 28,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/db.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "W0613:unused-argument",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/warning/unused-argument.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 4,
+	"message": "Unused argument 'e'",
+	"source": "Pylint",
+	"startLineNumber": 11,
+	"startColumn": 14,
+	"endLineNumber": 11,
+	"endColumn": 15,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/db.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0114:missing-module-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-module-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing module docstring",
+	"source": "Pylint",
+	"startLineNumber": 1,
+	"startColumn": 1,
+	"endLineNumber": 1,
+	"endColumn": 1,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/db.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0411:wrong-import-order",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/wrong-import-order.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "third party import \"flask.g\" should be placed before first party import \"config.Config\" ",
+	"source": "Pylint",
+	"startLineNumber": 3,
+	"startColumn": 1,
+	"endLineNumber": 3,
+	"endColumn": 20,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/db.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0116:missing-function-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-function-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing function or method docstring",
+	"source": "Pylint",
+	"startLineNumber": 5,
+	"startColumn": 1,
+	"endLineNumber": 5,
+	"endColumn": 11,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/db.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0116:missing-function-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-function-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing function or method docstring",
+	"source": "Pylint",
+	"startLineNumber": 11,
+	"startColumn": 1,
+	"endLineNumber": 11,
+	"endColumn": 13,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/db.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0116:missing-function-docstring",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-function-docstring.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Missing function or method docstring",
+	"source": "Pylint",
+	"startLineNumber": 16,
+	"startColumn": 1,
+	"endLineNumber": 16,
+	"endColumn": 13,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/db.py",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": {
+		"value": "C0304:missing-final-newline",
+		"target": {
+			"$mid": 1,
+			"path": "/en/latest/user_guide/messages/convention/missing-final-newline.html",
+			"scheme": "https",
+			"authority": "pylint.readthedocs.io"
+		}
+	},
+	"severity": 2,
+	"message": "Final newline missing",
+	"source": "Pylint",
+	"startLineNumber": 17,
+	"startColumn": 1,
+	"endLineNumber": 17,
+	"endColumn": 1,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+},{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/db.py",
+	"owner": "cSpell",
+	"severity": 2,
+	"message": "\"appcontext\": Unknown word.",
+	"source": "cSpell",
+	"startLineNumber": 17,
+	"startColumn": 18,
+	"endLineNumber": 17,
+	"endColumn": 28,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+}][{
+	"resource": "/c:/Users/MD.MASTER/OneDrive/Desktop/templates/app.py",
+	"owner": "Pylance7",
+	"code": {
+		"value": "reportUnknownMemberType",
+		"target": {
+			"$mid": 1,
+			"path": "/microsoft/pylance-release/blob/main/docs/diagnostics/reportUnknownMemberType.md",
+			"scheme": "https",
+			"authority": "github.com"
+		}
+	},
+	"severity": 8,
+	"message": "Type of \"init_app\" is partially unknown\n  Type of \"init_app\" is \"(app: Unknown) -> None\"",
+	"source": "Pylance",
+	"startLineNumber": 18,
+	"startColumn": 1,
+	"endLineNumber": 18,
+	"endColumn": 12,
+	"modelVersionId": 1,
+	"origin": "extHost2"
+}]

@@ -1,0 +1,43 @@
+{% set active_page = 'courses' %}
+{% extends 'base.html' %}
+{% block title %}طباعة المقررات{% endblock %}
+{% block content %}
+<div style="text-align:center;margin-bottom:20px">
+  <h2>قائمة المقررات الدراسية</h2>
+  <p style="color:var(--text-muted)">نظام كلية التقنية الهندسية</p>
+</div>
+<table style="width:100%;border-collapse:collapse;font-size:12px">
+  <thead>
+    <tr style="background:#f1f5f9">
+      <th style="padding:8px;border:1px solid #ddd;text-align:center">#</th>
+      <th style="padding:8px;border:1px solid #ddd;text-align:center">الرمز</th>
+      <th style="padding:8px;border:1px solid #ddd;text-align:right">الاسم</th>
+      <th style="padding:8px;border:1px solid #ddd;text-align:center">القسم</th>
+      <th style="padding:8px;border:1px solid #ddd;text-align:center">السنة</th>
+      <th style="padding:8px;border:1px solid #ddd;text-align:center">نظري</th>
+      <th style="padding:8px;border:1px solid #ddd;text-align:center">عملي</th>
+      <th style="padding:8px;border:1px solid #ddd;text-align:center">الإجمالي</th>
+      <th style="padding:8px;border:1px solid #ddd;text-align:center">المتطلب</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for course in courses %}
+    <tr>
+      <td style="padding:6px;border:1px solid #ddd;text-align:center">{{ loop.index }}</td>
+      <td style="padding:6px;border:1px solid #ddd;text-align:center">{{ course.code or '' }}</td>
+      <td style="padding:6px;border:1px solid #ddd;text-align:right">{{ course.name }}</td>
+      <td style="padding:6px;border:1px solid #ddd;text-align:center">{{ course.department_name or '' }}</td>
+      <td style="padding:6px;border:1px solid #ddd;text-align:center">{{ course.year }}</td>
+      <td style="padding:6px;border:1px solid #ddd;text-align:center">{{ course.theory_hours or 0 }}</td>
+      <td style="padding:6px;border:1px solid #ddd;text-align:center">{{ course.practical_hours or 0 }}</td>
+      <td style="padding:6px;border:1px solid #ddd;text-align:center">{{ course.total_hours or 0 }}</td>
+      <td style="padding:6px;border:1px solid #ddd;text-align:center">{{ course.accreditation or '—' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div style="text-align:center;margin-top:20px;font-size:11px;color:var(--text-muted)">
+  تمت الطباعة في <span id="printDate"></span>
+</div>
+<script>window.print();</script>
+{% endblock %}

@@ -1,36 +1,93 @@
-{% set active_page = 'timetable' %}
-{% extends 'base.html' %}
-{% block title %}نظام كلية التقنية الهندسية{% endblock %}
-{% block body_attrs %}data-theme="light"{% endblock %}
-{% block extra_head %}
-<link rel="stylesheet" href="static/css/timetable.css">
-{% endblock %}
-{% block content %}
-<!-- Page Header -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<title>نظام كلية التقنية الهندسية - الجدول الدراسي</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/tajawal@5.0.0/index.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/timetable.css') }}">
+</head>
+<body data-theme="light">
+
+<!-- TOPBAR -->
+<header class="app-topbar no-print">
+  <div class="topbar-start">
+    <button type="button" class="topbar-icon-button" aria-label="القائمة" data-sidebar-toggle>
+      <span class="icon-menu-lines"></span>
+    </button>
+    <a class="topbar-brand" href="{{ url_for('dashboard.dashboard') }}">
+      <span class="brand-mark"><img src="/static/image/logo.png" alt="logo"></span>
+      <span class="brand-copy">
+        <strong>نظام كلية التقنية الهندسية</strong>
+        <small>College Management System</small>
+      </span>
+    </a>
+  </div>
+
+  <div class="topbar-actions">
+    <div class="topbar-account">
+      <button type="button" class="topbar-avatar-btn" id="accountBtn">
+        <span class="user-avatar" style="background-color:#f59e0b">{{ (session.get('label') or session.get('username') or 'S')[:1] }}</span>
+        <span class="user-copy">
+          <strong>{{ session.get('label') or 'General Department' }}</strong>
+          <small>{{ session.get('role') or 'super_admin' }}</small>
+        </span>
+      </button>
+
+      <div class="account-dropdown" id="accountDropdown">
+        <div class="account-dropdown-header">
+          <small>مسجل الدخول باسم</small>
+          <div class="account-dropdown-current">
+            <span class="user-avatar" style="background-color:#f59e0b">{{ (session.get('label') or session.get('username') or 'S')[:1] }}</span>
+            <div>
+              <strong>{{ session.get('label') or 'General Department' }}</strong>
+              <div style="font-size:11px;color:var(--text-muted)">{{ session.get('username') or 'superadmin' }}</div>
+            </div>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border)"></div>
+        <a class="account-dropdown-item danger" href="{{ url_for('auth.logout') }}">🚪 تسجيل الخروج</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+{% include 'partials/sidebar.html' %}
+<div class="sidebar-backdrop" data-sidebar-close></div>
+
+<!-- MAIN -->
+<main class="app-main">
+  <!-- PRINT HEADER (visible only during print) -->
+  <div class="print-header">
+    <div class="print-institution">كلية التقنية الهندسية</div>
+    <div class="print-institution-en">College of Engineering Technology</div>
+    <div class="print-dept-semester" id="printDeptSemester">القسم العام — الفصل الدراسي 1</div>
+    <div class="print-academic-year" id="printAcademicYear"></div>
+    <div class="print-title">الجدول الدراسي</div>
+  </div>
+
   <div class="page-header animate-in">
     <div class="page-header-info">
       <div class="page-header-icon">▦</div>
       <div>
         <h1 class="page-title">الجدول الدراسي</h1>
-        <p class="page-subtitle">إدارة جداول الحصص لكل الأقسام والفصول الدراسية</p>
+        <p class="page-subtitle">إدارة جداول المحاضرات لكل الأقسام والفصول الدراسية</p>
       </div>
     </div>
   </div>
 
-  
-  <!-- Timetable Card -->
+  <!-- TIMETABLE CARD -->
   <div class="timetable-card animate-in">
-    <!-- Toolbar -->
     <div class="timetable-toolbar no-print">
       <div class="toolbar-group">
-        <button type="button" class="btn btn-success" onclick="openModal()">➕ إضافة حصة</button>
+        <button type="button" class="btn btn-success" onclick="openModal()">➕ إضافة محاضرة</button>
         <button type="button" class="btn btn-outline-primary" onclick="window.print()">🖨 طباعة الجدول</button>
       </div>
       <div class="toolbar-group">
         <form class="semester-filter-form" onsubmit="return false">
           <label>القسم:</label>
-          <select class="filter-select" id="deptFilter" onchange="filterTimetable()">
-            <option value="all">كل الأقسام</option>
+          <select class="filter-select" id="deptFilter">
             <option value="1" selected>القسم العام</option>
             <option value="2">قسم الاتصالات</option>
             <option value="3">قسم الحاسوب</option>
@@ -41,55 +98,180 @@
           </select>
 
           <div class="badge-stack">
-            <label class="semester-pill is-active"><input type="checkbox" value="1" checked onchange="toggleSemester(this)"><span>الفصل 1</span></label>
-            <label class="semester-pill"><input type="checkbox" value="2" onchange="toggleSemester(this)"><span>الفصل 2</span></label>
-            <label class="semester-pill"><input type="checkbox" value="3" onchange="toggleSemester(this)"><span>الفصل 3</span></label>
-            <label class="semester-pill"><input type="checkbox" value="4" onchange="toggleSemester(this)"><span>الفصل 4</span></label>
-            <label class="semester-pill"><input type="checkbox" value="5" onchange="toggleSemester(this)"><span>الفصل 5</span></label>
-            <label class="semester-pill"><input type="checkbox" value="6" onchange="toggleSemester(this)"><span>الفصل 6</span></label>
-            <label class="semester-pill"><input type="checkbox" value="7" onchange="toggleSemester(this)"><span>الفصل 7</span></label>
-            <label class="semester-pill"><input type="checkbox" value="8" onchange="toggleSemester(this)"><span>الفصل 8</span></label>
+            <label class="semester-pill is-active"><input type="checkbox" value="1" checked><span>الفصل 1</span></label>
+            <label class="semester-pill"><input type="checkbox" value="2"><span>الفصل 2</span></label>
+            <label class="semester-pill"><input type="checkbox" value="3"><span>الفصل 3</span></label>
+            <label class="semester-pill"><input type="checkbox" value="4"><span>الفصل 4</span></label>
+            <label class="semester-pill"><input type="checkbox" value="5"><span>الفصل 5</span></label>
+            <label class="semester-pill"><input type="checkbox" value="6"><span>الفصل 6</span></label>
+            <label class="semester-pill"><input type="checkbox" value="7"><span>الفصل 7</span></label>
+            <label class="semester-pill"><input type="checkbox" value="8"><span>الفصل 8</span></label>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Timetable Content -->
     <div class="semester-section" data-semester="1">
       <div class="semester-header">
         <div class="semester-title">
-          📖 الفصل المحاضر
-          <span class="semester-badge" id="semesterCount">10 حصص</span>
+          📖 الفصل الدراسي 1
+          <span class="semester-badge" id="semesterCount">9 حصص</span>
         </div>
       </div>
 
       <div class="timetable-wrap">
-        <table class="timetable" id="timetableGrid">
+        <table class="timetable">
           <thead>
             <tr>
               <th>اليوم</th>
               <th>
                 <div class="period-code">أ</div>
-                <div> المحضر الاول</div>
+                <div>المحاضرة الأولى</div>
               </th>
               <th>
                 <div class="period-code">ب</div>
-                <div> المحضر الثاني</div>
+                <div> المحاضرة الثانية</div>
               </th>
               <th>
                 <div class="period-code">ج</div>
-                <div> المحضر الثالث</div>
+                <div> المحاضرة الثالثة</div>
               </th>
             </tr>
           </thead>
-          <tbody id="timetableBody">
-            <!-- Generated by JS -->
-          </tbody>
+          <tbody id="timetableBody"></tbody>
         </table>
       </div>
     </div>
   </div>
-{% endblock %}
-{% block scripts %}
-<script src="static/js/timetable.js"></script>
-{% endblock %}
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h3 id="modalTitle">📝 إضافة المحاضرة جديدة</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">تأكد من اختيار المادة والقاعة المحاضر بشكل صحيح لتجنب التعارض.</p>
+
+      <form id="timetableForm" onsubmit="return saveEntry(event)">
+        <input type="hidden" id="entryId" value="">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>اليوم <span class="required">*</span></label>
+            <select class="form-control" id="formDay" required>
+              <option value="السبت">السبت</option>
+              <option value="الأحد">الأحد</option>
+              <option value="الاثنين">الاثنين</option>
+              <option value="الثلاثاء">الثلاثاء</option>
+              <option value="الأربعاء">الأربعاء</option>
+              <option value="الخميس">الخميس</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>الفصل الدراسي <span class="required">*</span></label>
+            <select class="form-control" id="formSemester" required>
+              <option value="1">الفصل 1</option>
+              <option value="2">الفصل 2</option>
+              <option value="3">الفصل 3</option>
+              <option value="4">الفصل 4</option>
+              <option value="5">الفصل 5</option>
+              <option value="6">الفصل 6</option>
+              <option value="7">الفصل 7</option>
+              <option value="8">الفصل 8</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>المحضر <span class="required">*</span></label>
+            <select class="form-control" id="formPeriod" required>
+              <option value="A" data-start="08:00" data-end="09:30">أ - المحضر الأول</option>
+              <option value="B" data-start="09:45" data-end="11:15">ب - المحضر الثاني</option>
+              <option value="C" data-start="11:30" data-end="13:00">ج - المحضر الثالث</option>
+            </select>
+          </div>
+
+          <div class="form-group searchable-wrapper">
+            <label>المقرر <span class="required">*</span></label>
+            <input type="text" class="form-control searchable-input" id="courseInput" placeholder="ابحث عن المقرر..." autocomplete="off">
+            <input type="hidden" id="courseId" value="">
+            <div class="searchable-list" id="courseList"></div>
+          </div>
+
+          <div class="form-group searchable-wrapper">
+            <label>المحاضرين <span class="required">*</span></label>
+            <input type="text" class="form-control searchable-input" id="teacherInput" placeholder="ابحث عن المحاضر..." autocomplete="off">
+            <input type="hidden" id="teacherId" value="">
+            <div class="searchable-list" id="teacherList"></div>
+          </div>
+
+          <div class="form-group searchable-wrapper">
+            <label>القاعة <span class="required">*</span></label>
+            <input type="text" class="form-control searchable-input" id="roomInput" placeholder="ابحث عن القاعة..." autocomplete="off">
+            <input type="hidden" id="roomId" value="">
+            <div class="searchable-list" id="roomList"></div>
+          </div>
+
+          <div class="form-group">
+            <label>وقت البداية</label>
+            <input type="time" class="form-control" id="formStartTime" value="">
+          </div>
+
+          <div class="form-group">
+            <label>وقت النهاية</label>
+            <input type="time" class="form-control" id="formEndTime" value="">
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline-secondary" onclick="closeModal()">إلغاء</button>
+      <button class="btn btn-danger" id="deleteBtn" style="display:none" onclick="confirmDelete()">🗑 حذف</button>
+      <button class="btn btn-primary" onclick="saveEntry(event)" id="saveBtn">💾 حفظ المحاضرة</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">🗑</div>
+    <div class="confirm-title">حذف المحضر</div>
+    <div class="confirm-text">هل أنت متأكد من حذف هذا المحضر؟ لا يمكن التراجع عن هذا الإجراء.</div>
+    <div class="confirm-actions">
+      <button class="btn btn-outline-secondary" onclick="closeConfirm()">إلغاء</button>
+      <button class="btn btn-danger" onclick="executeDelete()">نعم، احذف</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="notification-toast" id="toast">
+  <div class="toast-icon" id="toastIcon">✓</div>
+  <span id="toastMsg">تم بنجاح</span>
+</div>
+
+<button class="back-to-top no-print" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<script src="{{ url_for('static', filename='js/timetable.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var toggle = document.querySelector('[data-sidebar-toggle]');
+  var close = document.querySelector('[data-sidebar-close]');
+  function openSidebar() { document.body.classList.add('sidebar-open'); }
+  function closeSidebar() { document.body.classList.remove('sidebar-open'); }
+  if (toggle) toggle.addEventListener('click', function (e) {
+    e.stopPropagation();
+    document.body.classList.contains('sidebar-open') ? closeSidebar() : openSidebar();
+  });
+  if (close) close.addEventListener('click', closeSidebar);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeSidebar();
+  });
+});
+</script>
+</body>
+</html>

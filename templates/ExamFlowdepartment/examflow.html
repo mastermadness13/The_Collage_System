@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<title>ExamFlow | إدارة جدول الامتحانات المركزي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/timetable.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/examflow.css') }}">
+</head>
+<body>
+
+<!-- ═══════════ NAVBAR ═══════════ -->
+<header class="ef-navbar no-print">
+  <div class="ef-navbar-start">
+    <button type="button" class="ef-hamburger" aria-label="القائمة" data-sidebar-toggle>
+      <span></span>
+    </button>
+    <div class="ef-brand">
+      <span class="ef-brand-icon">⚡</span>
+      <div>
+        <div class="ef-brand-name">ExamFlow</div>
+        <div class="ef-brand-sub">إدارة الامتحانات المركزية</div>
+      </div>
+    </div>
+  </div>
+  <div class="ef-navbar-actions">
+    <div class="ef-user-avatar">👤</div>
+  </div>
+</header>
+
+{% include 'partials/sidebar.html' %}
+<div class="sidebar-backdrop" data-sidebar-close></div>
+
+<!-- ═══════════ TABS ═══════════ -->
+<div class="ef-tabs no-print">
+  <button class="ef-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">📊 لوحة التحكم</button>
+  <button class="ef-tab" onclick="switchTab('matrix')" data-tab="matrix">🗓️ الجدول الموحد</button>
+  <button class="ef-tab" onclick="switchTab('schedule')" data-tab="schedule">📋 قائمة الامتحانات</button>
+  <button class="ef-tab" onclick="switchTab('timeline')" data-tab="timeline">⏳ المخطط الزمني</button>
+  <button class="ef-tab" onclick="switchTab('halls')" data-tab="halls">🏛️ القاعات</button>
+  <button class="ef-tab" onclick="switchTab('ai')" data-tab="ai">🧠 التحسين الذكي</button>
+</div>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="main">
+  <!-- TOP BAR -->
+  <header class="topbar no-print">
+    <div style="flex:1">
+      <div class="topbar-title" id="pageTitle">📊 لوحة التحكم</div>
+      <div class="topbar-sub">جدول الامتحانات الموحد — الإدارة المركزية</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="changeWeek(-1)">→ الأسبوع السابق</button>
+    <div style="font-size:0.82rem;font-weight:700;color:var(--accent);padding:6px 14px;background:var(--accent-dim);border-radius:99px;" id="weekLabel">الأسبوع 1</div>
+    <button class="btn btn-ghost btn-sm" onclick="changeWeek(1)">الأسبوع التالي ←</button>
+    <div style="width:1px;height:28px;background:var(--border);margin:0 4px;"></div>
+    <button class="btn btn-violet btn-sm" onclick="optimizeSchedule()">✨ تحسين تلقائي</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportCSV()">📎 CSV</button>
+    <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨️ طباعة</button>
+    <button class="btn btn-primary" onclick="openModal()">＋ إضافة امتحان</button>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ── DASHBOARD ── -->
+    <div id="tab-dashboard" class="tab-pane active">
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-badge" style="background:var(--accent-dim);color:var(--accent)">إجمالي</div>
+          <div class="stat-icon" style="background:var(--accent-dim)">📝</div>
+          <div class="stat-val" id="statExams">0</div>
+          <div class="stat-label">امتحان مجدول</div>
+        </div>
+        <div class="stat-card teal">
+          <div class="stat-badge" style="background:var(--teal-dim);color:var(--teal)" id="deptBadge">5 أقسام</div>
+          <div class="stat-icon" style="background:var(--teal-dim)">🏢</div>
+          <div class="stat-val" id="statDepts">5</div>
+          <div class="stat-label">قسم أكاديمي</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-badge" style="background:var(--amber-dim);color:var(--amber)">8 قاعات</div>
+          <div class="stat-icon" style="background:var(--amber-dim)">🏛️</div>
+          <div class="stat-val" id="statHalls">0</div>
+          <div class="stat-label">قاعة مستخدمة</div>
+        </div>
+        <div class="stat-card rose">
+          <div class="stat-badge" style="background:var(--rose-dim);color:var(--rose)" id="conflictBadge">0 تعارض</div>
+          <div class="stat-icon" style="background:var(--rose-dim)">⚠️</div>
+          <div class="stat-val" id="statConflicts">0</div>
+          <div class="stat-label">تعارض مكتشف</div>
+        </div>
+      </div>
+
+      <!-- WEEK NAV -->
+      <div class="week-nav">
+        <div class="week-nav-header">
+          <div class="week-nav-title">📆 توزيع الامتحانات على الأسبوع</div>
+          <div class="week-controls">
+            <button class="week-btn" onclick="changeWeek(-1)">→</button>
+            <div class="week-label" id="weekLabelMain">الأسبوع 1</div>
+            <button class="week-btn" onclick="changeWeek(1)">←</button>
+          </div>
+        </div>
+        <div class="days-grid" id="daysGrid"></div>
+      </div>
+
+      <!-- RECENT -->
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-header-title">📋 آخر الامتحانات المضافة</div>
+        </div>
+        <div id="recentExams" style="padding:16px;"></div>
+      </div>
+    </div>
+
+    <!-- ── MATRIX (UNIFIED SCHEDULE) ── -->
+    <div id="tab-matrix" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <div class="section-title">🗓️ الجدول الموحد المركزي</div>
+          <div class="section-sub">جميع الأقسام × جميع الأيام × جميع الفصول</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label class="form-label" style="margin:0">الفصل:</label>
+          <select class="filter-select" id="matrixFilterSem" onchange="renderMatrix()">
+            <option value="">كل الفصول</option>
+            <option value="1">فصل 1</option>
+            <option value="2">فصل 2</option>
+            <option value="3">فصل 3</option>
+            <option value="4">فصل 4</option>
+            <option value="5">فصل 5</option>
+            <option value="6">فصل 6</option>
+            <option value="7">فصل 7</option>
+          </select>
+        </div>
+      </div>
+      <div class="matrix-wrapper">
+        <div class="matrix-header">
+          <div class="matrix-header-title">📌 الجدول الكامل — <span id="matrixWeekLabel">الأسبوع 1</span></div>
+          <div style="display:flex;gap:8px;font-size:0.72rem;align-items:center;">
+            <span style="background:var(--accent-dim);color:var(--accent);padding:3px 9px;border-radius:99px;">■ نظري</span>
+            <span style="background:var(--teal-dim);color:var(--teal);padding:3px 9px;border-radius:99px;">■ عملي</span>
+            <span style="background:var(--rose-dim);color:var(--rose);padding:3px 9px;border-radius:99px;">■ تعارض</span>
+          </div>
+        </div>
+        <div class="matrix-scroll">
+          <div id="matrixContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCHEDULE LIST ── -->
+    <div id="tab-schedule" class="tab-pane">
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-header-title">📋 قائمة الامتحانات</div>
+          <div class="filter-bar">
+            <input class="search-box" type="text" id="searchInput" oninput="renderScheduleTable()" placeholder="🔍 بحث...">
+            <select class="filter-select" id="filterDept" onchange="renderScheduleTable()">
+              <option value="">كل الأقسام</option>
+            </select>
+            <select class="filter-select" id="filterDay" onchange="renderScheduleTable()">
+              <option value="">كل الأيام</option>
+              <option>السبت</option><option>الأحد</option><option>الاثنين</option>
+              <option>الثلاثاء</option><option>الأربعاء</option><option>الخميس</option>
+            </select>
+            <select class="filter-select" id="filterSem" onchange="renderScheduleTable()">
+              <option value="">كل الفصول</option>
+              <option value="1">فصل 1</option><option value="2">فصل 2</option>
+              <option value="3">فصل 3</option><option value="4">فصل 4</option>
+              <option value="5">فصل 5</option><option value="6">فصل 6</option>
+              <option value="7">فصل 7</option>
+            </select>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>المادة</th>
+                <th>القسم</th>
+                <th>الفصل</th>
+                <th>النوع</th>
+                <th>اليوم</th>
+                <th>الوقت</th>
+                <th>القاعة</th>
+                <th>المحاضر</th>
+                <th>الطلاب</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleTable"></tbody>
+          </table>
+        </div>
+        <div id="emptySchedule" class="empty-state" style="display:none">
+          <div class="es-icon">📭</div>
+          <div class="es-text">لا توجد امتحانات مطابقة</div>
+          <button class="btn btn-primary" onclick="openModal()">＋ إضافة امتحان</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TIMELINE ── -->
+    <div id="tab-timeline" class="tab-pane">
+      <div class="timeline-wrap">
+        <div class="tl-title">⏳ المخطط الزمني — <span id="tlWeekLabel">الأسبوع 1</span></div>
+        <div id="tlScaleRow" style="display:flex;gap:12px;margin-bottom:6px;align-items:center;">
+          <div style="width:70px;"></div>
+          <div style="flex:1;display:flex;justify-content:space-between;padding:0 2px;font-size:0.62rem;color:var(--ink-600);">
+            <span>08:00</span><span>09:00</span><span>10:00</span><span>11:00</span>
+            <span>12:00</span><span>13:00</span><span>14:00</span><span>15:00</span><span>16:00</span>
+          </div>
+        </div>
+        <div id="timelineContainer"></div>
+      </div>
+    </div>
+
+    <!-- ── HALLS ── -->
+    <div id="tab-halls" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <div class="section-title">🏛️ إدارة القاعات</div>
+          <div class="section-sub">نسبة الإشغال والامتحانات المجدولة لكل قاعة</div>
+        </div>
+      </div>
+      <div class="halls-grid" id="hallsGrid"></div>
+    </div>
+
+    <!-- ── AI ── -->
+    <div id="tab-ai" class="tab-pane">
+      <div class="ai-grid">
+        <div class="ai-card">
+          <div class="ai-card-title">🧠 أدوات التحسين الذكي</div>
+
+          <div class="ai-tool">
+            <div class="ai-tool-header">
+              <div class="ai-tool-icon" style="background:var(--violet-dim);color:var(--violet)">🔍</div>
+              <div class="ai-tool-name">كشف التعارضات</div>
+            </div>
+            <div class="ai-tool-desc">فحص تلقائي لتعارض القاعات والأوقات والمحاضرين عبر جميع الأقسام</div>
+            <button class="ai-run-btn" style="background:var(--violet-dim);color:var(--violet);border-color:rgba(168,85,247,0.25);" onclick="detectConflicts()">فحص الآن</button>
+          </div>
+
+          <div class="ai-tool">
+            <div class="ai-tool-header">
+              <div class="ai-tool-icon" style="background:var(--accent-dim);color:var(--accent)">⚡</div>
+              <div class="ai-tool-name">تحسين الجدول</div>
+            </div>
+            <div class="ai-tool-desc">إعادة توزيع القاعات تلقائياً لإلغاء التعارضات</div>
+            <button class="ai-run-btn" style="background:var(--accent-dim);color:var(--accent);border-color:rgba(61,127,255,0.25);" onclick="optimizeSchedule()">تحسين تلقائي</button>
+          </div>
+
+          <div class="ai-tool">
+            <div class="ai-tool-header">
+              <div class="ai-tool-icon" style="background:var(--green-dim);color:var(--green)">📊</div>
+              <div class="ai-tool-name">توزيع ذكي للقاعات</div>
+            </div>
+            <div class="ai-tool-desc">مطابقة القاعات مع عدد الطلاب بأمثلية</div>
+            <button class="ai-run-btn" style="background:var(--green-dim);color:var(--green);border-color:rgba(16,185,129,0.25);" onclick="autoAssignHalls()">توزيع ذكي</button>
+          </div>
+        </div>
+
+        <div class="ai-card">
+          <div class="ai-card-title">📋 سجل العمليات</div>
+          <div class="ai-log" id="aiLog">
+            <div class="empty-state">
+              <div class="es-icon">🤖</div>
+              <div class="es-text">لم يتم تشغيل أي عملية بعد</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- ═══════════ ADD/EDIT MODAL ═══════════ -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="handleBackdropClick(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-head-title" id="modalTitle">✚ إضافة امتحان جديد</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">المادة *</label>
+          <input class="form-input" id="fSubject" placeholder="مثال: الرياضيات" required>
+        </div>
+        <div>
+          <label class="form-label">القسم الأكاديمي *</label>
+          <select class="form-select" id="fDept">
+            <option value="">اختر القسم</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">الفصل الدراسي *</label>
+          <select class="form-select" id="fSem">
+            <option value="1">فصل 1</option>
+            <option value="2">فصل 2</option>
+            <option value="3">فصل 3</option>
+            <option value="4">فصل 4</option>
+            <option value="5">فصل 5</option>
+            <option value="6">فصل 6</option>
+            <option value="7">فصل 7</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">نوع الامتحان</label>
+          <select class="form-select" id="fType">
+            <option value="theory">نظري</option>
+            <option value="practical">عملي</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">اليوم *</label>
+          <select class="form-select" id="fDay">
+            <option>السبت</option><option>الأحد</option><option>الاثنين</option>
+            <option>الثلاثاء</option><option>الأربعاء</option><option>الخميس</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">الأسبوع</label>
+          <select class="form-select" id="fWeek">
+            <option value="1">الأسبوع 1</option>
+            <option value="2">الأسبوع 2</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">وقت البدء *</label>
+          <input class="form-input" type="time" id="fStart" value="08:00">
+        </div>
+        <div>
+          <label class="form-label">وقت الانتهاء *</label>
+          <input class="form-input" type="time" id="fEnd" value="10:00">
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">القاعة *</label>
+          <select class="form-select" id="fHall">
+            <option value="">اختر القاعة</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">عدد الطلاب *</label>
+          <input class="form-input" type="number" id="fStudents" placeholder="45" min="1" max="500">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">المحاضر المراقب</label>
+        <input class="form-input" id="fInstructor" placeholder="د. اسم المحاضر">
+      </div>
+      <div class="conflict-alert" id="conflictAlert">
+        ⚠️ <span id="conflictMsg">تم اكتشاف تعارض!</span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" style="flex:1" onclick="saveExam()">💾 حفظ</button>
+      <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST STACK -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script>const ACTIVE_DEPT = '{{ active_department|default("") }}';</script>
+<script src="{{ url_for('static', filename='js/examflow.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var toggle = document.querySelector('[data-sidebar-toggle]');
+  var close = document.querySelector('[data-sidebar-close]');
+
+  function openSidebar() { document.body.classList.add('sidebar-open'); }
+  function closeSidebar() { document.body.classList.remove('sidebar-open'); }
+
+  if (toggle) toggle.addEventListener('click', function (e) {
+    e.stopPropagation();
+    document.body.classList.contains('sidebar-open') ? closeSidebar() : openSidebar();
+  });
+
+  if (close) close.addEventListener('click', closeSidebar);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeSidebar();
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+{% set active_page = 'students' %}
+{% extends 'base.html' %}
+{% block title %}تعديل بيانات الطالب{% endblock %}
+{% block content %}
+<div class="user-form-shell">
+  <div class="user-form-card">
+    <div class="page-title mb-4">
+      <div>
+        <h2 class="mb-1">تعديل بيانات الطالب</h2>
+        <p class="text-muted mb-0">تعديل بيانات الطالب {{ student.name }}</p>
+      </div>
+    </div>
+    <form method="post" class="form-grid">
+      <div class="form-group full">
+        <label>اسم الطالب</label>
+        <input type="text" class="form-control" name="name" value="{{ student.name }}" required>
+      </div>
+      <div class="form-group">
+        <label>القسم</label>
+        <select class="form-control" name="department">
+          <option value="">اختر القسم</option>
+          {% for d in departments %}
+          <option value="{{ d.name }}" {% if student.department == d.name %}selected{% endif %}>{{ d.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>الفصل</label>
+        <select class="form-control" name="class">
+          <option value="">اختر الفصل</option>
+          {% for i in range(1, 9) %}
+          <option value="{{ i }}" {% if student.class == i|string %}selected{% endif %}>الفصل {{ i }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-actions full">
+        <button class="btn btn-success" type="submit">حفظ التغييرات</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('students.list_students') }}">إلغاء</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

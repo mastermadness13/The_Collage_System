@@ -1,35 +1,44 @@
 <aside class="app-sidebar" id="appSidebar">
   <nav class="sidebar-nav">
-    <a class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}" href="/">
+    <a class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard.dashboard') }}">
       <span class="sidebar-icon">⌂</span><span>الرئيسية</span>
     </a>
-    <a class="sidebar-link {% if active_page == 'users' %}active{% endif %}" href="/users">
+    {% if session.get('role') in ('super_admin',) %}
+    <a class="sidebar-link {% if active_page == 'users' %}active{% endif %}" href="{{ url_for('users.list_users') }}">
       <span class="sidebar-icon">👥</span><span>المستخدمون</span>
     </a>
-    <a class="sidebar-link {% if active_page == 'departments' %}active{% endif %}" href="/departments">
+    {% endif %}
+    {% if session.get('role') in ('super_admin',) %}
+    <a class="sidebar-link {% if active_page == 'departments' %}active{% endif %}" href="{{ url_for('departments.departments') }}">
       <span class="sidebar-icon">🏛</span><span>الأقسام</span>
     </a>
-    <a class="sidebar-link {% if active_page == 'rooms' %}active{% endif %}" href="/rooms">
+    {% endif %}
+    {% if session.get('role') in ('super_admin', 'head_of_department') %}
+    <a class="sidebar-link {% if active_page == 'rooms' %}active{% endif %}" href="{{ url_for('rooms.rooms') }}">
       <span class="sidebar-icon">🚪</span><span>القاعات</span>
     </a>
-    <a class="sidebar-link {% if active_page == 'teachers' %}active{% endif %}" href="/teachers">
+    {% endif %}
+    {% if session.get('role') in ('super_admin', 'head_of_department', 'head_of_exams') %}
+    <a class="sidebar-link {% if active_page == 'teachers' %}active{% endif %}" href="{{ url_for('teachers.list_teachers') }}">
       <span class="sidebar-icon">👨‍🏫</span><span>هيئة التدريس</span>
     </a>
-    <a class="sidebar-link {% if active_page == 'attendance' %}active{% endif %}" href="/attendance">
-      <span class="sidebar-icon">✓</span><span>الحضور</span>
-    </a>
-    <a class="sidebar-link {% if active_page == 'courses' %}active{% endif %}" href="/courses">
+    {% endif %}
+    {% if session.get('role') in ('super_admin', 'head_of_department', 'head_of_exams') %}
+    <a class="sidebar-link {% if active_page == 'courses' %}active{% endif %}" href="{{ url_for('courses.courses') }}">
       <span class="sidebar-icon">📚</span><span>المقررات</span>
     </a>
-    <a class="sidebar-link {% if active_page == 'timetable' %}active{% endif %}" href="/timetable">
+    {% endif %}
+    <a class="sidebar-link {% if active_page == 'timetable' %}active{% endif %}" href="{{ url_for('timetable.timetable') }}">
       <span class="sidebar-icon">▦</span><span>الجدول الدراسي</span>
     </a>
-    <a class="sidebar-link {% if active_page == 'students' %}active{% endif %}" href="/students">
-      <span class="sidebar-icon">🎓</span><span>الطلاب</span>
+    <a class="sidebar-link {% if active_page == 'exam_flow' %}active{% endif %}" href="{{ url_for('exam_flow.exam_schedule') }}">
+      <span class="sidebar-icon">📝</span><span>الامتحانات</span>
     </a>
-    <a class="sidebar-link {% if active_page == 'history' %}active{% endif %}" href="/history">
+    {% if session.get('role') in ('super_admin',) %}
+    <a class="sidebar-link {% if active_page == 'history' %}active{% endif %}" href="{{ url_for('history.list_history') }}">
       <span class="sidebar-icon">📋</span><span>سجل التغييرات</span>
     </a>
+    {% endif %}
   </nav>
 
   <div class="sidebar-footer">
@@ -38,7 +47,7 @@
       <button type="button" onclick="window.setTheme && setTheme('dark')" data-theme-btn="dark">ليل</button>
       <button type="button" onclick="window.setTheme && setTheme('colorful')" data-theme-btn="colorful">ملون</button>
     </div>
-    <a class="sidebar-link" href="#"><span class="sidebar-icon">⚙</span><span>حسابي</span></a>
-    <a class="sidebar-link logout-link" href="#"><span class="sidebar-icon">↩</span><span>تسجيل الخروج</span></a>
+    <a class="sidebar-link" href="{{ url_for('users.edit_user', user_id=session.get('user_id')) }}"><span class="sidebar-icon">⚙</span><span>حسابي</span></a>
+    <a class="sidebar-link logout-link" href="{{ url_for('auth.logout') }}"><span class="sidebar-icon">↩</span><span>تسجيل الخروج</span></a>
   </div>
 </aside>

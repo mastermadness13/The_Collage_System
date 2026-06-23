@@ -1,539 +1,102 @@
-{% set active_page = 'departments' %}
 {% extends 'base.html' %}
-{% block title %}نظام كلية التقنية الهندسية - لوحة القيادة{% endblock %}
-{% block body_attrs %}data-theme="light"{% endblock %}
-{% block extra_head %}
-<style>
-:root{
-  --bg:#f1f5f9;--surface:#fff;--surface-2:#f8fafc;--surface-3:#eef2ff;
-  --border:#e2e8f0;--border-light:#f1f5f9;
-  --text:#0f172a;--text-sec:#475569;--text-muted:#94a3b8;
-  --primary:#4f46e5;--primary-h:#4338ca;--primary-s:#eef2ff;--primary-g:rgba(79,70,229,.15);
-  --success:#059669;--success-s:#ecfdf5;
-  --danger:#dc2626;--danger-s:#fef2f2;
-  --warning:#d97706;--warning-s:#fffbeb;
-  --info:#0284c7;--info-s:#f0f9ff;
-  --purple:#7c3aed;--purple-s:#f5f3ff;
-  --pink:#ec4899;--pink-s:#fdf2f8;
-  --sidebar-w:260px;--topbar-h:64px;
-  --radius:12px;--radius-sm:8px;--radius-xs:6px;
-  --shadow-sm:0 1px 2px rgba(0,0,0,.04);--shadow:0 4px 12px rgba(0,0,0,.06);
-  --shadow-lg:0 12px 32px rgba(0,0,0,.1);--shadow-xl:0 20px 60px rgba(0,0,0,.15);
-  --t:.25s cubic-bezier(.4,0,.2,1);
-}
-[data-theme="dark"]{
-  --bg:#0b1120;--surface:#151d30;--surface-2:#1a2540;--surface-3:#1e293b;
-  --border:#2a3654;--border-light:#1e293b;
-  --text:#e2e8f0;--text-sec:#94a3b8;--text-muted:#64748b;
-  --primary:#818cf8;--primary-h:#6366f1;--primary-s:rgba(99,102,241,.15);--primary-g:rgba(129,140,248,.2);
-  --success-s:rgba(5,150,105,.15);--danger-s:rgba(220,38,38,.15);--warning-s:rgba(217,119,6,.15);--info-s:rgba(2,132,199,.15);
-  --purple-s:rgba(124,58,237,.15);--pink-s:rgba(236,72,153,.15);
-}
-[data-theme="colorful"]{
-  --bg:linear-gradient(135deg,#fdf2f8 0%,#eff6ff 50%,#ecfdf5 100%);
-  --surface:rgba(255,255,255,.92);--surface-2:rgba(255,255,255,.7);--surface-3:rgba(238,242,255,.8);
-  --border:rgba(148,163,184,.3);--border-light:rgba(241,245,249,.6);
-  --primary:#8b5cf6;--primary-h:#7c3aed;--primary-s:rgba(139,92,246,.12);--primary-g:rgba(139,92,246,.2);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background var(--t),color var(--t)}
-[data-theme="colorful"] body{background-attachment:fixed}
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
-
-/* TOPBAR */
-.app-topbar{position:sticky;top:0;right:0;left:0;height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:100;box-shadow:var(--shadow-sm)}
-.topbar-start{display:flex;align-items:center;gap:12px}
-.topbar-icon-button{width:40px;height:40px;border:none;background:var(--surface-2);border-radius:var(--radius-sm);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--text);transition:all var(--t)}
-.topbar-icon-button:hover{background:var(--primary-s);color:var(--primary)}
-.icon-menu-lines{width:18px;height:2px;background:currentColor;position:relative;border-radius:1px}
-.icon-menu-lines::before,.icon-menu-lines::after{content:'';position:absolute;left:0;right:0;height:2px;background:currentColor;border-radius:1px}
-.icon-menu-lines::before{top:-6px}.icon-menu-lines::after{top:6px}
-.topbar-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
-.brand-mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--primary),#7c3aed);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;box-shadow:0 4px 12px var(--primary-g)}
-.brand-copy{display:flex;flex-direction:column;line-height:1.3}
-.brand-copy strong{font-size:14px;font-weight:700}
-.brand-copy small{font-size:11px;color:var(--text-muted)}
-.topbar-actions{display:flex;align-items:center;gap:12px}
-.topbar-search{position:relative;display:flex;align-items:center}
-.topbar-search>span{position:absolute;right:12px;font-size:16px;color:var(--text-muted);pointer-events:none}
-.topbar-search input{padding:8px 38px 8px 14px;border:1px solid var(--border);background:var(--surface-2);border-radius:10px;font-family:inherit;font-size:13px;color:var(--text);width:200px;transition:all var(--t)}
-.topbar-search input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-g);width:260px}
-.topbar-avatar-btn{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:5px 12px 5px 5px;cursor:pointer;transition:all var(--t);color:var(--text);font-family:inherit;text-decoration:none}
-.topbar-avatar-btn:hover{border-color:var(--primary)}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--warning);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
-.user-copy{display:grid;line-height:1.3;text-align:right}
-.user-copy strong{font-size:12px;font-weight:700}
-.user-copy small{font-size:10px;color:var(--text-muted)}
-.topbar-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)}
-.status-handle{color:var(--text);font-weight:600}
-
-/* LAYOUT */
-.layout{display:grid;grid-template-columns:var(--sidebar-w) 1fr;min-height:calc(100vh - var(--topbar-h))}
-.app-sidebar{background:var(--surface);border-left:1px solid var(--border);padding:16px 10px;display:flex;flex-direction:column;position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));overflow-y:auto}
-.sidebar-nav{display:flex;flex-direction:column;gap:2px;flex:1}
-.sidebar-link{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-sm);color:var(--text-sec);text-decoration:none;font-size:13.5px;font-weight:500;transition:all var(--t);position:relative}
-.sidebar-link:hover{background:var(--surface-2);color:var(--text)}
-.sidebar-link.active{background:var(--primary-s);color:var(--primary);font-weight:700}
-.sidebar-link.active::before{content:'';position:absolute;right:0;top:8px;bottom:8px;width:3px;background:var(--primary);border-radius:0 3px 3px 0}
-.sidebar-icon{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;background:var(--surface-2);border-radius:var(--radius-xs);font-size:14px;font-weight:700;flex-shrink:0;transition:all var(--t)}
-.sidebar-link.active .sidebar-icon{background:var(--primary);color:#fff;box-shadow:0 2px 8px var(--primary-g)}
-.sidebar-footer{border-top:1px solid var(--border);padding-top:12px;margin-top:8px}
-.sidebar-settings{display:flex;gap:4px;padding:4px;background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:8px}
-.sidebar-settings button{flex:1;padding:7px 4px;border:none;background:transparent;border-radius:var(--radius-xs);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;color:var(--text-muted);transition:all var(--t)}
-.sidebar-settings button:hover{color:var(--text)}
-.sidebar-settings button.active{background:var(--surface);color:var(--primary);box-shadow:var(--shadow-sm)}
-.logout-link{color:var(--danger)!important}
-.logout-link:hover{background:var(--danger-s)!important}
-.logout-link .sidebar-icon{background:var(--danger-s);color:var(--danger)}
-
-/* MAIN */
-.app-main{padding:24px;min-width:0}
-
-/* WELCOME HERO */
-.welcome-hero{background:linear-gradient(135deg,var(--primary) 0%,#7c3aed 50%,#ec4899 100%);border-radius:var(--radius);padding:32px;color:#fff;position:relative;overflow:hidden;margin-bottom:24px}
-.welcome-hero::before{content:'';position:absolute;top:-50%;left:-20%;width:300px;height:300px;background:rgba(255,255,255,.08);border-radius:50%}
-.welcome-hero::after{content:'';position:absolute;bottom:-30%;right:-10%;width:250px;height:250px;background:rgba(255,255,255,.05);border-radius:50%}
-.welcome-hero-content{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
-.welcome-text h1{font-size:24px;font-weight:800;margin-bottom:6px}
-.welcome-text p{font-size:14px;opacity:.9;margin-bottom:16px}
-.welcome-actions{display:flex;gap:8px;flex-wrap:wrap}
-.btn-white{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(4px);padding:8px 18px;border-radius:var(--radius-sm);font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;transition:all var(--t);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
-.btn-white:hover{background:rgba(255,255,255,.35)}
-.welcome-date{text-align:center;background:rgba(255,255,255,.15);border-radius:var(--radius-sm);padding:16px 24px;backdrop-filter:blur(4px)}
-.welcome-date-day{font-size:32px;font-weight:800;line-height:1}
-.welcome-date-month{font-size:13px;opacity:.9;margin-top:4px}
-.welcome-date-time{font-size:11px;opacity:.7;margin-top:4px;font-family:monospace}
-
-/* STATS GRID */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-sm);transition:all var(--t);cursor:pointer;text-decoration:none;color:inherit}
-.stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--primary)}
-.stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;flex-shrink:0}
-.stat-icon.i1{background:linear-gradient(135deg,#4f46e5,#7c3aed)}
-.stat-icon.i2{background:linear-gradient(135deg,#059669,#06b6d4)}
-.stat-icon.i3{background:linear-gradient(135deg,#d97706,#ef4444)}
-.stat-icon.i4{background:linear-gradient(135deg,#ec4899,#8b5cf6)}
-.stat-icon.i5{background:linear-gradient(135deg,#0284c7,#06b6d4)}
-.stat-icon.i6{background:linear-gradient(135deg,#7c3aed,#ec4899)}
-.stat-label{font-size:12px;color:var(--text-muted);margin-bottom:2px}
-.stat-value{font-size:22px;font-weight:800}
-.stat-change{font-size:11px;font-weight:600;margin-top:2px}
-.stat-change.up{color:var(--success)}
-.stat-change.down{color:var(--danger)}
-
-/* PAGE CARD */
-.page-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:20px}
-.card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
-.card-header h3{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
-.card-header p{font-size:12px;color:var(--text-muted);margin:2px 0 0}
-.card-body{padding:20px}
-
-/* BUTTONS */
-.btn{font-family:inherit;font-weight:600;padding:8px 16px;border-radius:var(--radius-sm);border:1px solid transparent;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px;transition:all var(--t);white-space:nowrap;text-decoration:none}
-.btn:active{transform:scale(.97)}
-.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
-.btn-primary:hover{background:var(--primary-h);box-shadow:0 4px 12px var(--primary-g);color:#fff}
-.btn-success{background:var(--success);color:#fff;border-color:var(--success)}
-.btn-success:hover{background:#047857;color:#fff}
-.btn-outline-primary{background:transparent;color:var(--primary);border-color:var(--primary)}
-.btn-outline-primary:hover{background:var(--primary);color:#fff}
-.btn-outline-secondary{background:transparent;color:var(--text-sec);border-color:var(--border)}
-.btn-outline-secondary:hover{background:var(--surface-2)}
-.btn-sm{padding:4px 10px;font-size:11px;border-radius:var(--radius-xs)}
-
-/* TWO COLUMNS */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-
-/* TIMETABLE MINI */
-.mini-timetable{width:100%;border-collapse:separate;border-spacing:0}
-.mini-timetable th{padding:8px;font-size:11px;font-weight:700;background:var(--surface-2);border-bottom:1px solid var(--border);text-align:center;color:var(--text-sec)}
-.mini-timetable td{padding:6px 8px;font-size:12px;border-bottom:1px solid var(--border-light);text-align:center;vertical-align:middle}
-.mini-timetable td:first-child{font-weight:700;text-align:right;color:var(--text-sec);font-size:11px;width:70px}
-.mini-cell{display:inline-block;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:600;white-space:nowrap}
-.mini-cell.filled{background:var(--primary-s);color:var(--primary)}
-.mini-cell.empty{color:var(--text-muted);font-size:10px}
-
-/* ACTIVITY LIST */
-.activity-list{display:flex;flex-direction:column;gap:0}
-.activity-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-light);transition:background var(--t)}
-.activity-item:last-child{border-bottom:none}
-.activity-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.activity-icon.add{background:var(--success-s);color:var(--success)}
-.activity-icon.edit{background:var(--info-s);color:var(--info)}
-.activity-icon.delete{background:var(--danger-s);color:var(--danger)}
-.activity-icon.login{background:var(--purple-s);color:var(--purple)}
-.activity-content{flex:1;min-width:0}
-.activity-text{font-size:13px;color:var(--text);line-height:1.5}
-.activity-text strong{color:var(--primary);font-weight:700}
-.activity-time{font-size:11px;color:var(--text-muted);margin-top:2px}
-
-/* PROGRESS BARS */
-.progress-list{display:flex;flex-direction:column;gap:14px}
-.progress-item{display:flex;flex-direction:column;gap:6px}
-.progress-header{display:flex;align-items:center;justify-content:space-between}
-.progress-label{font-size:13px;font-weight:600;color:var(--text)}
-.progress-value{font-size:12px;font-weight:700;color:var(--primary)}
-.progress-bar{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden}
-.progress-fill{height:100%;border-radius:4px;transition:width .8s ease}
-.progress-fill.c1{background:linear-gradient(90deg,#4f46e5,#7c3aed)}
-.progress-fill.c2{background:linear-gradient(90deg,#059669,#06b6d4)}
-.progress-fill.c3{background:linear-gradient(90deg,#d97706,#ef4444)}
-.progress-fill.c4{background:linear-gradient(90deg,#ec4899,#8b5cf6)}
-.progress-fill.c5{background:linear-gradient(90deg,#0284c7,#06b6d4)}
-
-/* QUICK ACTIONS GRID */
-.quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
-.quick-action{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);cursor:pointer;transition:all var(--t);text-decoration:none;color:var(--text)}
-.quick-action:hover{border-color:var(--primary);background:var(--primary-s);transform:translateY(-2px);box-shadow:var(--shadow)}
-.quick-action-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff}
-.quick-action-label{font-size:12px;font-weight:600;text-align:center}
-
-/* DONUT CHART (CSS) */
-.donut-container{display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:center}
-.donut-chart{width:140px;height:140px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center}
-.donut-chart::before{content:'';position:absolute;inset:20px;background:var(--surface);border-radius:50%}
-.donut-center{position:relative;z-index:1;text-align:center}
-.donut-center-value{font-size:24px;font-weight:800;color:var(--text)}
-.donut-center-label{font-size:10px;color:var(--text-muted)}
-.donut-legend{display:flex;flex-direction:column;gap:8px}
-.legend-item{display:flex;align-items:center;gap:8px;font-size:12px}
-.legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
-.legend-label{color:var(--text-sec)}
-.legend-value{font-weight:700;color:var(--text);margin-right:auto}
-
-/* BAR CHART (CSS) */
-.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;padding:0 4px}
-.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
-.bar{width:100%;border-radius:4px 4px 0 0;transition:height .6s ease;min-height:4px;position:relative}
-.bar:hover{opacity:.85}
-.bar-label{font-size:10px;color:var(--text-muted);font-weight:600}
-.bar-value{font-size:9px;color:var(--text-sec);font-weight:700}
-
-/* RESPONSIVE */
-@media(max-width:1024px){
-  .topbar-search input{width:160px}
-  .topbar-search input:focus{width:200px}
-  .topbar-status{display:none}
-  .two-col{grid-template-columns:1fr}
-}
-@media(max-width:900px){
-  .layout{grid-template-columns:1fr}
-  .app-sidebar{display:none}
-  .app-main{padding:16px}
-}
-@media(max-width:768px){
-  .topbar-search{display:none}
-  .user-copy{display:none}
-  .brand-copy small{display:none}
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
-  .welcome-hero{padding:20px}
-  .welcome-text h1{font-size:18px}
-  .quick-grid{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:480px){
-  .stats-grid{grid-template-columns:1fr}
-  .welcome-hero-content{flex-direction:column;align-items:flex-start}
-}
-
-/* ANIMATIONS */
-@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.welcome-hero{animation:fadeIn .5s ease}
-.stat-card{animation:fadeInUp .4s ease both}
-.stat-card:nth-child(1){animation-delay:.05s}
-.stat-card:nth-child(2){animation-delay:.1s}
-.stat-card:nth-child(3){animation-delay:.15s}
-.stat-card:nth-child(4){animation-delay:.2s}
-.stat-card:nth-child(5){animation-delay:.25s}
-.stat-card:nth-child(6){animation-delay:.3s}
-.page-card{animation:fadeInUp .4s ease .35s both}
-
-/* BACK TO TOP */
-.back-to-top{position:fixed;bottom:24px;left:24px;width:44px;height:44px;border:none;background:var(--primary);color:#fff;border-radius:50%;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px var(--primary-g);opacity:0;visibility:hidden;transform:translateY(10px);transition:all var(--t);z-index:800}
-.back-to-top.show{opacity:1;visibility:visible;transform:translateY(0)}
-.back-to-top:hover{transform:translateY(-3px)}
-
-/* PRINT */
-@media print{
-  .app-topbar,.app-sidebar,.back-to-top,.welcome-actions{display:none!important}
-  .layout{display:block}
-  .app-main{margin:0;padding:0}
-  .page-card{border:none;box-shadow:none;break-inside:avoid}
-  .welcome-hero{background:#4f46e5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  body{background:#fff;color:#000}
-}
-</style>
-{% endblock %}
 {% block content %}
-<!-- WELCOME HERO -->
-    <div class="welcome-hero">
-      <div class="welcome-hero-content">
-        <div class="welcome-text">
-          <h1>مرحباً بك، المشرف العام 👋</h1>
-          <p>لوحة التحكم الرئيسية — نظرة شاملة على جميع بيانات الكلية</p>
-          <div class="welcome-actions">
-            <a href="#" class="btn-white">▦ عرض الجدول الدراسي</a>
-            <a href="#" class="btn-white">📚 إدارة المقررات</a>
-            <a href="#" class="btn-white">👨‍🏫 هيئة التدريس</a>
+
+<div class="container mt-4">
+    <h2>إدارة الأقسام</h2>
+    <button class="btn btn-success mb-3" data-toggle="modal" data-target="#addDepartmentModal">إضافة قسم</button>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>اسم القسم</th>
+                <th>عدد الفصول</th>
+                <th>عدد الاختصاصات</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in departments %}
+            <tr>
+                <td>{{ d.id }}</td>
+                <td>{{ d.name }}</td>
+                <td>{{ d.semesters }}</td>
+                <td>{{ d.majors }}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editDepartmentModal{{d.id}}">تعديل</button>
+                    <form method="post" action="{{ url_for('departments.delete_department', id=d.id) }}" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف القسم؟');">
+                        <button class="btn btn-danger btn-sm" type="submit">حذف</button>
+                    </form>
+                </td>
+            </tr>
+
+            <div class="modal fade" id="editDepartmentModal{{d.id}}" tabindex="-1" role="dialog" aria-labelledby="editDepartmentLabel{{d.id}}" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="editDepartmentLabel{{d.id}}">تعديل القسم</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="إغلاق">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <form method="post" action="{{ url_for('departments.edit_department', id=d.id) }}">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>اسم القسم</label>
+                            <input type="text" class="form-control" name="name" value="{{ d.name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>عدد الفصول</label>
+                            <input type="number" class="form-control" name="semesters" value="{{ d.semesters }}" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>عدد الاختصاصات</label>
+                            <input type="number" class="form-control" name="majors" value="{{ d.majors }}" min="1" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                      <button type="submit" class="btn btn-primary">حفظ</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="modal fade" id="addDepartmentModal" tabindex="-1" role="dialog" aria-labelledby="addDepartmentLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addDepartmentLabel">إضافة قسم</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="إغلاق">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-        </div>
-        <div class="welcome-date">
-          <div class="welcome-date-day" id="currentDay">--</div>
-          <div class="welcome-date-month" id="currentMonth">---</div>
-          <div class="welcome-date-time" id="currentTime">--:--:--</div>
+          <form method="post" action="{{ url_for('departments.create_department') }}">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>اسم القسم</label>
+                    <input type="text" class="form-control" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>عدد الفصول</label>
+                    <input type="number" class="form-control" name="semesters" min="1" value="2" required>
+                </div>
+                <div class="form-group">
+                    <label>عدد الاختصاصات</label>
+                    <input type="number" class="form-control" name="majors" min="1" value="1" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+              <button type="submit" class="btn btn-primary">حفظ</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
-
-    <!-- STATS -->
-    <div class="stats-grid">
-      <a class="stat-card" href="#">
-        <div class="stat-icon i1">🏛</div>
-        <div><div class="stat-label">الأقسام</div><div class="stat-value">7</div><div class="stat-change up">↑ 6 أكاديمية + 1 إداري</div></div>
-      </a>
-      <a class="stat-card" href="#">
-        <div class="stat-icon i2">🚪</div>
-        <div><div class="stat-label">القاعات والمعامل</div><div class="stat-value">25</div><div class="stat-change up">↑ 14 قاعة · 7 معمل · 1 مسرح</div></div>
-      </a>
-      <a class="stat-card" href="#">
-        <div class="stat-icon i3">👨‍🏫</div>
-        <div><div class="stat-label">هيئة التدريس</div><div class="stat-value">42</div><div class="stat-change up">↑ 3 أعضاء جدد</div></div>
-      </a>
-      <a class="stat-card" href="#">
-        <div class="stat-icon i4">📚</div>
-        <div><div class="stat-label">المقررات</div><div class="stat-value">91</div><div class="stat-change up">↑ عبر 7 أقسام</div></div>
-      </a>
-      <a class="stat-card" href="#">
-        <div class="stat-icon i5">📅</div>
-        <div><div class="stat-label">الحصص المجدولة</div><div class="stat-value">156</div><div class="stat-change up">↑ الفصل الحالي</div></div>
-      </a>
-      <a class="stat-card" href="#">
-        <div class="stat-icon i6">👥</div>
-        <div><div class="stat-label">المستخدمون</div><div class="stat-value">12</div><div class="stat-change up">↑ 2 نشطون الآن</div></div>
-      </a>
-    </div>
-
-    <!-- QUICK ACTIONS -->
-   
-    <!-- TWO COLUMNS -->
-    <div class="two-col">
-
-      <!-- TIMETABLE PREVIEW -->
-      <div class="page-card">
-        <div class="card-header">
-          <div><h3>▦ جدول اليوم</h3><p>حصص اليوم — الأحد</p></div>
-          <a href="#" class="btn btn-sm btn-outline-primary">عرض الكل ←</a>
-        </div>
-        <div class="card-body" style="padding:0;overflow-x:auto">
-          <table class="mini-timetable">
-            <thead>
-              <tr>
-                <th>اليوم</th>
-                <th>الفترة أ<br><small style="font-weight:400;color:var(--text-muted)">09-12</small></th>
-                <th>الفترة ب<br><small style="font-weight:400;color:var(--text-muted)">12-15</small></th>
-                <th>الفترة ج<br><small style="font-weight:400;color:var(--text-muted)">15-18</small></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>السبت</td>
-                <td><span class="mini-cell empty">—</span></td>
-                <td><span class="mini-cell empty">—</span></td>
-                <td><span class="mini-cell empty">—</span></td>
-              </tr>
-              <tr>
-                <td>الأحد</td>
-                <td><span class="mini-cell filled">رسم هندسي</span></td>
-                <td><span class="mini-cell filled">رسم هندسي</span></td>
-                <td><span class="mini-cell empty">—</span></td>
-              </tr>
-              <tr>
-                <td>الاثنين</td>
-                <td><span class="mini-cell filled">رياضة 1</span></td>
-                <td><span class="mini-cell filled">الانجليزية</span></td>
-                <td><span class="mini-cell empty">—</span></td>
-              </tr>
-              <tr>
-                <td>الثلاثاء</td>
-                <td><span class="mini-cell filled">فيزياء نظري</span></td>
-                <td><span class="mini-cell filled">فيزياء عملي</span></td>
-                <td><span class="mini-cell empty">—</span></td>
-              </tr>
-              <tr>
-                <td>الأربعاء</td>
-                <td><span class="mini-cell empty">—</span></td>
-                <td><span class="mini-cell filled">كيمياء</span></td>
-                <td><span class="mini-cell empty">—</span></td>
-              </tr>
-              <tr>
-                <td>الخميس</td>
-                <td><span class="mini-cell filled">حاسب عملي</span></td>
-                <td><span class="mini-cell filled">حاسب نظري</span></td>
-                <td><span class="mini-cell empty">—</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- RECENT ACTIVITY -->
-      <div class="page-card">
-        <div class="card-header">
-          <div><h3>📋 آخر النشاطات</h3><p>أحدث العمليات على النظام</p></div>
-          <a href="#" class="btn btn-sm btn-outline-primary">السجل الكامل ←</a>
-        </div>
-        <div class="card-body">
-          <div class="activity-list">
-            <div class="activity-item">
-              <div class="activity-icon add">➕</div>
-              <div class="activity-content">
-                <div class="activity-text">تمت <strong>إضافة</strong> حصة "برمجة حاسوب" في الجدول الدراسي</div>
-                <div class="activity-time">أحمد المصراتي · منذ 15 دقيقة</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-icon edit">✏️</div>
-              <div class="activity-content">
-                <div class="activity-text">تم <strong>تعديل</strong> بيانات المقرر "رياضة 2" — تغيير الساعات</div>
-                <div class="activity-time">سالم المنصوري · منذ ساعة</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-icon add">➕</div>
-              <div class="activity-content">
-                <div class="activity-text">تمت <strong>إضافة</strong> عضو تدريس جديد "د. فاطمة الطاهر"</div>
-                <div class="activity-time">هند بلقاسم · منذ 3 ساعات</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-icon delete">🗑</div>
-              <div class="activity-content">
-                <div class="activity-text">تم <strong>حذف</strong> القاعة "معمل حاسوب قديم"</div>
-                <div class="activity-time">محمد العريبي · منذ 5 ساعات</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-icon login">🔑</div>
-              <div class="activity-content">
-                <div class="activity-text"><strong>تسجيل دخول</strong> جديد من المستخدم "نجلاء بن غشير"</div>
-                <div class="activity-time">منذ 6 ساعات</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECOND TWO COLUMNS -->
-    <div class="two-col">
-
-      <!-- DEPARTMENTS DISTRIBUTION -->
-      <div class="page-card">
-        <div class="card-header">
-          <div><h3>🏛 توزيع المقررات على الأقسام</h3><p>عدد المقررات لكل قسم أكاديمي</p></div>
-        </div>
-        <div class="card-body">
-          <div class="donut-container">
-            <div class="donut-chart" style="background:conic-gradient(#4f46e5 0% 26%,#059669 26% 44%,#d97706 44% 58%,#ec4899 58% 72%,#0284c7 72% 86%,#7c3aed 86% 100%)">
-              <div class="donut-center">
-                <div class="donut-center-value">91</div>
-                <div class="donut-center-label">مقرر</div>
-              </div>
-            </div>
-            <div class="donut-legend">
-              <div class="legend-item"><span class="legend-dot" style="background:#4f46e5"></span><span class="legend-label">القسم العام</span><span class="legend-value">24</span></div>
-              <div class="legend-item"><span class="legend-dot" style="background:#059669"></span><span class="legend-label">قسم الحاسوب</span><span class="legend-value">16</span></div>
-              <div class="legend-item"><span class="legend-dot" style="background:#d97706"></span><span class="legend-label">قسم الاتصالات</span><span class="legend-value">13</span></div>
-              <div class="legend-item"><span class="legend-dot" style="background:#ec4899"></span><span class="legend-label">قسم النفط</span><span class="legend-value">13</span></div>
-              <div class="legend-item"><span class="legend-dot" style="background:#0284c7"></span><span class="legend-label">قسم المدني</span><span class="legend-value">11</span></div>
-              <div class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span><span class="legend-label">قسم المعماري</span><span class="legend-value">14</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ROOMS UTILIZATION -->
-      <div class="page-card">
-        <div class="card-header">
-          <div><h3>🚪 استخدام القاعات حسب الدور</h3><p>نسبة الإشغال لكل دور</p></div>
-        </div>
-        <div class="card-body">
-          <div class="progress-list">
-            <div class="progress-item">
-              <div class="progress-header"><span class="progress-label">🏢 الدور الأرضي</span><span class="progress-value">7 قاعات · 85%</span></div>
-              <div class="progress-bar"><div class="progress-fill c1" style="width:85%"></div></div>
-            </div>
-            <div class="progress-item">
-              <div class="progress-header"><span class="progress-label">🏢 الدور الأول</span><span class="progress-value">5 قاعات · 72%</span></div>
-              <div class="progress-bar"><div class="progress-fill c2" style="width:72%"></div></div>
-            </div>
-            <div class="progress-item">
-              <div class="progress-header"><span class="progress-label">🏢 الدور الثاني</span><span class="progress-value">5 قاعات · 68%</span></div>
-              <div class="progress-bar"><div class="progress-fill c3" style="width:68%"></div></div>
-            </div>
-            <div class="progress-item">
-              <div class="progress-header"><span class="progress-label">🏢 الدور الثالث</span><span class="progress-value">5 قاعات · 60%</span></div>
-              <div class="progress-bar"><div class="progress-fill c4" style="width:60%"></div></div>
-            </div>
-            <div class="progress-item">
-              <div class="progress-header"><span class="progress-label">🏢 الدور الرابع</span><span class="progress-value">4 قاعات · 50%</span></div>
-              <div class="progress-bar"><div class="progress-fill c5" style="width:50%"></div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- WEEKLY CHART -->
-    <div class="page-card">
-      <div class="card-header">
-        <div><h3>📊 الحصص المجدولة هذا الأسبوع</h3><p>توزيع الحصص على أيام الأسبوع</p></div>
-        <div style="display:flex;gap:6px">
-          <span class="btn btn-sm btn-outline-secondary" style="cursor:default">الأسبوع الحالي</span>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="bar-chart" id="weeklyChart">
-          <div class="bar-col">
-            <div class="bar-value">18</div>
-            <div class="bar" style="height:60%;background:linear-gradient(180deg,#4f46e5,#7c3aed)"></div>
-            <div class="bar-label">السبت</div>
-          </div>
-          <div class="bar-col">
-            <div class="bar-value">28</div>
-            <div class="bar" style="height:93%;background:linear-gradient(180deg,#4f46e5,#7c3aed)"></div>
-            <div class="bar-label">الأحد</div>
-          </div>
-          <div class="bar-col">
-            <div class="bar-value">26</div>
-            <div class="bar" style="height:87%;background:linear-gradient(180deg,#4f46e5,#7c3aed)"></div>
-            <div class="bar-label">الاثنين</div>
-          </div>
-          <div class="bar-col">
-            <div class="bar-value">24</div>
-            <div class="bar" style="height:80%;background:linear-gradient(180deg,#4f46e5,#7c3aed)"></div>
-            <div class="bar-label">الثلاثاء</div>
-          </div>
-          <div class="bar-col">
-            <div class="bar-value">22</div>
-            <div class="bar" style="height:73%;background:linear-gradient(180deg,#4f46e5,#7c3aed)"></div>
-            <div class="bar-label">الأربعاء</div>
-          </div>
-          <div class="bar-col">
-            <div class="bar-value">24</div>
-            <div class="bar" style="height:80%;background:linear-gradient(180deg,#4f46e5,#7c3aed)"></div>
-            <div class="bar-label">الخميس</div>
-          </div>
-        </div>
-        <div style="display:flex;justify-content:center;gap:20px;margin-top:16px;font-size:12px;color:var(--text-muted)">
-          <span>📈 إجمالي الأسبوع: <strong style="color:var(--text)">142 حصة</strong></span>
-          <span>📊 المتوسط اليومي: <strong style="color:var(--text)">23.7 حصة</strong></span>
-          <span>🔺 أعلى يوم: <strong style="color:var(--text)">الأحد (28)</strong></span>
-        </div>
-      </div>
-    </div>
+</div>
 {% endblock %}

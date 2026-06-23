@@ -3,7 +3,7 @@
 {% block title %}نظام كلية التقنية الهندسية - لوحة المستخدم{% endblock %}
 {% block body_attrs %}data-theme="light"{% endblock %}
 {% block extra_head %}
-<link rel="stylesheet" href="/static/css/dashboard_user.css">
+
 {% endblock %}
 {% block content %}
 <!-- WELCOME HERO -->
@@ -21,7 +21,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-icon i3">👨‍🏫</div>
-        <div><div class="stat-label">المدرسون</div><div class="stat-value">5</div><div class="stat-change up">↑ نشطون</div></div>
+        <div><div class="stat-label">المحاضرون</div><div class="stat-value">5</div><div class="stat-change up">↑ نشطون</div></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon i4">✓</div>
@@ -37,8 +37,8 @@
       <!-- TODAY'S LECTURES -->
       <div class="page-card">
         <div class="card-header">
-          <div><h3>📖 محاضرات اليوم</h3><p>الأحد 18 يناير 2025 — 3 محاضرات</p></div>
-          <a href="#" class="btn btn-sm btn-outline-primary">عرض الجدول ←</a>
+          <div><h3>📖 محاضرات اليوم</h3><p id="todayLecturesSubtitle">—</p></div>
+          <a href="{{ url_for('timetable.timetable') }}" class="btn btn-sm btn-outline-primary">عرض الجدول ←</a>
         </div>
         <div class="card-body">
           <div class="lectures-grid">
@@ -102,14 +102,14 @@
             <div class="activity-item">
               <div class="activity-icon edit">✏️</div>
               <div class="activity-content">
-                <div class="activity-text">تم تعديل حصة <strong>"رسم هندسي"</strong> — تغيير القاعة إلى قاعة 11</div>
+                <div class="activity-text">تم تعديل محاضرة <strong>"رسم هندسي"</strong> — تغيير القاعة إلى قاعة 11</div>
                 <div class="activity-time">منذ 30 دقيقة</div>
               </div>
             </div>
             <div class="activity-item">
               <div class="activity-icon add">➕</div>
               <div class="activity-content">
-                <div class="activity-text">تمت إضافة حصة جديدة <strong>"فيزياء عملي"</strong> يوم الثلاثاء</div>
+                <div class="activity-text">تمت إضافة محاضرة جديدة <strong>"فيزياء عملي"</strong> يوم الثلاثاء</div>
                 <div class="activity-time">منذ ساعتين</div>
               </div>
             </div>
@@ -143,7 +143,7 @@
     <div class="page-card">
       <div class="card-header">
         <div><h3>▦ ملخص الجدول — هذا الأسبوع</h3><p>نظرة عامة على حصصك القادمة</p></div>
-        <a href="#" class="btn btn-primary">عرض الجدول الكامل ←</a>
+        <a href="{{ url_for('timetable.timetable') }}" class="btn btn-primary">عرض الجدول الكامل ←</a>
       </div>
       <div class="card-body" style="padding:0;overflow-x:auto">
         <table style="width:100%;border-collapse:separate;border-spacing:0;min-width:700px">
@@ -196,4 +196,15 @@
         </table>
       </div>
     </div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function() {
+  var d = new Date();
+  var dayNames = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  var monthNames = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  var el = document.getElementById('todayLecturesSubtitle');
+  if (el) el.textContent = dayNames[d.getDay()] + ' ' + d.getDate() + ' ' + monthNames[d.getMonth()] + ' ' + d.getFullYear() + ' — 3 محاضرات';
+})();
+</script>
 {% endblock %}

@@ -1,0 +1,56 @@
+{% set active_page = 'users' %}
+{% extends 'base.html' %}
+{% block title %}إضافة مستخدم جديد{% endblock %}
+{% block content %}
+<div class="user-form-shell">
+  <div class="user-form-card">
+    <div class="page-title mb-4">
+      <div>
+        <h2 class="mb-1">إضافة مستخدم جديد</h2>
+        <p class="text-muted mb-0">أدخل بيانات المستخدم الجديد وصلاحياته</p>
+      </div>
+    </div>
+    <form method="post" class="form-grid">
+      <div class="form-group full">
+        <label>اسم المستخدم</label>
+        <input type="text" class="form-control" name="username" required>
+      </div>
+      <div class="form-group">
+        <label>كلمة المرور</label>
+        <input type="password" class="form-control" name="password" required minlength="6">
+      </div>
+      <div class="form-group">
+        <label>تأكيد كلمة المرور</label>
+        <input type="password" class="form-control" name="password_confirm" required minlength="6">
+      </div>
+      <div class="form-group">
+        <label>الدور</label>
+        <select class="form-control" name="role" required>
+          <option value="super_admin">مشرف عام</option>
+          <option value="head_of_department">رئيس قسم</option>
+          <option value="head_of_exams">رئيس اللجان</option>
+          <option value="teacher">أستاذ</option>
+          <option value="student">طالب</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>التسمية</label>
+        <input type="text" class="form-control" name="label" value="{{ default_label or '' }}">
+      </div>
+      <div class="form-group">
+        <label>القسم</label>
+        <select class="form-control" name="department_id">
+          <option value="">بدون قسم</option>
+          {% for d in departments %}
+          <option value="{{ d.id }}" {% if selected_department_id == d.id %}selected{% endif %}>{{ d.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-actions full">
+        <button class="btn btn-success" type="submit">حفظ</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('users.list_users') }}">إلغاء</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

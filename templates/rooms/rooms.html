@@ -1,99 +1,1362 @@
 {% set active_page = 'rooms' %}
 {% extends 'base.html' %}
-{% block title %}نظام كلية التقنية الهندسية - القاعات{% endblock %}
+{% block title %}إدارة القاعات - نظام كلية التقنية الهندسية{% endblock %}
 {% block extra_head %}
-<link rel="stylesheet" href="/static/css/classRooms.css">
+<style>
+:root{
+  --bg:#f5f6fa;
+  --surface:#ffffff;
+  --surface-2:#fafbfd;
+  --border:#e7eaf0;
+  --border-strong:#d4d9e3;
+  --text:#1a1f36;
+  --text-muted:#6b7280;
+  --text-faint:#9ca3af;
+  --primary:#4f46e5;
+  --primary-soft:#eef2ff;
+  --success:#059669;
+  --success-soft:#ecfdf5;
+  --warning:#d97706;
+  --warning-soft:#fffbeb;
+  --danger:#dc2626;
+  --danger-soft:#fef2f2;
+  --info:#0891b2;
+  --info-soft:#ecfeff;
+  --purple:#7c3aed;
+  --purple-soft:#f5f3ff;
+  --shadow-sm:0 1px 2px rgba(15,23,42,.04);
+  --shadow:0 4px 12px rgba(15,23,42,.06);
+  --shadow-lg:0 12px 32px rgba(15,23,42,.08);
+  --radius:14px;
+  --radius-sm:10px;
+}
+
+.rooms-page *{margin:0;padding:0;box-sizing:border-box}
+
+.rooms-page .main{
+  padding:28px 0;
+  display:flex;flex-direction:column;gap:24px;
+  min-width:0;
+}
+
+/* ========== TOP BAR ========== */
+.rooms-page .topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:20px;flex-wrap:wrap;
+}
+.rooms-page .topbar-left h1{font-size:22px;font-weight:700;letter-spacing:-.3px}
+.rooms-page .topbar-left p{font-size:13px;color:var(--text-muted);margin-top:2px}
+.rooms-page .topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* ========== SEARCH ========== */
+.rooms-page .date-widget{
+  display:flex;align-items:center;gap:12px;
+  padding:8px 14px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  cursor:default;
+  transition:all .2s;
+  position:relative;
+}
+.rooms-page .date-widget:hover{
+  border-color:var(--border-strong);
+  box-shadow:var(--shadow-sm);
+}
+.rooms-page .date-icon{
+  width:40px;height:40px;
+  background:linear-gradient(135deg,var(--primary-soft),#f5f3ff);
+  border-radius:10px;
+  display:grid;place-items:center;
+  font-size:18px;
+  position:relative;
+  flex-shrink:0;
+}
+.rooms-page .date-icon::after{
+  content:"";
+  position:absolute;
+  bottom:4px;left:4px;
+  width:8px;height:8px;
+  background:var(--success);
+  border:2px solid var(--surface);
+  border-radius:50%;
+}
+.rooms-page .date-info{display:flex;flex-direction:column;gap:1px;line-height:1.2}
+.rooms-page .date-day{
+  font-size:13px;
+  font-weight:700;
+  color:var(--primary);
+}
+.rooms-page .date-full{
+  font-size:11px;
+  color:var(--text-muted);
+  display:flex;align-items:center;gap:6px;
+}
+.rooms-page .date-full .sep{
+  width:3px;height:3px;
+  background:var(--text-faint);
+  border-radius:50%;
+}
+.rooms-page .date-time{
+  font-size:11px;
+  font-weight:700;
+  color:var(--text);
+  font-variant-numeric:tabular-nums;
+  direction:ltr;
+}
+.rooms-page .date-hijri{
+  font-size:10px;
+  color:var(--text-faint);
+  margin-top:2px;
+  padding-top:4px;
+  border-top:1px dashed var(--border);
+  width:100%;
+  text-align:center;
+}
+
+.rooms-page .search-box{position:relative;width:260px}
+.rooms-page .search-box input{
+  width:100%;
+  padding:10px 14px 10px 40px;
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  background:var(--surface);
+  font-family:inherit;font-size:13px;
+  outline:none;transition:all .15s;
+}
+.rooms-page .search-box input:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px var(--primary-soft);
+}
+.rooms-page .search-box::before{
+  content:"🔍";
+  position:absolute;left:14px;top:50%;
+  transform:translateY(-50%);
+  font-size:13px;opacity:.6;
+}
+
+.rooms-page .btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:10px 16px;
+  border-radius:var(--radius-sm);
+  border:1px solid transparent;
+  font-family:inherit;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .15s;
+  white-space:nowrap;
+}
+.rooms-page .btn-primary{
+  background:var(--primary);color:#fff;
+  box-shadow:0 2px 6px rgba(79,70,229,.2);
+}
+.rooms-page .btn-primary:hover{background:#4338ca;transform:translateY(-1px);box-shadow:0 4px 10px rgba(79,70,229,.3)}
+.rooms-page .btn-ghost{
+  background:var(--surface);color:var(--text);
+  border-color:var(--border);
+}
+.rooms-page .btn-ghost:hover{background:var(--surface-2);border-color:var(--border-strong)}
+.rooms-page .btn-icon{width:38px;height:38px;padding:0;justify-content:center}
+.rooms-page .btn-sm{padding:6px 12px;font-size:12px}
+
+.rooms-page .view-switch{
+  display:flex;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:3px;
+}
+.rooms-page .view-switch button{
+  padding:6px 12px;
+  border:none;background:transparent;
+  border-radius:7px;
+  font-family:inherit;font-size:12px;font-weight:600;
+  color:var(--text-muted);cursor:pointer;
+  transition:all .15s;
+}
+.rooms-page .view-switch button.active{background:var(--primary-soft);color:var(--primary)}
+
+/* ========== CATEGORY TABS ========== */
+.rooms-page .category-tabs{
+  display:flex;gap:8px;flex-wrap:wrap;
+}
+.rooms-page .cat-tab{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 18px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  font-size:13px;font-weight:600;
+  color:var(--text-muted);
+  cursor:pointer;transition:all .15s;
+  font-family:inherit;
+}
+.rooms-page .cat-tab:hover{border-color:var(--border-strong);color:var(--text)}
+.rooms-page .cat-tab.active{
+  background:var(--primary-soft);
+  border-color:transparent;
+  color:var(--primary);
+}
+.rooms-page .cat-tab .count{
+  background:var(--surface-2);
+  padding:1px 8px;
+  border-radius:12px;
+  font-size:11px;font-weight:700;
+}
+.rooms-page .cat-tab.active .count{background:#fff;color:var(--primary)}
+
+/* ========== FILTER CHIPS ========== */
+.rooms-page .filter-bar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.rooms-page .chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 12px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  font-size:12px;font-weight:500;
+  color:var(--text-muted);
+  cursor:pointer;transition:all .15s;
+  font-family:inherit;
+}
+.rooms-page .chip:hover{border-color:var(--border-strong);color:var(--text)}
+.rooms-page .chip.active{
+  background:var(--primary-soft);
+  border-color:transparent;
+  color:var(--primary);
+  font-weight:600;
+}
+.rooms-page .chip .x{
+  display:none;
+  width:14px;height:14px;
+  border-radius:50%;
+  background:rgba(79,70,229,.15);
+  font-size:10px;line-height:14px;text-align:center;
+}
+.rooms-page .chip.active .x{display:inline-block}
+.rooms-page .filter-divider{width:1px;height:20px;background:var(--border);margin:0 4px}
+
+/* ========== FLOOR HEADER ========== */
+.rooms-page .floor-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+}
+.rooms-page .floor-header-left{display:flex;align-items:center;gap:12px}
+.rooms-page .floor-header-icon{
+  width:36px;height:36px;
+  background:var(--primary-soft);color:var(--primary);
+  border-radius:10px;
+  display:grid;place-items:center;font-size:16px;
+}
+.rooms-page .floor-header h3{font-size:15px;font-weight:700}
+.rooms-page .floor-header p{font-size:12px;color:var(--text-muted);margin-top:2px}
+.rooms-page .floor-header-right{display:flex;gap:16px;align-items:center}
+.rooms-page .floor-stat{text-align:center}
+.rooms-page .floor-stat .v{font-size:16px;font-weight:700}
+.rooms-page .floor-stat .l{font-size:11px;color:var(--text-muted)}
+
+/* ========== ROOMS GRID ========== */
+.rooms-page .rooms-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:14px;
+}
+
+.rooms-page .room-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  cursor:pointer;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+}
+.rooms-page .room-card::before{
+  content:"";
+  position:absolute;top:0;right:0;
+  width:4px;height:100%;
+  background:var(--text-faint);
+  transition:all .2s;
+}
+.rooms-page .room-card[data-status="متاحة"]::before{background:var(--success)}
+.rooms-page .room-card[data-status="مستخدمة"]::before{background:var(--warning)}
+.rooms-page .room-card[data-status="صيانة"]::before{background:var(--danger)}
+.rooms-page .room-card[data-status="مقفلة"]::before{background:var(--text-faint)}
+
+.rooms-page .room-card:hover{
+  transform:translateY(-2px);
+  box-shadow:var(--shadow);
+  border-color:var(--border-strong);
+}
+
+.rooms-page .room-top{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:12px;
+}
+.rooms-page .room-icon{
+  width:40px;height:40px;
+  border-radius:10px;
+  display:grid;place-items:center;font-size:18px;
+}
+.rooms-page .room-icon.hall{background:var(--primary-soft);color:var(--primary)}
+.rooms-page .room-icon.lab{background:var(--warning-soft);color:var(--warning)}
+.rooms-page .room-icon.theater{background:var(--purple-soft);color:var(--purple)}
+
+.rooms-page .status-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:11px;font-weight:600;
+}
+.rooms-page .status-pill::before{
+  content:"";width:6px;height:6px;border-radius:50%;
+}
+.rooms-page .status-pill.available{background:var(--success-soft);color:var(--success)}
+.rooms-page .status-pill.available::before{background:var(--success)}
+.rooms-page .status-pill.busy{background:var(--warning-soft);color:var(--warning)}
+.rooms-page .status-pill.busy::before{background:var(--warning)}
+.rooms-page .status-pill.maintenance{background:var(--danger-soft);color:var(--danger)}
+.rooms-page .status-pill.maintenance::before{background:var(--danger)}
+.rooms-page .status-pill.locked{background:#f3f4f6;color:#6b7280}
+.rooms-page .status-pill.locked::before{background:#6b7280}
+
+.rooms-page .room-name{font-size:15px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.rooms-page .room-meta{
+  font-size:12px;color:var(--text-muted);
+  display:flex;align-items:center;gap:4px;
+  margin-bottom:14px;
+}
+
+.rooms-page .room-details{
+  display:flex;gap:16px;
+  padding-top:12px;
+  border-top:1px dashed var(--border);
+}
+.rooms-page .room-detail{
+  display:flex;align-items:center;gap:6px;
+  font-size:12px;color:var(--text-muted);
+}
+.rooms-page .room-detail strong{color:var(--text);font-weight:700}
+
+.rooms-page .room-actions{
+  position:absolute;top:12px;left:12px;
+  display:flex;gap:4px;
+  opacity:0;transition:opacity .15s;
+}
+.rooms-page .room-card:hover .room-actions{opacity:1}
+.rooms-page .room-action{
+  width:28px;height:28px;
+  border-radius:7px;
+  border:none;background:var(--surface);
+  cursor:pointer;
+  display:grid;place-items:center;
+  font-size:12px;
+  box-shadow:var(--shadow-sm);
+  transition:all .15s;
+}
+.rooms-page .room-action:hover{background:var(--surface-2);transform:scale(1.1)}
+.rooms-page .room-action.danger:hover{background:var(--danger-soft);color:var(--danger)}
+
+/* ========== LIST VIEW ========== */
+.rooms-page .rooms-list{display:none;flex-direction:column;gap:8px}
+.rooms-page .rooms-list.active{display:flex}
+.rooms-page .rooms-grid.hidden{display:none}
+
+.rooms-page .list-item{
+  display:grid;
+  grid-template-columns:40px 1fr 120px 120px 100px 140px;
+  gap:16px;align-items:center;
+  padding:14px 18px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  transition:all .15s;
+}
+.rooms-page .list-item:hover{border-color:var(--border-strong);box-shadow:var(--shadow-sm)}
+.rooms-page .list-item .li-num{
+  width:32px;height:32px;
+  background:var(--surface-2);
+  border-radius:8px;
+  display:grid;place-items:center;
+  font-size:12px;font-weight:700;
+  color:var(--text-muted);
+}
+.rooms-page .list-item .li-name{font-weight:600}
+.rooms-page .list-item .li-name small{display:block;color:var(--text-muted);font-weight:400;font-size:11px;margin-top:2px}
+
+/* ========== EMPTY STATE ========== */
+.rooms-page .empty{
+  padding:60px 20px;
+  text-align:center;
+  background:var(--surface);
+  border:1px dashed var(--border);
+  border-radius:var(--radius);
+  grid-column:1/-1;
+}
+.rooms-page .empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+.rooms-page .empty h3{font-size:16px;font-weight:700;margin-bottom:6px}
+.rooms-page .empty p{font-size:13px;color:var(--text-muted);margin-bottom:16px}
+
+/* ========== MODAL ========== */
+.rooms-page .modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(15,23,42,.4);
+  backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;
+  z-index:100;padding:20px;
+}
+.rooms-page .modal-overlay.active{display:flex;animation:fadeIn .2s}
+.rooms-page .modal{
+  background:var(--surface);
+  border-radius:var(--radius);
+  width:100%;max-width:560px;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:var(--shadow-lg);
+  animation:slideUp .25s;
+}
+.rooms-page .modal-head{
+  padding:20px 24px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.rooms-page .modal-head h3{font-size:16px;font-weight:700}
+.rooms-page .modal-body{padding:24px}
+.rooms-page .modal-foot{
+  padding:16px 24px;
+  border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;gap:8px;
+}
+
+.rooms-page .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rooms-page .field{margin-bottom:16px}
+.rooms-page .field label{
+  display:block;
+  font-size:12px;font-weight:600;
+  color:var(--text);margin-bottom:6px;
+}
+.rooms-page .field input,.rooms-page .field select,.rooms-page .field textarea{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-family:inherit;font-size:13px;
+  outline:none;transition:all .15s;
+  background:var(--surface);
+}
+.rooms-page .field input:focus,.rooms-page .field select:focus,.rooms-page .field textarea:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px var(--primary-soft);
+}
+.rooms-page .field input.error,.rooms-page .field select.error{border-color:var(--danger);box-shadow:0 0 0 3px var(--danger-soft)}
+.rooms-page .field-error{color:var(--danger);font-size:11px;margin-top:4px;display:none}
+.rooms-page .field-error.show{display:block}
+
+/* Suggestion bar */
+.rooms-page .suggestion-bar{
+  display:none;align-items:center;gap:8px;
+  margin-top:6px;
+  padding:8px 12px;
+  background:var(--primary-soft);
+  border-radius:8px;
+  font-size:12px;
+}
+.rooms-page .suggestion-bar.show{display:flex}
+.rooms-page .suggestion-bar .sg-label{color:var(--text-muted)}
+.rooms-page .suggestion-bar .sg-name{font-weight:700;color:var(--primary)}
+.rooms-page .suggestion-bar .sg-btn{
+  padding:4px 10px;
+  background:var(--primary);color:#fff;
+  border:none;border-radius:6px;
+  font-size:11px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+}
+.rooms-page .suggestion-bar .sg-btn:hover{background:#4338ca}
+
+/* Autocomplete dropdown */
+.rooms-page .autocomplete-wrap{position:relative}
+.rooms-page .autocomplete-list{
+  position:absolute;top:100%;right:0;left:0;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-top:none;
+  border-radius:0 0 8px 8px;
+  max-height:160px;overflow-y:auto;
+  z-index:10;
+  display:none;
+  box-shadow:var(--shadow);
+}
+.rooms-page .autocomplete-list.show{display:block}
+.rooms-page .autocomplete-item{
+  padding:8px 12px;
+  font-size:13px;
+  cursor:pointer;
+  transition:background .1s;
+}
+.rooms-page .autocomplete-item:hover{background:var(--primary-soft)}
+.rooms-page .autocomplete-item .ac-match{font-weight:700;color:var(--primary)}
+
+/* Status pills */
+.rooms-page .status-options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rooms-page .status-option{
+  padding:10px 8px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  text-align:center;
+  cursor:pointer;
+  font-size:11px;font-weight:600;
+  transition:all .15s;
+}
+.rooms-page .status-option:hover{border-color:var(--border-strong)}
+.rooms-page .status-option.selected{border-width:2px}
+.rooms-page .status-option[data-v="متاحة"].selected{background:var(--success-soft);border-color:var(--success);color:var(--success)}
+.rooms-page .status-option[data-v="مستخدمة"].selected{background:var(--warning-soft);border-color:var(--warning);color:var(--warning)}
+.rooms-page .status-option[data-v="صيانة"].selected{background:var(--danger-soft);border-color:var(--danger);color:var(--danger)}
+.rooms-page .status-option[data-v="مقفلة"].selected{background:#f3f4f6;border-color:#6b7280;color:#6b7280}
+
+/* Toast */
+.rooms-page .toast-wrap{
+  position:fixed;top:24px;left:50%;
+  transform:translateX(-50%);
+  z-index:200;
+  display:flex;flex-direction:column;gap:8px;
+}
+.rooms-page .toast{
+  background:var(--text);color:#fff;
+  padding:12px 18px;
+  border-radius:10px;
+  font-size:13px;font-weight:500;
+  box-shadow:var(--shadow-lg);
+  animation:slideDown .3s;
+  display:flex;align-items:center;gap:8px;
+}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:960px){
+  .rooms-page .search-box{width:100%}
+  .rooms-page .list-item{grid-template-columns:1fr;gap:8px}
+  .rooms-page .date-widget{width:100%}
+}
+</style>
 {% endblock %}
+
 {% block content %}
-<div class="page-header">
-      <div class="page-header-info">
-        <div class="page-header-icon">🚪</div>
-        <div>
-          <h1 class="page-title-text">إدارة القاعات</h1>
-          <p class="page-subtitle">إدارة القاعات والمعامل والمسارح في الكلية</p>
+<div class="rooms-page">
+
+<div class="main">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 id="page-title">جميع المرافق</h1>
+      <p id="page-subtitle">إدارة القاعات والمعامل والمسارح في الكلية</p>
+    </div>
+    <div class="topbar-right">
+
+      <div class="date-widget" id="date-widget" title="التاريخ والوقت الحالي">
+        <div class="date-icon">📅</div>
+        <div class="date-info">
+          <div class="date-day" id="date-day">—</div>
+          <div class="date-full">
+            <span id="date-gregorian">—</span>
+            <span class="sep"></span>
+            <span class="date-time" id="date-time">--:--:--</span>
+          </div>
+          <div class="date-hijri" id="date-hijri">—</div>
         </div>
       </div>
-    </div>
 
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-icon i1">🚪</div><div><div class="stat-label">إجمالي القاعات</div><div class="stat-value">25</div><div class="stat-change">↑ 2 جديدة</div></div></div>
-      <div class="stat-card"><div class="stat-icon i2">🏫</div><div><div class="stat-label">قاعات دراسية</div><div class="stat-value">14</div><div class="stat-change">متاحة الآن</div></div></div>
-      <div class="stat-card"><div class="stat-icon i3">🔬</div><div><div class="stat-label">المعامل</div><div class="stat-value">7</div><div class="stat-change">5 حاسوب + 2 إلكترونيات</div></div></div>
-      <div class="stat-card"><div class="stat-icon i4">🎭</div><div><div class="stat-label">المسارح</div><div class="stat-value">1</div><div class="stat-change">سعة 100 مقعد</div></div></div>
-      <div class="stat-card"><div class="stat-icon i5">💺</div><div><div class="stat-label">إجمالي المقاعد</div><div class="stat-value">830</div><div class="stat-change">عبر جميع القاعات</div></div></div>
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="ابحث عن قاعة أو معمل...">
+      </div>
+      <div class="view-switch">
+        <button class="active" data-view="grid" title="عرض شبكي">▦</button>
+        <button data-view="list" title="عرض قائمة">☰</button>
+      </div>
+      <button class="btn btn-primary" id="addRoomBtn">
+        <span>+</span> إضافة مرفق
+      </button>
     </div>
+  </div>
 
-    <div class="page-card">
-      <div class="hero-actions">
-        <div><h3 style="font-size:16px;font-weight:700;margin-bottom:4px">إدارة القاعات</h3><p style="font-size:12px;color:var(--text-muted);margin:0">أضف قاعة جديدة أو صدّر البيانات</p></div>
-        <div class="hero-actions-right">
-          <a href="#" class="btn btn-success">➕ إضافة قاعة</a>
-          <a href="#" class="btn btn-outline-primary">📥 تصدير Excel</a>
-          <div class="view-toggle">
-            <button class="view-toggle-btn active">📋 جدول</button>
-            <button class="view-toggle-btn">🗂 بطاقات</button>
+  <div class="category-tabs" id="category-tabs">
+    <button class="cat-tab active" data-filter-type="all">
+      <span>📦</span> جميع المرافق
+      <span class="count" id="cnt-all">{{ total }}</span>
+    </button>
+    <button class="cat-tab" data-filter-type="قاعة">
+      <span>🏫</span> قاعات دراسية
+      <span class="count" id="cnt-hall">{{ halls }}</span>
+    </button>
+    <button class="cat-tab" data-filter-type="معمل">
+      <span>🔬</span> المعامل
+      <span class="count" id="cnt-lab">{{ labs }}</span>
+    </button>
+    <button class="cat-tab" data-filter-type="مسرح">
+      <span>🎭</span> المسارح
+      <span class="count" id="cnt-theater">{{ theaters }}</span>
+    </button>
+  </div>
+
+  <div class="filter-bar">
+    <span style="font-size:12px;color:var(--text-muted);font-weight:600">الدور:</span>
+    <button class="chip active" data-filter-floor="all">الكل <span class="x">✕</span></button>
+    <button class="chip" data-filter-floor="الدور الأرضي">الدور الأرضي <span class="x">✕</span></button>
+    <button class="chip" data-filter-floor="الدور الأول">الدور الأول <span class="x">✕</span></button>
+    <button class="chip" data-filter-floor="الدور الثاني">الدور الثاني <span class="x">✕</span></button>
+    <button class="chip" data-filter-floor="الدور الثالث">الدور الثالث <span class="x">✕</span></button>
+    <button class="chip" data-filter-floor="الدور الرابع">الدور الرابع <span class="x">✕</span></button>
+
+    <div class="filter-divider"></div>
+
+    <span style="font-size:12px;color:var(--text-muted);font-weight:600">الحالة:</span>
+    <button class="chip active" data-filter-status="all">الكل <span class="x">✕</span></button>
+    <button class="chip" data-filter-status="متاحة">✓ متاحة <span class="x">✕</span></button>
+    <button class="chip" data-filter-status="مستخدمة">⏳ مستخدمة <span class="x">✕</span></button>
+    <button class="chip" data-filter-status="صيانة">🔧 صيانة <span class="x">✕</span></button>
+    <button class="chip" data-filter-status="مقفلة">🔒 مقفلة <span class="x">✕</span></button>
+
+    <div class="filter-divider"></div>
+
+    <span style="font-size:12px;color:var(--text-muted);font-weight:600">السعة:</span>
+    <button class="chip" data-filter-cap="small">صغيرة (&lt;50)</button>
+    <button class="chip" data-filter-cap="medium">متوسطة (50-100)</button>
+    <button class="chip" data-filter-cap="large">كبيرة (&gt;100)</button>
+  </div>
+
+  <div class="floor-header" id="floor-header">
+    <div class="floor-header-left">
+      <div class="floor-header-icon">🏢</div>
+      <div>
+        <h3 id="floor-title">جميع الأدوار</h3>
+        <p id="floor-desc">عرض جميع المرافق في الكلية</p>
+      </div>
+    </div>
+    <div class="floor-header-right">
+      <div class="floor-stat">
+        <div class="v" id="fh-available">0</div>
+        <div class="l">متاحة</div>
+      </div>
+      <div class="floor-stat">
+        <div class="v" id="fh-busy">0</div>
+        <div class="l">مستخدمة</div>
+      </div>
+      <div class="floor-stat">
+        <div class="v" id="fh-maintenance">0</div>
+        <div class="l">صيانة</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rooms-grid" id="rooms-grid"></div>
+  <div class="rooms-list" id="rooms-list"></div>
+
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-title">إضافة مرفق جديد</h3>
+      <button class="btn btn-icon btn-ghost" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="room-form" onsubmit="saveRoom(event)">
+        <input type="hidden" id="f-id">
+        <input type="hidden" id="f-dept-id" value="{{ session.get('department_id') or '' }}">
+
+        <div class="field">
+          <label>اسم المرفق <span style="color:var(--danger)">*</span></label>
+          <div class="autocomplete-wrap">
+            <input type="text" id="f-name" placeholder="ابدأ الكتابة للحصول على اقتراحات..." required autocomplete="off">
+            <div class="autocomplete-list" id="autocomplete-list"></div>
+          </div>
+          <div class="suggestion-bar" id="suggestion-bar">
+            <span class="sg-label">اقتراح:</span>
+            <span class="sg-name" id="suggestion-text"></span>
+            <button type="button" class="sg-btn" id="useSuggestionBtn">استخدم الاسم المقترح</button>
+          </div>
+          <div class="field-error" id="f-name-error">اسم المرفق مطلوب</div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>النوع <span style="color:var(--danger)">*</span></label>
+            <select id="f-type" required>
+              <option value="">-- اختر النوع --</option>
+              <option value="قاعة دراسية">قاعة دراسية</option>
+              <option value="قاعة محاضرات">قاعة محاضرات</option>
+              <option value="معمل">معمل</option>
+              <option value="معمل حاسوب">معمل حاسوب</option>
+              <option value="قاعة ندوات">قاعة ندوات</option>
+              <option value="مدرج">مدرج</option>
+              <option value="مكتب">مكتب</option>
+              <option value="آخر">آخر</option>
+            </select>
+            <div class="field-error" id="f-type-error">النوع مطلوب</div>
+          </div>
+          <div class="field">
+            <label>المبنى</label>
+            <select id="f-building">
+              <option value="">-- اختر المبنى --</option>
+            </select>
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="page-card">
-      <div class="filter-panel">
-        <div class="section-header"><h3>🔍 البحث والفلترة</h3><p>ابحث باسم القاعة أو صفّ النتائج حسب النوع والحالة والموقع</p></div>
-        <div class="mini-grid">
-          <div class="form-group"><label>بحث بالاسم</label><input type="text" class="form-control" placeholder="اسم القاعة..."></div>
-          <div class="form-group"><label>نوع القاعة</label><select class="form-control"><option>الكل</option><option>قاعة</option><option>معمل</option><option>مسرح</option></select></div>
-          <div class="form-group"><label>الحالة</label><select class="form-control"><option>الكل</option><option>متاحة</option><option>مستخدمة</option><option>صيانة</option><option>مقفلة</option></select></div>
-          <div class="form-group"><label>الموقع</label><select class="form-control"><option>الكل</option><option>الدور الأرضي</option><option>الدور الأول</option><option>الدور الثاني</option><option>الدور الثالث</option><option>الدور الرابع</option></select></div>
-          <div class="form-actions"><a href="#" class="btn btn-primary">تطبيق</a><a href="#" class="btn btn-outline-secondary">↺ إعادة</a></div>
+        <div class="form-row">
+          <div class="field">
+            <label>الموقع (الدور) <span style="color:var(--danger)">*</span></label>
+            <select id="f-floor" required>
+              <option value="">-- اختر الدور --</option>
+              <option value="الدور الأرضي">الدور الأرضي</option>
+              <option value="الدور الأول">الدور الأول</option>
+              <option value="الدور الثاني">الدور الثاني</option>
+              <option value="الدور الثالث">الدور الثالث</option>
+              <option value="الدور الرابع">الدور الرابع</option>
+            </select>
+            <div class="field-error" id="f-floor-error">الدور مطلوب</div>
+          </div>
+          <div class="field">
+            <label>القسم</label>
+            <select id="f-dept"></select>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="page-card">
-      <div class="table-head"><div><h3>📋 قائمة القاعات</h3><p>عدد النتائج الحالية: <span class="count-badge">25</span></p></div></div>
-      <div class="rooms-table-wrap">
-        <table class="rooms-table">
-          <thead>
-            <tr>
-              <th style="width:50px">#</th>
-              <th>اسم القاعة</th>
-              <th>النوع</th>
-              <th>الحالة</th>
-              <th style="width:90px">المقاعد</th>
-              <th style="width:90px">الأجهزة</th>
-              <th>الموقع</th>
-              <th style="width:140px">الإجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td><span class="room-num">1</span></td><td class="room-name">قاعة 1</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأرضي</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">2</span></td><td class="room-name">قاعة 2</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأرضي</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">3</span></td><td class="room-name">قاعة 3</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأول</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">4</span></td><td class="room-name">قاعة 4</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأول</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">5</span></td><td class="room-name">قاعة 5</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثاني</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">6</span></td><td class="room-name">قاعة 6</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثاني</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">7</span></td><td class="room-name">قاعة 7</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثالث</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">8</span></td><td class="room-name">قاعة 8</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثالث</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">9</span></td><td class="room-name">قاعة 9</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الرابع</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">10</span></td><td class="room-name">قاعة 10</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الرابع</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">11</span></td><td class="room-name">قاعة 11</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأرضي</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">12</span></td><td class="room-name">قاعة 12</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأول</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">13</span></td><td class="room-name">قاعة 13</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثاني</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">14</span></td><td class="room-name">قاعة 14</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">40</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثالث</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">15</span></td><td class="room-name">معمل حاسوب 1</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">30</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأرضي</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">16</span></td><td class="room-name">معمل حاسوب 2</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">30</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأول</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">17</span></td><td class="room-name">معمل حاسوب 3</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">30</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثاني</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">18</span></td><td class="room-name">معمل حاسوب 4</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">30</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثالث</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">19</span></td><td class="room-name">معمل حاسوب 5</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">30</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الرابع</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">20</span></td><td class="room-name">معمل إلكترونيات 1</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">25</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأرضي</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">21</span></td><td class="room-name">معمل إلكترونيات 2</td><td><span class="type-badge lab">🔬 معمل</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">25</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأول</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">22</span></td><td class="room-name">مرسم 1</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">20</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثاني</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">23</span></td><td class="room-name">مرسم 2</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">20</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الثالث</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">24</span></td><td class="room-name">مرسم 3</td><td><span class="type-badge hall">🏫 قاعة</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">20</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الرابع</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-            <tr><td><span class="room-num">25</span></td><td class="room-name">مسرح</td><td><span class="type-badge theater">🎭 مسرح</span></td><td><span class="status-badge available">متاحة</span></td><td class="capacity-cell">100</td><td class="devices-cell">—</td><td><span class="location-badge">📍 الدور الأرضي</span></td><td><div class="actions-cell"><a href="#" class="btn btn-sm btn-outline-primary">تعديل</a><a href="#" class="btn btn-sm btn-outline-danger">حذف</a></div></td></tr>
-          </tbody>
-        </table>
+        <div class="field">
+          <label>السعة (عدد المقاعد) <span style="color:var(--danger)">*</span></label>
+          <select id="f-capacity" required>
+            <option value="">-- اختر السعة --</option>
+            <option value="20">20 مقعد</option>
+            <option value="30">30 مقعد</option>
+            <option value="40">40 مقعد</option>
+            <option value="50">50 مقعد</option>
+            <option value="75">75 مقعد</option>
+            <option value="100">100 مقعد</option>
+            <option value="150">150 مقعد</option>
+            <option value="200">200 مقعد</option>
+          </select>
+          <div class="field-error" id="f-capacity-error">السعة مطلوبة</div>
+        </div>
+
+        <div class="field">
+          <label>الحالة</label>
+          <div class="status-options" id="status-options">
+            <div class="status-option selected" data-v="متاحة">✓<br>متاحة</div>
+            <div class="status-option" data-v="مستخدمة">⏳<br>مستخدمة</div>
+            <div class="status-option" data-v="صيانة">🔧<br>صيانة</div>
+            <div class="status-option" data-v="مقفلة">🔒<br>مقفلة</div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+      <button class="btn btn-primary" id="saveRoomBtn">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const ROOMS_DATA = {{ rooms_json|safe }};
+let rooms = ROOMS_DATA;
+let buildingsList = [];
+let departmentsList = [];
+let currentSuggestion = null;
+
+const state = {
+  typeFilter:'all',
+  statusFilter:'all',
+  floorFilter:'all',
+  capFilter:'all',
+  search:'',
+  view:'grid',
+};
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+function csrfToken(){
+  const m = document.querySelector('meta[name="csrf-token"]');
+  return m ? m.getAttribute('content') : '';
+}
+
+// ========== DATE & TIME ==========
+const arabicDays = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const arabicMonths = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const hijriMonths = ['محرم','صفر','ربيع الأول','ربيع الثاني','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
+
+function toHijri(gYear, gMonth, gDay){
+  const d = new Date(gYear, gMonth - 1, gDay);
+  const jd = Math.floor((1461 * (gYear + 4800 + Math.floor((gMonth - 14) / 12))) / 4) +
+             Math.floor((367 * (gMonth - 2 - 12 * Math.floor((gMonth - 14) / 12))) / 12) -
+             Math.floor((3 * Math.floor((gYear + 4900 + Math.floor((gMonth - 14) / 12)) / 100)) / 4) +
+             gDay - 32075;
+  const l = jd - 1948440 + 10632;
+  const n = Math.floor((l - 1) / 10631);
+  const l2 = l - 10631 * n + 354;
+  const j = Math.floor((10985 - l2) / 5316) * Math.floor((50 * l2) / 17719) +
+            Math.floor(l2 / 5670) * Math.floor((43 * l2) / 15238);
+  const l3 = l2 - Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) -
+             Math.floor(j / 16) * Math.floor((15238 * j) / 43) + 29;
+  const hMonth = Math.floor((24 * l3) / 709);
+  const hDay = l3 - Math.floor((709 * hMonth) / 24);
+  const hYear = 30 * n + j - 30;
+  return { year: hYear, month: hMonth, day: hDay };
+}
+
+function updateDateTime(){
+  const now = new Date();
+  const dayName = arabicDays[now.getDay()];
+  const day = now.getDate();
+  const month = arabicMonths[now.getMonth()];
+  const year = now.getFullYear();
+  const hours = String(now.getHours()).padStart(2,'0');
+  const minutes = String(now.getMinutes()).padStart(2,'0');
+  const seconds = String(now.getSeconds()).padStart(2,'0');
+  const hijri = toHijri(year, now.getMonth()+1, day);
+  const hijriMonthName = hijriMonths[hijri.month - 1] || '';
+  const el = id => document.getElementById(id);
+  const dayEl = el('date-day');
+  const gregEl = el('date-gregorian');
+  const timeEl = el('date-time');
+  const hijriEl = el('date-hijri');
+  if(dayEl) dayEl.textContent = dayName;
+  if(gregEl) gregEl.textContent = `${day} ${month} ${year}`;
+  if(timeEl) timeEl.textContent = `${hours}:${minutes}:${seconds}`;
+  if(hijriEl) hijriEl.textContent = `${hijri.day} ${hijriMonthName} ${hijri.year} هـ`;
+}
+
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+// ========== HELPERS ==========
+function typeIcon(t){
+  const icons = {'قاعة':'🏫','قاعة دراسية':'🏫','قاعة محاضرات':'🏛','معمل':'🔬','معمل حاسوب':'💻','قاعة ندوات':'🎤','مدرج':'🎭','مكتب':'📋','آخر':'📦'};
+  return icons[t] || '🏫';
+}
+function typeClass(t){
+  if(t==='معمل'||t==='معمل حاسوب') return 'lab';
+  if(t==='مدرج') return 'theater';
+  return 'hall';
+}
+function statusClass(s){
+  return s==='متاحة'?'available':s==='مستخدمة'?'busy':s==='صيانة'?'maintenance':'locked';
+}
+
+function getFiltered(){
+  return rooms.filter(r=>{
+    if(state.typeFilter!=='all' && r.type!==state.typeFilter) return false;
+    if(state.statusFilter!=='all' && r.status!==state.statusFilter) return false;
+    if(state.floorFilter!=='all' && r.floor!==state.floorFilter) return false;
+    if(state.capFilter==='small' && r.capacity>=50) return false;
+    if(state.capFilter==='medium' && (r.capacity<50||r.capacity>100)) return false;
+    if(state.capFilter==='large' && r.capacity<=100) return false;
+    if(state.search && !r.name.toLowerCase().includes(state.search.toLowerCase())) return false;
+    return true;
+  });
+}
+
+function renderCounts(){
+  $('#cnt-all').textContent = rooms.length;
+  $('#cnt-hall').textContent = rooms.filter(r=>r.type==='قاعة'||r.type==='قاعة دراسية'||r.type==='قاعة محاضرات'||r.type==='قاعة ندوات'||r.type==='مدرج').length;
+  $('#cnt-lab').textContent = rooms.filter(r=>r.type==='معمل'||r.type==='معمل حاسوب').length;
+  $('#cnt-theater').textContent = rooms.filter(r=>r.type==='مدرج').length;
+}
+
+function renderPageTitle(){
+  const titles = {
+    'all':'جميع المرافق',
+    'قاعة':'القاعات الدراسية',
+    'معمل':'المعامل',
+    'مسرح':'المسارح',
+  };
+  $('#page-title').textContent = titles[state.typeFilter];
+}
+
+function renderFloorHeader(){
+  const filtered = getFiltered();
+  const title = state.floorFilter==='all'?'جميع الأدوار':state.floorFilter;
+  const desc = state.floorFilter==='all'
+    ? `عرض جميع المرافق (${filtered.length})`
+    : `${filtered.length} مرفق في هذا الدور`;
+  $('#floor-title').textContent = title;
+  $('#floor-desc').textContent = desc;
+  $('#fh-available').textContent = filtered.filter(r=>r.status==='متاحة').length;
+  $('#fh-busy').textContent = filtered.filter(r=>r.status==='مستخدمة').length;
+  $('#fh-maintenance').textContent = filtered.filter(r=>r.status==='صيانة').length;
+}
+
+function renderGrid(){
+  const filtered = getFiltered();
+  const grid = $('#rooms-grid');
+
+  if(filtered.length===0){
+    grid.innerHTML = `<div class="empty">
+      <div class="empty-icon">🔍</div>
+      <h3>لا توجد مرافق مطابقة</h3>
+      <p>جرّب تغيير الفلاتر أو البحث بكلمات مختلفة</p>
+      <button class="btn btn-ghost" onclick="resetFilters()">إعادة تعيين الفلاتر</button>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(r=>`
+    <div class="room-card" data-status="${r.status}" data-id="${r.id}" onclick="openEditModal(${r.id})">
+      <div class="room-actions" onclick="event.stopPropagation()">
+        <button class="room-action" onclick="openEditModal(${r.id})" title="تعديل">✏️</button>
+        <button class="room-action danger" onclick="deleteRoom(${r.id})" title="حذف">🗑</button>
+      </div>
+      <div class="room-top">
+        <div class="room-icon ${typeClass(r.type)}">${typeIcon(r.type)}</div>
+        <span class="status-pill ${statusClass(r.status)}">${r.status}</span>
+      </div>
+      <div class="room-name">${r.name}</div>
+      <div class="room-meta">📍 ${r.floor} ${r.building ? '• '+r.building : ''}</div>
+      <div class="room-details">
+        <div class="room-detail">💺 <strong>${r.capacity}</strong> مقعد</div>
+        <div class="room-detail">🏷 ${r.type}</div>
       </div>
     </div>
+  `).join('');
+}
+
+function renderList(){
+  const filtered = getFiltered();
+  const list = $('#rooms-list');
+
+  if(filtered.length===0){
+    list.innerHTML = `<div class="empty">
+      <div class="empty-icon">🔍</div>
+      <h3>لا توجد مرافق مطابقة</h3>
+      <p>جرّب تغيير الفلاتر أو البحث بكلمات مختلفة</p>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((r,i)=>`
+    <div class="list-item" onclick="openEditModal(${r.id})" style="cursor:pointer">
+      <div class="li-num">${i+1}</div>
+      <div class="li-name">
+        ${r.name}
+        <small>${typeIcon(r.type)} ${r.type} • 📍 ${r.floor}${r.building ? ' • '+r.building : ''}</small>
+      </div>
+      <span class="status-pill ${statusClass(r.status)}">${r.status}</span>
+      <div style="font-size:13px">💺 <strong>${r.capacity}</strong></div>
+      <div style="font-size:12px;color:var(--text-muted)">${r.type}</div>
+      <div style="display:flex;gap:6px;justify-content:flex-end" onclick="event.stopPropagation()">
+        <button class="room-action" onclick="openEditModal(${r.id})">✏️</button>
+        <button class="room-action danger" onclick="deleteRoom(${r.id})">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function render(){
+  renderCounts();
+  renderPageTitle();
+  renderFloorHeader();
+  renderGrid();
+  renderList();
+  updateChips();
+}
+
+function updateChips(){
+  $$('.cat-tab[data-filter-type]').forEach(c=>{
+    c.classList.toggle('active', c.dataset.filterType===state.typeFilter);
+  });
+  $$('.chip[data-filter-status]').forEach(c=>{
+    c.classList.toggle('active', c.dataset.filterStatus===state.statusFilter);
+  });
+  $$('.chip[data-filter-floor]').forEach(c=>{
+    c.classList.toggle('active', c.dataset.filterFloor===state.floorFilter);
+  });
+  $$('.chip[data-filter-cap]').forEach(c=>{
+    c.classList.toggle('active', c.dataset.filterCap===state.capFilter);
+  });
+}
+
+function resetFilters(){
+  state.typeFilter='all';
+  state.statusFilter='all';
+  state.floorFilter='all';
+  state.capFilter='all';
+  state.search='';
+  $('#search-input').value='';
+  render();
+}
+
+$$('.cat-tab[data-filter-type]').forEach(el=>{
+  el.addEventListener('click',()=>{
+    state.typeFilter = el.dataset.filterType;
+    render();
+  });
+});
+
+$$('.chip[data-filter-status]').forEach(el=>{
+  el.addEventListener('click',()=>{
+    state.statusFilter = state.statusFilter===el.dataset.filterStatus?'all':el.dataset.filterStatus;
+    render();
+  });
+});
+
+$$('.chip[data-filter-floor]').forEach(el=>{
+  el.addEventListener('click',()=>{
+    state.floorFilter = state.floorFilter===el.dataset.filterFloor?'all':el.dataset.filterFloor;
+    render();
+  });
+});
+
+$$('.chip[data-filter-cap]').forEach(el=>{
+  el.addEventListener('click',()=>{
+    state.capFilter = state.capFilter===el.dataset.filterCap?'all':el.dataset.filterCap;
+    render();
+  });
+});
+
+$('#search-input').addEventListener('input',e=>{
+  state.search = e.target.value;
+  render();
+});
+
+$$('.view-switch button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    $$('.view-switch button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    state.view = b.dataset.view;
+    $('#rooms-grid').classList.toggle('hidden', state.view!=='grid');
+    $('#rooms-list').classList.toggle('active', state.view==='list');
+  });
+});
+
+// ========== LOAD REFERENCE DATA ==========
+async function loadBuildings(){
+  try {
+    const res = await fetch('/rooms/api/buildings');
+    buildingsList = await res.json();
+    const sel = $('#f-building');
+    buildingsList.forEach(b=>{
+      const opt = document.createElement('option');
+      opt.value = b; opt.textContent = b;
+      sel.appendChild(opt);
+    });
+  } catch(e){}
+}
+
+async function loadDepartments(){
+  try {
+    const res = await fetch('/rooms/api/departments');
+    departmentsList = await res.json();
+    const sel = $('#f-dept');
+    const isSuper = {{ 'true' if session.get('role') == 'super_admin' else 'false' }};
+    departmentsList.forEach(d=>{
+      const opt = document.createElement('option');
+      opt.value = d.id; opt.textContent = d.name;
+      if(!isSuper || d.id == ($('#f-dept-id').value || 0)) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    if(!isSuper) sel.disabled = true;
+  } catch(e){}
+}
+
+// ========== NAME AUTOCOMPLETE & SUGGESTIONS ==========
+let autocompleteTimer = null;
+
+function fetchSuggestions(){
+  const name = $('#f-name').value.trim();
+  const type = $('#f-type').value;
+  if(!type) return;
+
+  fetch(`/rooms/api/suggestions?type=${encodeURIComponent(type)}&prefix=${encodeURIComponent(name)}`)
+    .then(r=>r.json())
+    .then(data=>{
+      currentSuggestion = data.suggestion;
+      if(data.suggestion && !$('#f-id').value){
+        $('#suggestion-bar').classList.add('show');
+        $('#suggestion-text').textContent = data.suggestion;
+      } else {
+        $('#suggestion-bar').classList.remove('show');
+      }
+      // Show autocomplete alternatives
+      const list = $('#autocomplete-list');
+      if(data.alternatives && data.alternatives.length && name.length > 0){
+        list.innerHTML = data.alternatives.map(a=>{
+          const idx = a.toLowerCase().indexOf(name.toLowerCase());
+          if(idx >= 0){
+            const before = a.slice(0, idx);
+            const match = a.slice(idx, idx + name.length);
+            const after = a.slice(idx + name.length);
+            return `<div class="autocomplete-item" onclick="selectAutocomplete('${a.replace(/'/g,"\\'")}')">${before}<span class="ac-match">${match}</span>${after}</div>`;
+          }
+          return `<div class="autocomplete-item" onclick="selectAutocomplete('${a.replace(/'/g,"\\'")}')">${a}</div>`;
+        }).join('');
+        list.classList.add('show');
+      } else {
+        list.classList.remove('show');
+      }
+    })
+    .catch(()=>{});
+}
+
+function selectAutocomplete(name){
+  $('#f-name').value = name;
+  $('#autocomplete-list').classList.remove('show');
+}
+
+function useSuggestion(){
+  if(currentSuggestion){
+    $('#f-name').value = currentSuggestion;
+    $('#suggestion-bar').classList.remove('show');
+    $('#autocomplete-list').classList.remove('show');
+    currentSuggestion = null;
+  }
+}
+
+$('#f-type').addEventListener('change', fetchSuggestions);
+
+$('#f-name').addEventListener('focus', function(){
+  if(this.value.trim().length === 0) fetchSuggestions();
+});
+
+$('#f-name').addEventListener('input', function(){
+  $('#suggestion-bar').classList.remove('show');
+  clearTimeout(autocompleteTimer);
+  const val = this.value.trim();
+  if(val.length > 0){
+    autocompleteTimer = setTimeout(()=>{
+      // Filter locally from existing room names
+      const matches = rooms
+        .filter(r => r.name.toLowerCase().includes(val.toLowerCase()))
+        .slice(0, 8)
+        .map(r => r.name);
+      const list = $('#autocomplete-list');
+      if(matches.length){
+        list.innerHTML = matches.map(a=>{
+          const idx = a.toLowerCase().indexOf(val.toLowerCase());
+          const before = a.slice(0, idx);
+          const match = a.slice(idx, idx + val.length);
+          const after = a.slice(idx + val.length);
+          return `<div class="autocomplete-item" onclick="selectAutocomplete('${a.replace(/'/g,"\\'")}')">${before}<span class="ac-match">${match}</span>${after}</div>`;
+        }).join('');
+        list.classList.add('show');
+      } else {
+        list.classList.remove('show');
+      }
+    }, 200);
+  } else {
+    fetchSuggestions();
+  }
+});
+
+$('#f-name').addEventListener('blur', function(){
+  setTimeout(()=>$('#autocomplete-list').classList.remove('show'), 200);
+});
+
+$('#useSuggestionBtn').addEventListener('click', useSuggestion);
+
+// ========== MODAL ==========
+function openAddModal(){
+  $('#modal-title').textContent = 'إضافة مرفق جديد';
+  $('#f-id').value = '';
+  $('#room-form').reset();
+  $('#f-dept-id').value = '{{ session.get("department_id") or "" }}';
+  $$('#status-options .status-option').forEach(o=>o.classList.remove('selected'));
+  $('#status-options .status-option[data-v="متاحة"]').classList.add('selected');
+  $$('.field-error').forEach(e=>e.classList.remove('show'));
+  $$('.field input.error, .field select.error').forEach(e=>e.classList.remove('error'));
+  $('#suggestion-bar').classList.remove('show');
+  $('#autocomplete-list').classList.remove('show');
+  currentSuggestion = null;
+  // Set default capacity
+  $('#f-capacity').value = '40';
+  // Set default department
+  const isSuper = {{ 'true' if session.get('role') == 'super_admin' else 'false' }};
+  if(!isSuper && departmentsList.length){
+    const deptId = '{{ session.get("department_id") or "" }}';
+    $('#f-dept').value = deptId;
+  }
+  // Fetch suggestion if type is selected
+  if($('#f-type').value) fetchSuggestions();
+  $('#modal').classList.add('active');
+  setTimeout(()=>$('#f-name').focus(), 300);
+}
+
+function openEditModal(id){
+  const r = rooms.find(x=>x.id===id);
+  if(!r) return;
+  $('#modal-title').textContent = 'تعديل المرفق';
+  $('#f-id').value = r.id;
+
+  // Map old type values to new ones
+  const typeMap = {'قاعة':'قاعة دراسية','معمل':'معمل','مسرح':'مدرج'};
+  const mappedType = typeMap[r.type] || r.type;
+
+  $('#f-name').value = r.name;
+  $('#f-type').value = mappedType;
+  $('#f-building').value = r.building || '';
+  $('#f-floor').value = r.floor;
+  $('#f-capacity').value = r.capacity || '40';
+  // Map capacity to closest option if not in list
+  if(!$('#f-capacity').querySelector(`option[value="${r.capacity}"]`)){
+    const opt = document.createElement('option');
+    opt.value = r.capacity; opt.textContent = r.capacity + ' مقعد';
+    $('#f-capacity').appendChild(opt);
+    $('#f-capacity').value = r.capacity;
+  }
+  // Department
+  const isSuper = {{ 'true' if session.get('role') == 'super_admin' else 'false' }};
+  if(isSuper && r.department_id){
+    $('#f-dept').value = r.department_id;
+  }
+
+  $$('#status-options .status-option').forEach(o=>{
+    o.classList.toggle('selected', o.dataset.v===r.status);
+  });
+  $$('.field-error').forEach(e=>e.classList.remove('show'));
+  $$('.field input.error, .field select.error').forEach(e=>e.classList.remove('error'));
+  $('#suggestion-bar').classList.remove('show');
+  $('#autocomplete-list').classList.remove('show');
+  $('#modal').classList.add('active');
+}
+
+function closeModal(){
+  $('#modal').classList.remove('active');
+}
+
+$$('#status-options .status-option').forEach(o=>{
+  o.addEventListener('click',()=>{
+    $$('#status-options .status-option').forEach(x=>x.classList.remove('selected'));
+    o.classList.add('selected');
+  });
+});
+
+// ========== SAVE ==========
+function validateForm(){
+  let valid = true;
+  const fields = [
+    {id:'f-name', error:'f-name-error'},
+    {id:'f-type', error:'f-type-error'},
+    {id:'f-floor', error:'f-floor-error'},
+    {id:'f-capacity', error:'f-capacity-error'},
+  ];
+  fields.forEach(f=>{
+    const el = $(`#${f.id}`);
+    const err = $(`#${f.error}`);
+    if(!el.value.trim()){
+      el.classList.add('error');
+      err.classList.add('show');
+      valid = false;
+    } else {
+      el.classList.remove('error');
+      err.classList.remove('show');
+    }
+  });
+  return valid;
+}
+
+async function saveRoom(e){
+  e.preventDefault();
+  if(!validateForm()) return;
+
+  const id = $('#f-id').value;
+  const data = {
+    name:$('#f-name').value.trim(),
+    type:$('#f-type').value,
+    building:$('#f-building').value,
+    floor:$('#f-floor').value,
+    capacity:parseInt($('#f-capacity').value) || 0,
+    status:$('#status-options .status-option.selected').dataset.v,
+    department_id: parseInt($('#f-dept').value) || null,
+  };
+
+  const token = csrfToken();
+  const headers = {'Content-Type':'application/json'};
+  if(token) headers['X-CSRFToken'] = token;
+
+  try {
+    if(id){
+      const res = await fetch(`/rooms/api/${id}`, {
+        method:'PUT', headers, body:JSON.stringify(data)
+      });
+      if(!res.ok){ const err=await res.json(); toast('خطأ: '+err.error); return; }
+      const r = rooms.find(x=>x.id===parseInt(id));
+      Object.assign(r,data);
+      toast('✓ تم تحديث المرفق بنجاح');
+    } else {
+      const res = await fetch('/rooms/api/create', {
+        method:'POST', headers, body:JSON.stringify(data)
+      });
+      if(!res.ok){ const err=await res.json(); toast('خطأ: '+err.error); return; }
+      const result = await res.json();
+      rooms.push({id:result.id, ...data});
+      toast('✓ تمت إضافة المرفق بنجاح');
+    }
+    closeModal();
+    render();
+  } catch(err){
+    toast('خطأ في الاتصال بالخادم');
+  }
+}
+
+async function deleteRoom(id){
+  const r = rooms.find(x=>x.id===id);
+  if(!r) return;
+  if(!confirm(`هل تريد حذف "${r.name}"؟`)) return;
+
+  const token = csrfToken();
+  const headers = {};
+  if(token) headers['X-CSRFToken'] = token;
+
+  try {
+    const res = await fetch(`/rooms/api/${id}`, {
+      method:'DELETE', headers
+    });
+    if(!res.ok){ const err=await res.json(); toast('خطأ: '+err.error); return; }
+    rooms = rooms.filter(x=>x.id!==id);
+    toast('🗑 تم حذف المرفق');
+    render();
+  } catch(err){
+    toast('خطأ في الاتصال بالخادم');
+  }
+}
+
+function toast(msg){
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  $('#toasts').appendChild(t);
+  setTimeout(()=>{
+    t.style.opacity='0';
+    t.style.transform='translateY(-20px)';
+    t.style.transition='all .3s';
+    setTimeout(()=>t.remove(),300);
+  },2500);
+}
+
+// ========== EVENTS ==========
+$('#modal').addEventListener('click',e=>{
+  if(e.target.id==='modal') closeModal();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeModal();
+});
+
+document.getElementById('addRoomBtn').addEventListener('click', openAddModal);
+document.getElementById('saveRoomBtn').addEventListener('click', function(e){
+  document.getElementById('room-form').requestSubmit();
+});
+
+// ========== INIT ==========
+loadBuildings();
+loadDepartments();
+render();
+</script>
 {% endblock %}

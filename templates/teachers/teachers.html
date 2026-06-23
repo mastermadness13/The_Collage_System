@@ -1,62 +1,248 @@
 {% set active_page = 'teachers' %}
 {% extends 'base.html' %}
-{% block title %}نظام كلية التقنية الهندسية - المقررات{% endblock %}
+{% block title %}نظام كلية التقنية الهندسية - هيئة التدريس{% endblock %}
 {% block body_attrs %}data-theme="light"{% endblock %}
-{% block extra_head %}
-<link rel="stylesheet" href="/static/css/teachers.css">
-{% endblock %}
 {% block content %}
-<div class="page-header animate-in">
-    <div class="page-header-info">
-      <div class="page-header-icon">📚</div>
-      <div>
-        <h1 class="page-title-text">المقررات الدراسية</h1>
-        <p class="page-subtitle">إدارة المقررات والمواد الدراسية لجميع الأقسام والسنوات</p>
-      </div>
+<style>
+.teacher-name-link { color: var(--primary, #4f46e5); cursor: pointer; font-weight: 600; transition: color 0.2s; }
+.teacher-name-link:hover { color: var(--primary-hover, #4338ca); text-decoration: underline; }
+
+/* ───── Left-side Drawer ───── */
+.drawer-overlay {
+  position: fixed; inset: 0; z-index: 3000;
+  display: flex; justify-content: flex-start;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.drawer-overlay.show { opacity: 1; visibility: visible; }
+.drawer-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.35); }
+.drawer-panel {
+  position: relative; width: 340px; max-width: 85vw; height: 100vh;
+  background: #fff; box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+  overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column;
+}
+.drawer-overlay.show .drawer-panel { transform: translateX(0); }
+.drawer-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 22px; border-bottom: 1px solid #f3f4f6;
+  position: sticky; top: 0; background: #fff; z-index: 10;
+}
+.drawer-head h3 { font-size: 16px; font-weight: 700; color: #111827; margin: 0; }
+.drawer-close {
+  width: 32px; height: 32px; border-radius: 8px; border: none;
+  background: #f3f4f6; color: #6b7280; font-size: 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.drawer-close:hover { background: #fee2e2; color: #ef4444; }
+.drawer-body { padding: 22px; flex: 1; }
+.drawer-loading { text-align: center; padding: 60px 20px; color: #9ca3af; font-size: 14px; }
+.drawer-section { margin-bottom: 22px; }
+.drawer-section:last-child { margin-bottom: 0; }
+.drawer-section-title {
+  font-size: 13px; font-weight: 700; color: #6b7280;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #f3f4f6;
+}
+.drawer-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.drawer-info-item { }
+.drawer-info-item .label { font-size: 11px; color: #9ca3af; margin-bottom: 2px; }
+.drawer-info-item .value { font-size: 14px; font-weight: 600; color: #111827; }
+.drawer-info-item .value.full-width { grid-column: 1 / -1; }
+.drawer-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 12px;
+  font-size: 12px; font-weight: 600;
+}
+.drawer-badge.active { background: #d1fae5; color: #065f46; }
+.drawer-badge.inactive { background: #fee2e2; color: #991b1b; }
+.drawer-dept-tag {
+  display: inline-block; padding: 4px 12px; border-radius: 16px;
+  font-size: 12px; font-weight: 500;
+  background: #eef2ff; color: #4f46e5; margin: 2px 4px 2px 0;
+}
+.drawer-course-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: 8px;
+  border: 1px solid #f3f4f6; margin-bottom: 6px;
+  transition: background 0.2s;
+}
+.drawer-course-item:hover { background: #f9fafb; }
+.drawer-course-code {
+  font-size: 11px; font-weight: 700; color: #4f46e5;
+  background: #eef2ff; padding: 2px 8px; border-radius: 4px;
+  flex-shrink: 0;
+}
+.drawer-course-name { font-size: 13px; color: #374151; }
+.drawer-empty { text-align: center; padding: 20px; color: #9ca3af; font-size: 13px; }
+</style>
+
+<div class="page-header">
+  <div class="page-header-info">
+    <div class="page-header-icon">👨‍🏫</div>
+    <div>
+      <h1 class="page-title-text">هيئة التدريس</h1>
+      <p class="page-subtitle">إدارة أعضاء هيئة التدريس والمحاضرين</p>
     </div>
   </div>
+</div>
 
-  <div class="stats-grid">
-    <div class="stat-card animate-in"><div class="stat-icon i1">📚</div><div><div class="stat-label">إجمالي المقررات</div><div class="stat-value" id="statTotal">91</div><div class="stat-change">↑ 3 هذا الأسبوع</div></div></div>
-    <div class="stat-card animate-in"><div class="stat-icon i2">🏛</div><div><div class="stat-label">الأقسام</div><div class="stat-value">7</div><div class="stat-change">جميعها نشطة</div></div></div>
-    <div class="stat-card animate-in"><div class="stat-icon i3">📅</div><div><div class="stat-label">السنوات الدراسية</div><div class="stat-value">4</div><div class="stat-change">من السنة 1 إلى 4</div></div></div>
-    <div class="stat-card animate-in"><div class="stat-icon i4">⏱</div><div><div class="stat-label">إجمالي الساعات</div><div class="stat-value" id="statHours">56</div><div class="stat-change">ساعات معتمدة</div></div></div>
-  </div>
+{% set ns = namespace(total=0) %}
+{% for t in teachers %}{% set ns.total = ns.total + 1 %}{% endfor %}
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-icon i1">👨‍🏫</div><div><div class="stat-label">إجمالي المحاضرين</div><div class="stat-value">{{ ns.total }}</div><div class="stat-change">إجمالي المسجلين</div></div></div>
+  <div class="stat-card"><div class="stat-icon i2">🏛</div><div><div class="stat-label">الأقسام</div><div class="stat-value">{{ departments|length }}</div><div class="stat-change">جميعها نشطة</div></div></div>
+  <div class="stat-card"><div class="stat-icon i3">📚</div><div><div class="stat-label">المواد</div><div class="stat-value">{{ subjects|length }}</div><div class="stat-change">مختلفة</div></div></div>
+  <div class="stat-card"><div class="stat-icon i4">⏱</div><div><div class="stat-label">الساعات</div><div class="stat-value">—</div><div class="stat-change">أسبوعياً</div></div></div>
+</div>
 
-  <div class="page-card animate-in">
-    <div class="hero-actions">
-      <div><h3 style="font-size:16px;font-weight:700;margin-bottom:4px">إدارة المقررات</h3><p style="font-size:12px;color:var(--text-muted);margin:0">أضف مقرراً جديداً أو استورد من ملف Excel</p></div>
-      <div class="hero-actions-right">
-        <button class="btn btn-success" onclick="openAddModal()">➕ إضافة مقرر</button>
-        <button class="btn btn-outline-primary" onclick="downloadExcel()">📥 تنزيل Excel</button>
-        <button class="btn btn-primary" onclick="openUploadModal()">📤 استيراد Excel</button>
-      </div>
+<div class="page-card">
+  <div class="hero-actions">
+    <div><h3>إدارة هيئة التدريس</h3><p>أضف محاضراً جديداً أو حمّل ملف Excel</p></div>
+    <div class="hero-actions-right">
+      <a href="{{ url_for('teachers.create_teacher') }}" class="btn btn-success">➕ إضافة محاضر</a>
+      <a href="{{ url_for('teachers.export_teachers') }}" class="btn btn-outline-primary">📥 تنزيل Excel</a>
     </div>
   </div>
+</div>
 
-  <div class="page-card animate-in">
-    <div class="filter-panel">
-      <div class="section-header"><h3>🔍 البحث والفلترة</h3><p>ابحث بالاسم أو الرمز، ثم صفّ النتائج حسب القسم والسنة</p></div>
-      <div class="mini-grid">
-        <div class="form-group"><label>بحث</label><input type="search" class="form-control" id="searchQuery" placeholder="مثال: ت101 أو ميكانيكا الموائع" oninput="applyFilters()"></div>
-        <div class="form-group"><label>القسم</label><select class="form-control" id="deptFilter" onchange="applyFilters()"><option value="">كل الأقسام</option><option value="القسم العام">القسم العام</option><option value="قسم الاتصالات">قسم الاتصالات</option><option value="قسم البحث والتطوير والمناهج">قسم البحث والتطوير والمناهج</option><option value="قسم الحاسوب">قسم الحاسوب</option><option value="قسم المدني">قسم المدني</option><option value="قسم المعماري">قسم المعماري</option><option value="قسم النفط">قسم النفط</option></select></div>
-        <div class="form-group"><label>السنة</label><select class="form-control" id="yearFilter" onchange="applyFilters()"><option value="">كل السنوات</option><option value="1">السنة 1</option><option value="2">السنة 2</option><option value="3">السنة 3</option><option value="4">السنة 4</option></select></div>
-        <div class="form-actions"><button class="btn btn-outline-secondary" onclick="resetFilters()">↺ إعادة الضبط</button></div>
-      </div>
+<div class="page-card">
+  <div class="table-head"><div><h3>📋 قائمة أعضاء هيئة التدريس</h3><p>عدد النتائج: <span class="count-badge">{{ ns.total }}</span></p></div></div>
+  <div class="courses-table-wrap">
+    <table class="courses-table">
+      <thead>
+        <tr>
+          <th style="width:50px">#</th>
+          <th>الاسم</th>
+          <th>القسم</th>
+          <th>المادة</th>
+          <th>المؤهل</th>
+          <th>الرتبة</th>
+          <th>الهاتف</th>
+          <th style="width:140px">الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if teachers %}
+          {% for t in teachers %}
+          <tr>
+            <td><span class="row-num">{{ loop.index }}</span></td>
+            <td><span class="teacher-name-link" onclick="openDrawer({{ t.id }})">{{ t.name }}</span></td>
+            <td><span class="dept-badge dept-{{ loop.index0 % 7 }}">{{ t.department or '—' }}</span></td>
+            <td>{{ t.subject or '—' }}</td>
+            <td>{{ t.qualification or '—' }}</td>
+            <td>{{ t.academic_rank or '—' }}</td>
+            <td>{{ t.phone or '—' }}</td>
+            <td><div class="actions-cell"><a href="{{ url_for('teachers.edit_teacher', teacher_id=t.id) }}" class="btn btn-sm btn-outline-primary">تعديل</a><form method="post" action="{{ url_for('teachers.delete_teacher', teacher_id=t.id) }}" style="display:inline" onsubmit="return confirm('تأكيد الحذف؟')"><button class="btn btn-sm btn-outline-danger" type="submit">حذف</button></form></div></td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">لا يوجد محاضرون بعد</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay">
+  <div class="drawer-backdrop" onclick="closeDrawer()"></div>
+  <div class="drawer-panel">
+    <div class="drawer-head">
+      <h3 id="drawerTitle">تفاصيل المحاضر</h3>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-body" id="drawerBody">
+      <div class="drawer-loading">جاري التحميل...</div>
     </div>
   </div>
+</div>
 
-  <div class="page-card animate-in">
-    <div class="table-head"><div><h3>📋 قائمة المقررات</h3><p>عدد النتائج الحالية: <span class="count-badge" id="resultCount">91</span></p></div></div>
-    <div class="courses-table-wrap">
-      <table class="courses-table">
-        <thead><tr><th style="width:50px">#</th><th style="width:90px">الرمز</th><th>اسم المقرر</th><th>القسم</th><th style="width:90px">السنة</th><th style="width:120px">الساعات</th><th>الاعتمادية</th><th>المفردات</th><th class="no-print" style="width:140px">الإجراءات</th></tr></thead>
-        <tbody id="coursesBody"></tbody>
-      </table>
-      <div class="empty-state" id="emptyState" style="display:none"><div class="empty-state-icon">📭</div><div class="empty-state-text">لا توجد نتائج</div><div class="empty-state-sub">جرّب تغيير معايير البحث أو الفلترة</div></div>
-    </div>
-  </div>
-{% endblock %}
-{% block scripts %}
-<script src="/static/js/teachers.js"></script>
+<script>
+function getCSRFToken() {
+  var meta = document.querySelector('meta[name="csrf-token"]');
+  if (meta && meta.content) return meta.content;
+  var input = document.querySelector('input[name="csrf_token"]');
+  if (input && input.value) return input.value;
+  return null;
+}
+
+function openDrawer(teacherId) {
+  var body = document.getElementById('drawerBody');
+  body.innerHTML = '<div class="drawer-loading">جاري التحميل...</div>';
+  document.getElementById('drawerOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+
+  fetch('/teachers/api/' + teacherId + '/details', {
+    headers: { 'X-CSRFToken': getCSRFToken(), 'Accept': 'application/json' }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var html = '';
+
+    // Basic info
+    html += '<div class="drawer-section">';
+    html += '<div class="drawer-section-title">المعلومات الأساسية</div>';
+    html += '<div class="drawer-info-grid">';
+    html += '<div class="drawer-info-item" style="grid-column:1/-1"><div class="label">الاسم</div><div class="value" style="font-size:16px">' + escapeHtml(data.name) + '</div></div>';
+    html += '<div class="drawer-info-item"><div class="label">الرقم الأكاديمي</div><div class="value">' + escapeHtml(data.academic_number || '—') + '</div></div>';
+    html += '<div class="drawer-info-item"><div class="label">الرقم الوطني</div><div class="value">' + escapeHtml(data.national_id || '—') + '</div></div>';
+    html += '<div class="drawer-info-item"><div class="label">الهاتف</div><div class="value">' + escapeHtml(data.phone || '—') + '</div></div>';
+    html += '<div class="drawer-info-item"><div class="label">الحالة</div><div class="value"><span class="drawer-badge ' + (data.status === 'نشط' ? 'active' : 'inactive') + '">' + escapeHtml(data.status) + '</span></div></div>';
+    html += '<div class="drawer-info-item"><div class="label">الرتبة</div><div class="value">' + escapeHtml(data.academic_rank || '—') + '</div></div>';
+    html += '<div class="drawer-info-item"><div class="label">المؤهل</div><div class="value">' + escapeHtml(data.qualification || '—') + '</div></div>';
+    html += '<div class="drawer-info-item" style="grid-column:1/-1"><div class="label">التصنيف</div><div class="value">' + escapeHtml(data.classification || '—') + '</div></div>';
+    html += '</div></div>';
+
+    // Departments
+    html += '<div class="drawer-section">';
+    html += '<div class="drawer-section-title">الأقسام التابعة</div>';
+    if (data.departments && data.departments.length > 0) {
+      data.departments.forEach(function(d) {
+        html += '<span class="drawer-dept-tag">' + escapeHtml(d) + '</span>';
+      });
+    } else {
+      html += '<div class="drawer-empty">لا يوجد أقسام</div>';
+    }
+    html += '</div>';
+
+    // Courses
+    html += '<div class="drawer-section">';
+    html += '<div class="drawer-section-title">المواد المسندة (' + (data.courses ? data.courses.length : 0) + ')</div>';
+    if (data.courses && data.courses.length > 0) {
+      data.courses.forEach(function(c) {
+        html += '<div class="drawer-course-item"><span class="drawer-course-code">' + escapeHtml(c.code || '') + '</span><span class="drawer-course-name">' + escapeHtml(c.name) + '</span></div>';
+      });
+    } else {
+      html += '<div class="drawer-empty">لم يسند أي مادة بعد</div>';
+    }
+    html += '</div>';
+
+    body.innerHTML = html;
+  })
+  .catch(function() {
+    body.innerHTML = '<div class="drawer-empty" style="padding:60px 20px">⚠️ فشل تحميل البيانات</div>';
+  });
+}
+
+function closeDrawer() {
+  document.getElementById('drawerOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDrawer();
+});
+</script>
 {% endblock %}

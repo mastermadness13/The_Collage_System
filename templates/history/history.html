@@ -1,747 +1,157 @@
-﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نظام كلية التقنية الهندسية - سجل التغييرات</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/tajawal@5.0.0/index.min.css">
-<style>
-:root{
-  --bg:#f1f5f9;--surface:#fff;--surface-2:#f8fafc;--surface-3:#eef2ff;
-  --border:#e2e8f0;--border-light:#f1f5f9;
-  --text:#0f172a;--text-sec:#475569;--text-muted:#94a3b8;
-  --primary:#4f46e5;--primary-h:#4338ca;--primary-s:#eef2ff;--primary-g:rgba(79,70,229,.15);
-  --success:#059669;--success-s:#ecfdf5;
-  --danger:#dc2626;--danger-s:#fef2f2;
-  --warning:#d97706;--warning-s:#fffbeb;
-  --info:#0284c7;--info-s:#f0f9ff;
-  --purple:#7c3aed;--purple-s:#f5f3ff;
-  --sidebar-w:260px;--topbar-h:64px;
-  --radius:12px;--radius-sm:8px;--radius-xs:6px;
-  --shadow-sm:0 1px 2px rgba(0,0,0,.04);--shadow:0 4px 12px rgba(0,0,0,.06);
-  --shadow-lg:0 12px 32px rgba(0,0,0,.1);--shadow-xl:0 20px 60px rgba(0,0,0,.15);
-  --t:.25s cubic-bezier(.4,0,.2,1);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
-
-/* ===== TOPBAR ===== */
-.app-topbar{position:sticky;top:0;right:0;left:0;height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:100;box-shadow:var(--shadow-sm)}
-.topbar-start{display:flex;align-items:center;gap:12px}
-.topbar-icon-button{width:40px;height:40px;border:none;background:var(--surface-2);border-radius:var(--radius-sm);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--text);transition:all var(--t)}
-.topbar-icon-button:hover{background:var(--primary-s);color:var(--primary)}
-.icon-menu-lines{width:18px;height:2px;background:currentColor;position:relative;border-radius:1px}
-.icon-menu-lines::before,.icon-menu-lines::after{content:'';position:absolute;left:0;right:0;height:2px;background:currentColor;border-radius:1px}
-.icon-menu-lines::before{top:-6px}.icon-menu-lines::after{top:6px}
-.topbar-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
-.brand-mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--primary),#7c3aed);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;box-shadow:0 4px 12px var(--primary-g)}
-.brand-copy{display:flex;flex-direction:column;line-height:1.3}
-.brand-copy strong{font-size:14px;font-weight:700}
-.brand-copy small{font-size:11px;color:var(--text-muted)}
-.topbar-actions{display:flex;align-items:center;gap:12px}
-.topbar-search{position:relative;display:flex;align-items:center}
-.topbar-search>span{position:absolute;right:12px;font-size:16px;color:var(--text-muted);pointer-events:none}
-.topbar-search input{padding:8px 38px 8px 14px;border:1px solid var(--border);background:var(--surface-2);border-radius:10px;font-family:inherit;font-size:13px;color:var(--text);width:200px;transition:all var(--t)}
-.topbar-search input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-g);width:260px}
-.topbar-avatar-btn{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:5px 12px 5px 5px;cursor:pointer;transition:all var(--t);color:var(--text);font-family:inherit;text-decoration:none}
-.topbar-avatar-btn:hover{border-color:var(--primary)}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--warning);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
-.user-copy{display:grid;line-height:1.3;text-align:right}
-.user-copy strong{font-size:12px;font-weight:700}
-.user-copy small{font-size:10px;color:var(--text-muted)}
-.topbar-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)}
-.status-handle{color:var(--text);font-weight:600}
-
-/* ===== LAYOUT ===== */
-.layout{display:grid;grid-template-columns:var(--sidebar-w) 1fr;min-height:calc(100vh - var(--topbar-h))}
-.app-sidebar{background:var(--surface);border-left:1px solid var(--border);padding:16px 10px;display:flex;flex-direction:column;position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));overflow-y:auto}
-.sidebar-nav{display:flex;flex-direction:column;gap:2px;flex:1}
-.sidebar-link{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-sm);color:var(--text-sec);text-decoration:none;font-size:13.5px;font-weight:500;transition:all var(--t);position:relative}
-.sidebar-link:hover{background:var(--surface-2);color:var(--text)}
-.sidebar-link.active{background:var(--primary-s);color:var(--primary);font-weight:700}
-.sidebar-link.active::before{content:'';position:absolute;right:0;top:8px;bottom:8px;width:3px;background:var(--primary);border-radius:0 3px 3px 0}
-.sidebar-icon{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;background:var(--surface-2);border-radius:var(--radius-xs);font-size:14px;font-weight:700;flex-shrink:0;transition:all var(--t)}
-.sidebar-link.active .sidebar-icon{background:var(--primary);color:#fff;box-shadow:0 2px 8px var(--primary-g)}
-.sidebar-footer{border-top:1px solid var(--border);padding-top:12px;margin-top:8px}
-.sidebar-settings{display:flex;gap:4px;padding:4px;background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:8px}
-.sidebar-settings span{flex:1;padding:7px 4px;border-radius:var(--radius-xs);font-size:11px;font-weight:600;color:var(--text-muted);text-align:center;cursor:default}
-.sidebar-settings span:first-child{background:var(--surface);color:var(--primary);box-shadow:var(--shadow-sm)}
-.logout-link{color:var(--danger)!important}
-.logout-link:hover{background:var(--danger-s)!important}
-.logout-link .sidebar-icon{background:var(--danger-s);color:var(--danger)}
-
-/* ===== MAIN ===== */
-.app-main{padding:24px;min-width:0}
-.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:16px}
-.page-header-info{display:flex;align-items:center;gap:14px}
-.page-header-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--primary),#7c3aed);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 16px var(--primary-g)}
-.page-title-text{font-size:22px;font-weight:800;margin-bottom:2px}
-.page-subtitle{font-size:13px;color:var(--text-muted)}
-
-/* ===== STATS ===== */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-sm);transition:all var(--t)}
-.stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-.stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;flex-shrink:0}
-.stat-icon.i1{background:linear-gradient(135deg,#4f46e5,#7c3aed)}
-.stat-icon.i2{background:linear-gradient(135deg,#059669,#06b6d4)}
-.stat-icon.i3{background:linear-gradient(135deg,#d97706,#ef4444)}
-.stat-icon.i4{background:linear-gradient(135deg,#ec4899,#8b5cf6)}
-.stat-icon.i5{background:linear-gradient(135deg,#0284c7,#06b6d4)}
-.stat-label{font-size:12px;color:var(--text-muted);margin-bottom:2px}
-.stat-value{font-size:22px;font-weight:800}
-.stat-change{font-size:11px;color:var(--success);font-weight:600;margin-top:2px}
-
-.page-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:20px}
-
-/* ===== HISTORY HEAD ===== */
-.history-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:20px;border-bottom:1px solid var(--border)}
-.history-head h2{font-size:18px;font-weight:800;margin-bottom:4px}
-.history-head p{font-size:13px;color:var(--text-muted);margin:0}
-
-/* ===== BUTTONS ===== */
-.btn{font-family:inherit;font-weight:600;padding:8px 16px;border-radius:var(--radius-sm);border:1px solid transparent;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px;transition:all var(--t);white-space:nowrap;text-decoration:none}
-.btn:active{transform:scale(.97)}
-.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
-.btn-primary:hover{background:var(--primary-h);box-shadow:0 4px 12px var(--primary-g);color:#fff}
-.btn-outline-primary{background:transparent;color:var(--primary);border-color:var(--primary)}
-.btn-outline-primary:hover{background:var(--primary);color:#fff}
-.btn-outline-secondary{background:transparent;color:var(--text-sec);border-color:var(--border)}
-.btn-outline-secondary:hover{background:var(--surface-2)}
-.btn-outline-danger{background:transparent;color:var(--danger);border-color:var(--danger)}
-.btn-outline-danger:hover{background:var(--danger);color:#fff}
-.btn-success{background:var(--success);color:#fff;border-color:var(--success)}
-.btn-success:hover{background:#047857;box-shadow:0 4px 12px rgba(5,150,105,.3);color:#fff}
-.btn-sm{padding:4px 10px;font-size:11px;border-radius:var(--radius-xs)}
-
-/* ===== FILTERS ===== */
-.history-filters{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid var(--border-light);background:var(--surface-2)}
-.filter-group{display:flex;flex-direction:column;gap:6px;min-width:180px}
-.filter-group label{font-size:12px;font-weight:600;color:var(--text-sec)}
-.form-control{padding:8px 12px;border:1px solid var(--border);background:var(--surface);border-radius:var(--radius-sm);font-family:inherit;font-size:13px;color:var(--text);transition:all var(--t);width:100%}
-.form-control:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-g)}
-
-/* ===== TABLE INFO BAR ===== */
-.table-info-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border-light)}
-.count-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:var(--primary-s);color:var(--primary);border-radius:20px;font-size:12px;font-weight:700}
-.count-badge::before{content:'';width:6px;height:6px;background:var(--primary);border-radius:50%}
-.small-note{font-size:11px;color:var(--text-muted);font-style:italic}
-
-/* ===== HISTORY TABLE ===== */
-.history-table-wrap{overflow-x:auto}
-.history-table{width:100%;border-collapse:separate;border-spacing:0;min-width:800px}
-.history-table thead th{padding:12px 14px;font-size:11px;font-weight:700;color:var(--text-sec);border-bottom:2px solid var(--border);text-align:right;background:var(--surface-2);position:sticky;top:0;z-index:5;text-transform:uppercase;letter-spacing:.3px}
-.history-table tbody td{padding:14px;font-size:13px;border-bottom:1px solid var(--border-light);vertical-align:top;transition:background var(--t)}
-.history-table tbody tr{transition:all var(--t)}
-.history-table tbody tr:hover{background:var(--surface-2)}
-.history-table tbody tr:last-child td{border-bottom:none}
-
-/* Time cell */
-.time-cell{display:flex;flex-direction:column;gap:2px;min-width:140px}
-.time-date{font-weight:700;color:var(--text);font-size:13px}
-.time-hour{font-size:11px;color:var(--text-muted);font-family:ui-monospace,monospace}
-
-/* User cell */
-.user-cell{display:flex;align-items:center;gap:8px}
-.user-cell-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#fff;flex-shrink:0}
-.user-cell-info{display:flex;flex-direction:column}
-.user-cell-name{font-weight:600;font-size:13px;color:var(--text)}
-.user-cell-role{font-size:10px;color:var(--text-muted)}
-
-/* Message cell */
-.message-cell{min-width:260px}
-.message-text{font-size:13px;color:var(--text);line-height:1.6}
-.message-text strong{color:var(--primary);font-weight:700}
-
-/* Details expandable */
-.history-details{margin-top:8px}
-.history-details summary{font-size:11px;color:var(--primary);cursor:pointer;font-weight:600;user-select:none;display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--primary-s);border-radius:12px;transition:all var(--t);list-style:none}
-.history-details summary::-webkit-details-marker{display:none}
-.history-details summary::before{content:'◀';font-size:8px;transition:transform var(--t)}
-.history-details[open] summary::before{transform:rotate(-90deg)}
-.history-details summary:hover{background:var(--primary);color:#fff}
-.diff-container{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.diff-box{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;font-size:11px}
-.diff-box.old{border-right:3px solid var(--danger)}
-.diff-box.new{border-right:3px solid var(--success)}
-.diff-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:4px}
-.diff-box.old .diff-label{color:var(--danger)}
-.diff-box.new .diff-label{color:var(--success)}
-.diff-content{font-family:ui-monospace,'Courier New',monospace;font-size:11px;color:var(--text-sec);line-height:1.6;white-space:pre-wrap;word-break:break-word;background:var(--surface);padding:8px;border-radius:var(--radius-xs);max-height:140px;overflow-y:auto}
-.diff-content.empty{color:var(--text-muted);font-style:italic;text-align:center;font-family:'Tajawal',sans-serif}
-
-/* Entity type badge */
-.entity-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
-.entity-badge.timetable{background:#eef2ff;color:#4f46e5}
-.entity-badge.course{background:#ecfdf5;color:#059669}
-.entity-badge.teacher{background:#fffbeb;color:#d97706}
-.entity-badge.room{background:#fdf2f8;color:#ec4899}
-.entity-badge.user{background:#f0f9ff;color:#0284c7}
-.entity-badge.department{background:#f5f3ff;color:#7c3aed}
-
-/* Action pill */
-.action-pill{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
-.action-pill.add{background:#ecfdf5;color:#059669}
-.action-pill.add::before{content:'+';width:14px;height:14px;background:#059669;color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;line-height:1}
-.action-pill.edit{background:#eff6ff;color:#2563eb}
-.action-pill.edit::before{content:'✎';font-size:10px}
-.action-pill.delete{background:#fef2f2;color:#dc2626}
-.action-pill.delete::before{content:'✕';width:14px;height:14px;background:#dc2626;color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;line-height:1}
-
-/* Empty state */
-.empty-state{text-align:center;padding:60px 20px;color:var(--text-muted)}
-.empty-state-icon{font-size:56px;margin-bottom:12px;opacity:.4}
-.empty-state-title{font-size:16px;font-weight:700;color:var(--text-sec);margin-bottom:4px}
-.empty-state-text{font-size:13px}
-
-/* Row highlight by action */
-.history-table tbody tr.row-add{border-right:3px solid var(--success)}
-.history-table tbody tr.row-edit{border-right:3px solid var(--info)}
-.history-table tbody tr.row-delete{border-right:3px solid var(--danger)}
-
-/* Print */
-@media print{
-  .app-topbar,.app-sidebar,.history-filters,.history-actions,.history-details summary,.no-print{display:none!important}
-  .layout{display:block}
-  .app-main{margin:0;padding:0}
-  .page-card{border:none;box-shadow:none;break-inside:avoid}
-  .history-details{display:block!important}
-  .history-details summary{display:none}
-  .diff-container{display:block}
-  .diff-box{margin-bottom:8px}
-  body{background:#fff;color:#000}
-}
-
-/* Responsive */
-@media(max-width:1024px){
-  .topbar-search input{width:160px}
-  .topbar-search input:focus{width:200px}
-  .topbar-status{display:none}
-}
-@media(max-width:900px){
-  .layout{grid-template-columns:1fr}
-  .app-sidebar{display:none}
-  .app-main{padding:16px}
-  .diff-container{grid-template-columns:1fr}
-}
-@media(max-width:768px){
-  .topbar-search{display:none}
-  .user-copy{display:none}
-  .brand-copy small{display:none}
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
-  .history-filters{flex-direction:column;align-items:stretch}
-  .filter-group{min-width:auto}
-  .history-head{flex-direction:column;align-items:flex-start}
-}
-@media(max-width:480px){
-  .stats-grid{grid-template-columns:1fr}
-  .page-header{flex-direction:column}
-}
-
-/* Animations */
-@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.stat-card{animation:fadeInUp .4s ease both}
-.stat-card:nth-child(1){animation-delay:.05s}
-.stat-card:nth-child(2){animation-delay:.1s}
-.stat-card:nth-child(3){animation-delay:.15s}
-.stat-card:nth-child(4){animation-delay:.2s}
-.stat-card:nth-child(5){animation-delay:.25s}
-.page-card{animation:fadeInUp .4s ease .3s both}
-
-@keyframes slideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.history-details[open] .diff-container{animation:slideIn .25s ease}
-</style>
-</head>
-<body>
-
-<header class="app-topbar">
-  <div class="topbar-start">
-    <button type="button" class="topbar-icon-button"><span class="icon-menu-lines"></span></button>
-    <a class="topbar-brand" href="#">
-      <span class="brand-mark">A</span>
-      <span class="brand-copy"><strong>نظام كلية التقنية الهندسية</strong><small>College Management System</small></span>
-    </a>
+﻿{% set active_page = 'history' %}
+{% extends 'base.html' %}
+{% block title %}نظام كلية التقنية الهندسية - سجل التغييرات{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-header-info">
+    <div class="page-header-icon">📋</div>
+    <div>
+      <h1 class="page-title-text">سجل التغييرات</h1>
+      <p class="page-subtitle">مراجعة كافة عمليات الإضافة والتعديل والحذف التي تمت على النظام</p>
+    </div>
   </div>
-  <div class="topbar-actions">
-    <div class="topbar-search"><span>🔍</span><input type="search" placeholder="بحث سريع..."></div>
-    <a class="topbar-avatar-btn" href="#">
-      <span class="user-avatar" style="background:#f59e0b">S</span>
-      <span class="user-copy"><strong>General Department</strong><small>super_admin</small></span>
-    </a>
-    <div class="topbar-status"><span class="status-handle">superadmin</span><span>• المشرف العام</span></div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-icon i1">📋</div><div><div class="stat-label">إجمالي السجلات</div><div class="stat-value">{{ total_all }}</div></div></div>
+  <div class="stat-card" style="border-right:3px solid #059669"><div class="stat-icon" style="background:#059669">➕</div><div><div class="stat-label">عمليات الإضافة</div><div class="stat-value">{{ adds }}</div></div></div>
+  <div class="stat-card" style="border-right:3px solid #d97706"><div class="stat-icon" style="background:#d97706">✏️</div><div><div class="stat-label">عمليات التعديل</div><div class="stat-value">{{ edits }}</div></div></div>
+  <div class="stat-card" style="border-right:3px solid #dc2626"><div class="stat-icon" style="background:#dc2626">🗑</div><div><div class="stat-label">عمليات الحذف</div><div class="stat-value">{{ deletes }}</div></div></div>
+</div>
+
+<div class="page-card">
+  <div class="history-head">
+    <div>
+      <h2>📋 سجل التغييرات</h2>
+      <p>جميع العمليات المسجلة على النظام مرتبة من الأحدث إلى الأقدم.</p>
+    </div>
+    <div class="history-actions">
+      <button class="btn btn-outline-secondary" onclick="window.print()">🖨 طباعة</button>
+    </div>
   </div>
-</header>
 
-<div class="layout">
-  <aside class="app-sidebar">
-    <nav class="sidebar-nav">
-      <a class="sidebar-link" href="#"><span class="sidebar-icon">⌂</span><span>الرئيسية</span></a>
-      <a class="sidebar-link" href="#"><span class="sidebar-icon">👥</span><span>المستخدمون</span></a>
-      <a class="sidebar-link" href="#"><span class="sidebar-icon">🏛</span><span>الأقسام</span></a>
-      <a class="sidebar-link" href="#"><span class="sidebar-icon">🚪</span><span>القاعات</span></a>
-      <a class="sidebar-link" href="#"><span class="sidebar-icon">👨‍🏫</span><span>هيئة التدريس</span></a>
-      <a class="sidebar-link" href="#"><span class="sidebar-icon">✓</span><span>الحضور</span></a>
-      <a class="sidebar-link" href="#"><span class="sidebar-icon">📚</span><span>المقررات</span></a>
-      <a class="sidebar-link" href="#"><span class="sidebar-icon">▦</span><span>الجدول الدراسي</span></a>
-      <a class="sidebar-link active" href="#"><span class="sidebar-icon">📋</span><span>سجل التغييرات</span></a>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="sidebar-settings">
-        <span>☀️ نهار</span>
-        <span>🌙 ليل</span>
-        <span>🎨 ملون</span>
-      </div>
-      <a class="sidebar-link" href="#"><span class="sidebar-icon">⚙</span><span>حسابي</span></a>
-      <a class="sidebar-link logout-link" href="#"><span class="sidebar-icon">↩</span><span>تسجيل الخروج</span></a>
+  <form class="history-filters" method="GET" action="{{ url_for('history.list_history') }}">
+    <div class="filter-group">
+      <label>المستخدم</label>
+      <select class="form-control" name="user">
+        <option value="">جميع المستخدمين</option>
+        {% for u in active_users %}
+        <option value="{{ u.actor_username }}" {% if user == u.actor_username %}selected{% endif %}>{{ u.actor_username }}</option>
+        {% endfor %}
+      </select>
     </div>
-  </aside>
-
-  <main class="app-main">
-    <div class="page-header">
-      <div class="page-header-info">
-        <div class="page-header-icon">📋</div>
-        <div>
-          <h1 class="page-title-text">سجل التغييرات</h1>
-          <p class="page-subtitle">مراجعة كافة عمليات الإضافة والتعديل والحذف التي تمت على النظام</p>
-        </div>
-      </div>
+    <div class="filter-group">
+      <label>الإجراء</label>
+      <select class="form-control" name="action">
+        <option value="">جميع الإجراءات</option>
+        <option value="ADD" {% if action == 'ADD' %}selected{% endif %}>إضافة</option>
+        <option value="EDIT" {% if action == 'EDIT' %}selected{% endif %}>تعديل</option>
+        <option value="DELETE" {% if action == 'DELETE' %}selected{% endif %}>حذف</option>
+      </select>
     </div>
-
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-icon i1">📋</div><div><div class="stat-label">إجمالي السجلات</div><div class="stat-value">156</div><div class="stat-change">آخر 30 يوم</div></div></div>
-      <div class="stat-card"><div class="stat-icon i2">➕</div><div><div class="stat-label">عمليات الإضافة</div><div class="stat-value">68</div><div class="stat-change">↑ 12 هذا الأسبوع</div></div></div>
-      <div class="stat-card"><div class="stat-icon i3">✏️</div><div><div class="stat-label">عمليات التعديل</div><div class="stat-value">72</div><div class="stat-change">↑ 8 هذا الأسبوع</div></div></div>
-      <div class="stat-card"><div class="stat-icon i4">🗑</div><div><div class="stat-label">عمليات الحذف</div><div class="stat-value">16</div><div class="stat-change">↓ 2 هذا الأسبوع</div></div></div>
-      <div class="stat-card"><div class="stat-icon i5">👥</div><div><div class="stat-label">المستخدمون النشطون</div><div class="stat-value">5</div><div class="stat-change">مشرفون نشطون</div></div></div>
+    <div class="filter-group">
+      <label>الكيان</label>
+      <select class="form-control" name="entity_type">
+        <option value="">كل الأنواع</option>
+        {% for key, label in entity_labels.items() %}
+        <option value="{{ key }}" {% if entity_type == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
     </div>
-
-    <div class="page-card">
-      <div class="history-head">
-        <div>
-          <h2>📋 سجل التغييرات</h2>
-          <p>راجع عمليات الإضافة والتعديل والحذف برسائل واضحة مع اسم المستخدم الحقيقي.</p>
-        </div>
-        <div class="history-actions">
-          <button class="btn btn-outline-secondary" onclick="window.print()">🖨 طباعة السجل</button>
-        </div>
-      </div>
-
-      <form class="history-filters" onsubmit="return false">
-        <div class="filter-group">
-          <label>الإجراء</label>
-          <select class="form-control" id="actionFilter" onchange="filterTable()">
-            <option value="">جميع الإجراءات</option>
-            <option value="ADD">إضافة</option>
-            <option value="EDIT">تعديل</option>
-            <option value="DELETE">حذف</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>النوع</label>
-          <select class="form-control" id="entityFilter" onchange="filterTable()">
-            <option value="">كل الأنواع</option>
-            <option value="timetable">الجدول الدراسي</option>
-            <option value="course">المقررات</option>
-            <option value="teacher">هيئة التدريس</option>
-            <option value="room">القاعات</option>
-            <option value="user">المستخدمون</option>
-            <option value="department">الأقسام</option>
-          </select>
-        </div>
-        <div class="filter-group" style="flex-direction:row;align-items:flex-end;gap:8px">
-          <button type="button" class="btn btn-primary" onclick="filterTable()">🔍 تصفية</button>
-          <button type="button" class="btn btn-outline-secondary" onclick="resetFilters()">↺ إعادة الضبط</button>
-        </div>
-      </form>
-
-      <div class="table-info-bar">
-        <div class="count-badge" id="countBadge">عدد السجلات: 15</div>
-        <div class="small-note">يتم الترتيب من الأحدث إلى الأقدم.</div>
-      </div>
-
-      <div class="history-table-wrap">
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th style="width:150px">الوقت</th>
-              <th style="width:160px">المستخدم</th>
-              <th>الرسالة</th>
-              <th style="width:120px">النوع</th>
-              <th style="width:110px">الإجراء</th>
-            </tr>
-          </thead>
-          <tbody id="historyBody">
-
-            <tr class="history-row row-add" data-action="ADD" data-entity="timetable">
-              <td><div class="time-cell"><span class="time-date">2025-01-18</span><span class="time-hour">14:32:15</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#4f46e5">أم</div><div class="user-cell-info"><span class="user-cell-name">أحمد المصراتي</span><span class="user-cell-role">مشرف قسم</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تمت <strong>إضافة</strong> حصة جديدة في <strong>الجدول الدراسي</strong> — مادة "برمجة حاسوب" ليوم الأحد الفترة أ في قاعة 10</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل</div><div class="diff-content empty">— لا توجد قيم سابقة —</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content">اليوم: الأحد
-الفصل: 1
-الفترة: أ (09:00 - 11:00)
-المقرر: برمجة حاسوب (ت101)
-المدرس: نادر الغالي
-القاعة: قاعة 10</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge timetable">▦ الجدول</span></td>
-              <td><span class="action-pill add">إضافة</span></td>
-            </tr>
-
-            <tr class="history-row row-edit" data-action="EDIT" data-entity="course">
-              <td><div class="time-cell"><span class="time-date">2025-01-18</span><span class="time-hour">13:15:42</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#059669">سم</div><div class="user-cell-info"><span class="user-cell-name">سالم المنصوري</span><span class="user-cell-role">مدير النظام</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تم <strong>تعديل</strong> بيانات المقرر <strong>"رياضة 2"</strong> — تم تغيير الساعات من 2 إلى 3 ساعات نظري</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل</div><div class="diff-content">الرمز: ع102
-الساعات النظرية: 2
-الساعات العملية: 0
-الإجمالي: 2</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content">الرمز: ع102
-الساعات النظرية: 3
-الساعات العملية: 0
-الإجمالي: 3</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge course">📚 المقررات</span></td>
-              <td><span class="action-pill edit">تعديل</span></td>
-            </tr>
-
-            <tr class="history-row row-delete" data-action="DELETE" data-entity="room">
-              <td><div class="time-cell"><span class="time-date">2025-01-18</span><span class="time-hour">11:48:03</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#dc2626">مع</div><div class="user-cell-info"><span class="user-cell-name">محمد العريبي</span><span class="user-cell-role">مشرف عام</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تم <strong>حذف</strong> القاعة <strong>"معمل حاسوب قديم"</strong> من النظام — كانت في الدور الثاني بسعة 20 مقعد</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل الحذف</div><div class="diff-content">الاسم: معمل حاسوب قديم
-النوع: معمل
-الحالة: صيانة
-المقاعد: 20
-الموقع: الدور الثاني</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content empty">— تم الحذف —</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge room">🚪 القاعات</span></td>
-              <td><span class="action-pill delete">حذف</span></td>
-            </tr>
-
-            <tr class="history-row row-add" data-action="ADD" data-entity="teacher">
-              <td><div class="time-cell"><span class="time-date">2025-01-18</span><span class="time-hour">10:22:18</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#7c3aed">هب</div><div class="user-cell-info"><span class="user-cell-name">هند بلقاسم</span><span class="user-cell-role">مدير أكاديمي</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تمت <strong>إضافة</strong> عضو هيئة تدريس جديد <strong>"د. فاطمة الطاهر"</strong> — أستاذ مساعد في قسم الحاسوب</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل</div><div class="diff-content empty">— لا توجد قيم سابقة —</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content">الاسم: د. فاطمة الطاهر
-الرقم الأكاديمي: 20250142
-المؤهل: دكتوراه
-الدرجة: أستاذ مساعد
-القسم: قسم الحاسوب
-التصنيف: عضو هيئة تدريس قار</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge teacher">👨‍🏫 التدريس</span></td>
-              <td><span class="action-pill add">إضافة</span></td>
-            </tr>
-
-            <tr class="history-row row-edit" data-action="EDIT" data-entity="timetable">
-              <td><div class="time-cell"><span class="time-date">2025-01-17</span><span class="time-hour">16:45:30</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#4f46e5">أم</div><div class="user-cell-info"><span class="user-cell-name">أحمد المصراتي</span><span class="user-cell-role">مشرف قسم</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تم <strong>تعديل</strong> حصة في <strong>الجدول الدراسي</strong> — تغيير القاعة من "قاعة 2" إلى "قاعة 11" لمادة رسم هندسي</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل</div><div class="diff-content">اليوم: الأحد
-الفترة: أ
-المقرر: رسم هندسي
-المدرس: نادر الغالي
-القاعة: قاعة 2</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content">اليوم: الأحد
-الفترة: أ
-المقرر: رسم هندسي
-المدرس: نادر الغالي
-القاعة: قاعة 11</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge timetable">▦ الجدول</span></td>
-              <td><span class="action-pill edit">تعديل</span></td>
-            </tr>
-
-            <tr class="history-row row-add" data-action="ADD" data-entity="course">
-              <td><div class="time-cell"><span class="time-date">2025-01-17</span><span class="time-hour">14:12:55</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#059669">سم</div><div class="user-cell-info"><span class="user-cell-name">سالم المنصوري</span><span class="user-cell-role">مدير النظام</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تمت <strong>إضافة</strong> مقرر جديد <strong>"أمن البرمجيات"</strong> (ت401) لقسم الحاسوب — السنة 4</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل</div><div class="diff-content empty">— لا توجد قيم سابقة —</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content">الاسم: أمن البرمجيات
-الرمز: ت401
-القسم: قسم الحاسوب
-السنة: 4
-الساعات النظرية: 3
-الساعات العملية: 0
-الإجمالي: 3</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge course">📚 المقررات</span></td>
-              <td><span class="action-pill add">إضافة</span></td>
-            </tr>
-
-            <tr class="history-row row-edit" data-action="EDIT" data-entity="user">
-              <td><div class="time-cell"><span class="time-date">2025-01-17</span><span class="time-hour">11:30:22</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#dc2626">مع</div><div class="user-cell-info"><span class="user-cell-name">محمد العريبي</span><span class="user-cell-role">مشرف عام</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تم <strong>تعديل</strong> بيانات المستخدم <strong>"خالد الفيتوري"</strong> — تغيير الدور من "مشاهد" إلى "محرر"</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل</div><div class="diff-content">الاسم: خالد الفيتوري
-البريد: khaled@college.ly
-الدور: مشاهد
-القسم: قسم الحاسوب</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content">الاسم: خالد الفيتوري
-البريد: khaled@college.ly
-الدور: محرر
-القسم: قسم الحاسوب</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge user">👥 المستخدمون</span></td>
-              <td><span class="action-pill edit">تعديل</span></td>
-            </tr>
-
-            <tr class="history-row row-delete" data-action="DELETE" data-entity="course">
-              <td><div class="time-cell"><span class="time-date">2025-01-17</span><span class="time-hour">09:15:08</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#059669">سم</div><div class="user-cell-info"><span class="user-cell-name">سالم المنصوري</span><span class="user-cell-role">مدير النظام</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تم <strong>حذف</strong> المقرر <strong>"مقدمة في الذكاء الاصطناعي"</strong> (ت499) من قسم الحاسوب</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل الحذف</div><div class="diff-content">الاسم: مقدمة في الذكاء الاصطناعي
-الرمز: ت499
-القسم: قسم الحاسوب
-السنة: 4
-الساعات: 3</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content empty">— تم الحذف —</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge course">📚 المقررات</span></td>
-              <td><span class="action-pill delete">حذف</span></td>
-            </tr>
-
-            <tr class="history-row row-add" data-action="ADD" data-entity="room">
-              <td><div class="time-cell"><span class="time-date">2025-01-16</span><span class="time-hour">15:42:11</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#dc2626">مع</div><div class="user-cell-info"><span class="user-cell-name">محمد العريبي</span><span class="user-cell-role">مشرف عام</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تمت <strong>إضافة</strong> قاعة جديدة <strong>"معمل إلكترونيات 2"</strong> في الدور الأول بسعة 25 مقعد</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل</div><div class="diff-content empty">— لا توجد قيم سابقة —</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content">الاسم: معمل إلكترونيات 2
-النوع: معمل
-الحالة: متاحة
-المقاعد: 25
-الموقع: الدور الأول</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge room">🚪 القاعات</span></td>
-              <td><span class="action-pill add">إضافة</span></td>
-            </tr>
-
-            <tr class="history-row row-edit" data-action="EDIT" data-entity="department">
-              <td><div class="time-cell"><span class="time-date">2025-01-16</span><span class="time-hour">13:20:45</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#ec4899">نب</div><div class="user-cell-info"><span class="user-cell-name">نجلاء بن غشير</span><span class="user-cell-role">مدير النظام</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تم <strong>تعديل</strong> بيانات القسم <strong>"قسم البحث والتطوير"</strong> — تغيير اسم رئيس القسم</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل</div><div class="diff-content">الاسم: قسم البحث والتطوير
-رئيس القسم: د. علي الزنتاني
-عدد الأعضاء: 8</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content">الاسم: قسم البحث والتطوير والمناهج
-رئيس القسم: د. سعيد المصراتي
-عدد الأعضاء: 10</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge department">🏛 الأقسام</span></td>
-              <td><span class="action-pill edit">تعديل</span></td>
-            </tr>
-
-            <tr class="history-row row-add" data-action="ADD" data-entity="timetable">
-              <td><div class="time-cell"><span class="time-date">2025-01-16</span><span class="time-hour">10:05:33</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#7c3aed">هب</div><div class="user-cell-info"><span class="user-cell-name">هند بلقاسم</span><span class="user-cell-role">مدير أكاديمي</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تمت <strong>إضافة</strong> 3 حصص دفعة واحدة في <strong>الجدول الدراسي</strong> للفصل 2 — قسم الاتصالات</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل</div><div class="diff-content empty">— لا توجد قيم سابقة —</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content">تمت إضافة 3 حصص:
-1) نظم اتصالات - الاثنين - أ
-2) هوائيات - الثلاثاء - ب
-3) انظمة تحكم - الأربعاء - أ
-القسم: قسم الاتصالات
-الفصل: 2</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge timetable">▦ الجدول</span></td>
-              <td><span class="action-pill add">إضافة</span></td>
-            </tr>
-
-            <tr class="history-row row-edit" data-action="EDIT" data-entity="teacher">
-              <td><div class="time-cell"><span class="time-date">2025-01-15</span><span class="time-hour">14:55:19</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#059669">سم</div><div class="user-cell-info"><span class="user-cell-name">سالم المنصوري</span><span class="user-cell-role">مدير النظام</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تم <strong>تعديل</strong> بيانات المدرس <strong>"نادر الغالي"</strong> — تحديث رقم الهاتف والقسم</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل</div><div class="diff-content">الاسم: نادر الغالي
-الهاتف: 091-XXXXXXX
-القسم: القسم العام
-الدرجة: محاضر</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content">الاسم: نادر الغالي
-الهاتف: 092-XXXXXXX
-القسم: قسم الحاسوب
-الدرجة: أستاذ مساعد</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge teacher">👨‍🏫 التدريس</span></td>
-              <td><span class="action-pill edit">تعديل</span></td>
-            </tr>
-
-            <tr class="history-row row-delete" data-action="DELETE" data-entity="user">
-              <td><div class="time-cell"><span class="time-date">2025-01-15</span><span class="time-hour">12:10:47</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#dc2626">مع</div><div class="user-cell-info"><span class="user-cell-name">محمد العريبي</span><span class="user-cell-role">مشرف عام</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تم <strong>حذف</strong> المستخدم <strong>"عبدالله المهيري"</strong> من النظام — كان يشغل دور "مشاهد"</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل الحذف</div><div class="diff-content">الاسم: عبدالله المهيري
-البريد: abdullah@college.ly
-الدور: مشاهد
-القسم: قسم المدني
-تاريخ الإنشاء: 2024-09-15</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content empty">— تم الحذف —</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge user">👥 المستخدمون</span></td>
-              <td><span class="action-pill delete">حذف</span></td>
-            </tr>
-
-            <tr class="history-row row-edit" data-action="EDIT" data-entity="timetable">
-              <td><div class="time-cell"><span class="time-date">2025-01-15</span><span class="time-hour">09:30:12</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#4f46e5">أم</div><div class="user-cell-info"><span class="user-cell-name">أحمد المصراتي</span><span class="user-cell-role">مشرف قسم</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تم <strong>تعديل</strong> حصة في <strong>الجدول الدراسي</strong> — تغيير المدرس لمادة "فيزياء عملي" من "فوزي أبو الشواشي" إلى "نعيمة المسخوط"</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل</div><div class="diff-content">المادة: فيزياء عملي
-اليوم: الثلاثاء
-الفترة: ب
-المدرس: فوزي أبو الشواشي
-القاعة: معمل إلكترونيات 1</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content">المادة: فيزياء عملي
-اليوم: الثلاثاء
-الفترة: ب
-المدرس: نعيمة المسخوط
-القاعة: معمل إلكترونيات 1</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge timetable">▦ الجدول</span></td>
-              <td><span class="action-pill edit">تعديل</span></td>
-            </tr>
-
-            <tr class="history-row row-add" data-action="ADD" data-entity="course">
-              <td><div class="time-cell"><span class="time-date">2025-01-14</span><span class="time-hour">16:22:08</span></div></td>
-              <td><div class="user-cell"><div class="user-cell-avatar" style="background:#ec4899">نب</div><div class="user-cell-info"><span class="user-cell-name">نجلاء بن غشير</span><span class="user-cell-role">مدير النظام</span></div></div></td>
-              <td class="message-cell"><div class="message-text">تمت <strong>إضافة</strong> 5 مقررات دفعة واحدة إلى <strong>قسم النفط</strong> — السنة 3 عبر استيراد Excel</div>
-                <details class="history-details">
-                  <summary>عرض القيم</summary>
-                  <div class="diff-container">
-                    <div class="diff-box old"><div class="diff-label">⬅ قبل</div><div class="diff-content empty">— لا توجد قيم سابقة —</div></div>
-                    <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content">تم استيراد 5 مقررات:
-1) حفر وتصميم الآبار (ه301)
-2) تقنية سوائل الحفر (ه302)
-3) هندسة إنتاج (ه303)
-4) هندسة غاز (ه304)
-5) تطبيقات الحاسوب (ه305)
-القسم: قسم النفط - السنة 3</div></div>
-                  </div>
-                </details>
-              </td>
-              <td><span class="entity-badge course">📚 المقررات</span></td>
-              <td><span class="action-pill add">إضافة</span></td>
-            </tr>
-
-          </tbody>
-        </table>
-      </div>
+    <div class="filter-group">
+      <label>من تاريخ</label>
+      <input type="date" class="form-control" name="date_from" value="{{ date_from }}">
     </div>
-  </main>
+    <div class="filter-group">
+      <label>إلى تاريخ</label>
+      <input type="date" class="form-control" name="date_to" value="{{ date_to }}">
+    </div>
+    <div class="filter-group" style="flex-direction:row;align-items:flex-end;gap:8px">
+      <button type="submit" class="btn btn-primary">🔍 تصفية</button>
+      <a href="{{ url_for('history.list_history') }}" class="btn btn-outline-secondary">↺ إعادة الضبط</a>
+    </div>
+  </form>
+
+  <div class="table-info-bar">
+    <div class="count-badge">عدد السجلات: {{ total }}</div>
+  </div>
+
+  <div class="history-table-wrap">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th style="width:150px">الوقت</th>
+          <th style="width:200px">المستخدم</th>
+          <th>الرسالة</th>
+          <th style="width:100px">الإجراء</th>
+        </tr>
+      </thead>
+      <tbody id="historyBody">
+        {% for entry in entries %}
+        {% set action_color = action_colors.get(entry.action, '#6b7280') %}
+        {% set initials = entry.actor_name[:2] if entry.actor_name and entry.actor_name|length >= 2 else (entry.actor_name[:1] if entry.actor_name else '?') %}
+        {% set ts = entry.created_at.split(' ') %}
+        {% set ts_date = ts[0] if ts|length > 0 else '' %}
+        {% set ts_time = ts[1] if ts|length > 1 else '' %}
+        <tr class="history-row">
+          <td><div class="time-cell"><span class="time-date">{{ ts_date }}</span><span class="time-hour">{{ ts_time }}</span></div></td>
+          <td><div class="user-cell"><div class="user-cell-avatar" style="background:{{ action_color }}">{{ initials }}</div><div class="user-cell-info"><span class="user-cell-name">{{ entry.actor_name }}</span>{% if entry.actor_role %}<span class="user-cell-role">{{ entry.actor_role }}</span>{% endif %}</div></div></td>
+          <td class="message-cell">
+            <div class="message-text">{{ entry.message }}</div>
+            {% if entry.old_display or entry.new_display %}
+            <details class="history-details">
+              <summary>عرض القيم</summary>
+              <div class="diff-container">
+                <div class="diff-box old"><div class="diff-label">⬅ قبل</div><div class="diff-content{% if not entry.old_display %} empty{% endif %}">{{ entry.old_display if entry.old_display else '—' }}</div></div>
+                <div class="diff-box new"><div class="diff-label">➡ بعد</div><div class="diff-content{% if not entry.new_display %} empty{% endif %}">{{ entry.new_display if entry.new_display else '—' }}</div></div>
+              </div>
+            </details>
+            {% endif %}
+          </td>
+          <td><span class="action-pill" style="background:{{ action_color }}20;color:{{ action_color }};border:1px solid {{ action_color }}40">{{ action_labels.get(entry.action, entry.action) }}</span></td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" style="text-align:center;padding:40px;color:var(--text-muted)">لا توجد سجلات للعرض</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if total_pages > 1 %}
+  <div class="pagination-bar">
+    <div class="pagination-info">الصفحة {{ page }} من {{ total_pages }} ({{ total }} سجل)</div>
+    <div class="pagination-links">
+      {% if page > 1 %}
+      <a href="?page={{ page - 1 }}&action={{ action }}&entity_type={{ entity_type }}&user={{ user }}&date_from={{ date_from }}&date_to={{ date_to }}" class="btn btn-sm btn-outline-secondary">‹ السابق</a>
+      {% endif %}
+      {% for p in range(1, total_pages + 1) %}
+        {% if p == page %}
+        <span class="btn btn-sm btn-primary" style="cursor:default">{{ p }}</span>
+        {% elif p <= 3 or p > total_pages - 3 or (p >= page - 1 and p <= page + 1) %}
+        <a href="?page={{ p }}&action={{ action }}&entity_type={{ entity_type }}&user={{ user }}&date_from={{ date_from }}&date_to={{ date_to }}" class="btn btn-sm btn-outline-secondary">{{ p }}</a>
+        {% elif p == 4 and page > 5 or p == total_pages - 3 and page < total_pages - 4 %}
+        <span class="btn btn-sm btn-outline-secondary" style="cursor:default">…</span>
+        {% endif %}
+      {% endfor %}
+      {% if page < total_pages %}
+      <a href="?page={{ page + 1 }}&action={{ action }}&entity_type={{ entity_type }}&user={{ user }}&date_from={{ date_from }}&date_to={{ date_to }}" class="btn btn-sm btn-outline-secondary">التالي ›</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 <script>
-function filterTable(){
-  const action = document.getElementById('actionFilter').value;
-  const entity = document.getElementById('entityFilter').value;
-  const rows = document.querySelectorAll('#historyBody .history-row');
-  let visible = 0;
-  rows.forEach(row => {
-    const matchAction = !action || row.dataset.action === action;
-    const matchEntity = !entity || row.dataset.entity === entity;
-    if(matchAction && matchEntity){
-      row.style.display = '';
-      visible++;
-    } else {
-      row.style.display = 'none';
-    }
-  });
-  document.getElementById('countBadge').textContent = 'عدد السجلات: ' + visible;
-}
-
-function resetFilters(){
-  document.getElementById('actionFilter').value = '';
-  document.getElementById('entityFilter').value = '';
-  filterTable();
-}
-
-// Close other details when opening one (optional UX)
-document.querySelectorAll('.history-details').forEach(d => {
-  d.addEventListener('toggle', function(){
-    if(this.open){
-      document.querySelectorAll('.history-details[open]').forEach(other => {
-        if(other !== this) other.open = false;
-      });
+document.querySelectorAll('.history-details').forEach(function(d) {
+  d.addEventListener('toggle', function() {
+    if (this.open) {
+      document.querySelectorAll('.history-details[open]').forEach(function(other) {
+        if (other !== this) other.open = false;
+      }.bind(this));
     }
   });
 });
 </script>
-
-</body>
-</html>
-
+{% endblock %}

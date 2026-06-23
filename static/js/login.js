@@ -13,20 +13,16 @@ function togglePass() {
   }
 }
 
-function handleLogin(e) {
-  e.preventDefault();
+document.getElementById('loginForm').addEventListener('submit', function(e) {
   const u = document.getElementById('username').value.trim();
   const p = document.getElementById('password').value.trim();
   if (!u || !p) {
+    e.preventDefault();
     showToast('error', 'يرجى ملء جميع الحقول');
     return false;
   }
   showToast('success', 'جاري تسجيل الدخول...');
-  setTimeout(() => {
-    showToast('success', 'مرحباً بك، ' + u + '!');
-  }, 1500);
-  return false;
-}
+});
 
 let toastTimer;
 function showToast(type, msg) {
@@ -42,9 +38,3 @@ function showToast(type, msg) {
     toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
   });
 }
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && document.activeElement.tagName !== 'BUTTON') {
-    document.getElementById('loginForm').requestSubmit();
-  }
-});

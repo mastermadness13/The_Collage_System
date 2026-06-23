@@ -1,0 +1,730 @@
+{% set active_page = 'courses' %}
+{% extends 'base.html' %}
+{% block title %}إضافة مقرر جديد{% endblock %}
+{% block extra_head %}
+<style>
+.course-edit-page *{margin:0;padding:0;box-sizing:border-box}
+
+.course-edit-page .page-wrapper{
+  max-width:1200px;
+  margin:0 auto;
+}
+
+.course-edit-page .breadcrumb{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:20px;
+  font-size:13px;
+  color:var(--text-muted);
+}
+.course-edit-page .breadcrumb a{
+  color:var(--text-muted);
+  text-decoration:none;
+  transition:color .15s;
+}
+.course-edit-page .breadcrumb a:hover{color:var(--primary)}
+.course-edit-page .breadcrumb .sep{opacity:.4}
+.course-edit-page .breadcrumb .current{color:var(--text);font-weight:600}
+
+.course-edit-page .course-header{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius,14px);
+  padding:24px;
+  margin-bottom:24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  flex-wrap:wrap;
+}
+.course-edit-page .course-info{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+.course-edit-page .course-icon{
+  width:56px;height:56px;
+  background:linear-gradient(135deg,var(--primary),#7c3aed);
+  border-radius:14px;
+  display:grid;place-items:center;
+  color:#fff;font-size:24px;
+  box-shadow:0 4px 12px rgba(79,70,229,.25);
+  flex-shrink:0;
+}
+.course-edit-page .course-details h1{
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:4px;
+}
+.course-edit-page .course-meta{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:12px;
+  color:var(--text-muted);
+  flex-wrap:wrap;
+}
+.course-edit-page .course-actions{
+  display:flex;
+  gap:8px;
+}
+
+.course-edit-page .edit-grid{
+  display:grid;
+  grid-template-columns:1fr 320px;
+  gap:24px;
+}
+
+.course-edit-page .form-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius,14px);
+  overflow:hidden;
+}
+
+.course-edit-page .tabs{
+  display:flex;
+  border-bottom:1px solid var(--border);
+  background:var(--surface-2);
+  padding:0 8px;
+  overflow-x:auto;
+  gap:0;
+}
+.course-edit-page .tab{
+  padding:14px 20px;
+  border:none;
+  background:transparent;
+  font-family:inherit;
+  font-size:13px;
+  font-weight:600;
+  color:var(--text-muted);
+  cursor:pointer;
+  position:relative;
+  transition:all .15s;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  white-space:nowrap;
+}
+.course-edit-page .tab:hover{color:var(--text)}
+.course-edit-page .tab.active{color:var(--primary)}
+.course-edit-page .tab.active::after{
+  content:"";
+  position:absolute;
+  bottom:-1px;left:0;right:0;
+  height:2px;
+  background:var(--primary);
+  border-radius:2px 2px 0 0;
+}
+
+.course-edit-page .tab-content{
+  display:none;
+  padding:28px;
+}
+.course-edit-page .tab-content.active{display:block}
+
+.course-edit-page .form-section{
+  margin-bottom:28px;
+}
+.course-edit-page .form-section:last-child{margin-bottom:0}
+.course-edit-page .section-title{
+  font-size:14px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:4px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.course-edit-page .section-title .icon{
+  width:24px;height:24px;
+  background:var(--primary-soft);
+  color:var(--primary);
+  border-radius:6px;
+  display:grid;place-items:center;
+  font-size:12px;
+}
+.course-edit-page .section-desc{
+  font-size:12px;
+  color:var(--text-muted);
+  margin-bottom:16px;
+}
+
+.course-edit-page .form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+.course-edit-page .form-grid .full{grid-column:1/-1}
+
+.course-edit-page .field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.course-edit-page .field label{
+  font-size:12px;
+  font-weight:600;
+  color:var(--text);
+}
+.course-edit-page .field label .required{color:var(--danger)}
+.course-edit-page .field input,.course-edit-page .field select,.course-edit-page .field textarea{
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-family:inherit;
+  font-size:13px;
+  outline:none;
+  transition:all .15s;
+  background:var(--surface);
+}
+.course-edit-page .field input:focus,.course-edit-page .field select:focus,.course-edit-page .field textarea:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px var(--primary-soft);
+}
+.course-edit-page .field input[readonly]{
+  background:var(--surface-2);
+  color:var(--text-muted);
+  cursor:not-allowed;
+}
+.course-edit-page .field textarea{
+  resize:vertical;
+  min-height:80px;
+}
+.course-edit-page .field .hint{
+  font-size:11px;
+  color:var(--text-faint);
+}
+
+.course-edit-page .hours-calc{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:12px;
+  padding:16px;
+  background:var(--surface-2);
+  border-radius:var(--radius-sm,10px);
+  border:1px dashed var(--border);
+}
+.course-edit-page .hours-calc .field{gap:4px}
+.course-edit-page .hours-calc .total-field{
+  background:var(--primary-soft);
+  border-radius:8px;
+  padding:8px 12px;
+}
+.course-edit-page .hours-calc .total-field input{
+  background:transparent;
+  border:none;
+  font-size:18px;
+  font-weight:700;
+  color:var(--primary);
+  padding:0;
+}
+.course-edit-page .hours-calc .total-field label{
+  color:var(--primary);
+  font-size:11px;
+}
+
+.course-edit-page .file-upload{
+  border:2px dashed var(--border);
+  border-radius:var(--radius-sm,10px);
+  padding:24px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .15s;
+}
+.course-edit-page .file-upload:hover{
+  border-color:var(--primary);
+  background:var(--primary-soft);
+}
+.course-edit-page .file-upload .icon{
+  font-size:32px;
+  margin-bottom:8px;
+  opacity:.5;
+}
+.course-edit-page .file-upload .text{
+  font-size:13px;
+  color:var(--text-muted);
+  margin-bottom:4px;
+}
+.course-edit-page .file-upload .hint{
+  font-size:11px;
+  color:var(--text-faint);
+}
+.course-edit-page .file-upload input{display:none}
+
+.course-edit-page .edit-sidebar{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.course-edit-page .sidebar-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius,14px);
+  padding:20px;
+}
+.course-edit-page .sidebar-card h4{
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.course-edit-page .quick-info{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.course-edit-page .quick-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:12px;
+}
+.course-edit-page .quick-row .label{color:var(--text-muted)}
+.course-edit-page .quick-row .value{font-weight:600;color:var(--text)}
+
+.course-edit-page .progress-section{margin-top:4px}
+.course-edit-page .progress-bar{
+  height:6px;
+  background:var(--surface-2);
+  border-radius:3px;
+  overflow:hidden;
+  margin-top:8px;
+}
+.course-edit-page .progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--primary),#7c3aed);
+  border-radius:3px;
+  transition:width .3s;
+}
+.course-edit-page .progress-text{
+  display:flex;
+  justify-content:space-between;
+  font-size:11px;
+  color:var(--text-muted);
+  margin-top:6px;
+}
+
+.course-edit-page .btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:10px 16px;
+  border-radius:var(--radius-sm,10px);
+  border:1px solid transparent;
+  font-family:inherit;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .15s;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.course-edit-page .btn-primary{
+  background:var(--primary);color:#fff;
+  box-shadow:0 2px 6px rgba(79,70,229,.2);
+}
+.course-edit-page .btn-primary:hover{background:#4338ca;transform:translateY(-1px)}
+.course-edit-page .btn-success{
+  background:var(--success);color:#fff;
+  box-shadow:0 2px 6px rgba(5,150,105,.2);
+}
+.course-edit-page .btn-success:hover{background:#047857;transform:translateY(-1px)}
+.course-edit-page .btn-ghost{
+  background:var(--surface);
+  color:var(--text);
+  border-color:var(--border);
+}
+.course-edit-page .btn-ghost:hover{background:var(--surface-2);border-color:var(--border-strong)}
+.course-edit-page .btn-danger{
+  background:var(--danger-soft,#fef2f2);
+  color:var(--danger);
+  border-color:transparent;
+}
+.course-edit-page .btn-danger:hover{background:var(--danger);color:#fff}
+
+.course-edit-page .form-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:20px 28px;
+  border-top:1px solid var(--border);
+  background:var(--surface-2);
+  gap:12px;
+  flex-wrap:wrap;
+}
+.course-edit-page .form-actions-left{
+  font-size:12px;
+  color:var(--text-muted);
+}
+.course-edit-page .form-actions-right{
+  display:flex;
+  gap:8px;
+}
+
+.course-edit-page .toast-wrap{
+  position:fixed;
+  top:24px;left:50%;
+  transform:translateX(-50%);
+  z-index:200;
+  display:flex;flex-direction:column;gap:8px;
+}
+.course-edit-page .toast{
+  background:var(--text);
+  color:#fff;
+  padding:12px 18px;
+  border-radius:10px;
+  font-size:13px;
+  font-weight:500;
+  box-shadow:var(--shadow-lg);
+  animation:slideDown .3s;
+  display:flex;align-items:center;gap:8px;
+}
+
+@keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:900px){
+  .course-edit-page .edit-grid{grid-template-columns:1fr}
+  .course-edit-page .edit-sidebar{order:-1}
+  .course-edit-page .form-grid{grid-template-columns:1fr}
+  .course-edit-page .hours-calc{grid-template-columns:1fr}
+  .course-edit-page .course-header{flex-direction:column;align-items:flex-start}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="course-edit-page">
+
+<div class="page-wrapper">
+
+  <div class="breadcrumb">
+    <a href="{{ url_for('courses.courses') }}">📚 المقررات</a>
+    <span class="sep">›</span>
+    <span class="current">إضافة مقرر جديد</span>
+  </div>
+
+  <div class="course-header">
+    <div class="course-info">
+      <div class="course-icon">📖</div>
+      <div class="course-details">
+        <h1>إضافة مقرر جديد</h1>
+        <div class="course-meta">
+          <span style="font-size:12px;color:var(--text-muted)">املأ البيانات الأساسية للمقرر الدراسي الجديد</span>
+        </div>
+      </div>
+    </div>
+    <div class="course-actions">
+      <a href="{{ url_for('courses.courses') }}" class="btn btn-ghost">← العودة للمقررات</a>
+    </div>
+  </div>
+
+  <div class="edit-grid">
+
+    <div class="form-card">
+
+      <div class="tabs">
+        <button class="tab active" data-tab="basic" type="button">
+          <span>📝</span> المعلومات الأساسية
+        </button>
+        <button class="tab" data-tab="hours" type="button">
+          <span>⏱</span> الساعات والاعتماد
+        </button>
+        <button class="tab" data-tab="content" type="button">
+          <span>📋</span> المحتوى والملفات
+        </button>
+      </div>
+
+      <form method="post" enctype="multipart/form-data" id="course-form">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}" style="margin:16px 28px 0">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="tab-content active" data-tab="basic">
+          <div class="form-section">
+            <div class="section-title">
+              <span class="icon">📌</span>
+              معلومات المقرر
+            </div>
+            <p class="section-desc">البيانات الأساسية للمقرر الدراسي</p>
+
+            <div class="form-grid">
+              <div class="field full">
+                <label>اسم المقرر <span class="required">*</span></label>
+                <input type="text" name="name" placeholder="مثال: أجهزة قياس كهربائية" required>
+              </div>
+              <div class="field">
+                <label>رمز المقرر</label>
+                <input type="text" name="code" placeholder="مثال: ت410">
+                <span class="hint">رمز فريد للمقرر</span>
+              </div>
+              <div class="field">
+                <label>القسم الأكاديمي</label>
+                <select name="department">
+                  <option value="">جميع الأقسام</option>
+                  {% for d in departments %}
+                  <option value="{{ d.name }}">{{ d.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="field">
+                <label>السنة الدراسية</label>
+                <select name="year">
+                  <option value="1">السنة الأولى</option>
+                  <option value="2">السنة الثانية</option>
+                  <option value="3">السنة الثالثة</option>
+                  <option value="4">السنة الرابعة</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" data-tab="hours">
+          <div class="form-section">
+            <div class="section-title">
+              <span class="icon">⏱</span>
+              الساعات المعتمدة
+            </div>
+            <p class="section-desc">حساب الساعات النظرية والعملية للمقرر</p>
+
+            <div class="hours-calc">
+              <div class="field">
+                <label>الساعات النظرية</label>
+                <input type="number" name="theoretical_hours" value="0" min="0" id="theoryHours">
+              </div>
+              <div class="field">
+                <label>الساعات العملية</label>
+                <input type="number" name="practical_hours" value="0" min="0" id="practicalHours">
+              </div>
+              <div class="field total-field">
+                <label>الإجمالي</label>
+                <input type="number" name="total_hours" value="0" min="0" id="totalHours" readonly>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-title">
+              <span class="icon">🔗</span>
+              المتطلب السابق
+            </div>
+            <p class="section-desc">المقرر الذي يجب إكماله قبل هذا المقرر</p>
+
+            <div class="field">
+              <select name="accreditation">
+                <option value="">بدون متطلب</option>
+                {% for c in all_courses %}
+                <option value="{{ c.name }}">{{ c.name }} ({{ c.code or '' }})</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" data-tab="content">
+          <div class="form-section">
+            <div class="section-title">
+              <span class="icon">📋</span>
+              مفردات المقرر
+            </div>
+            <p class="section-desc">المواضيع والنقاط الرئيسية في المقرر</p>
+
+            <div class="field">
+              <textarea name="vocabulary" rows="4" placeholder="اذكر مفردات ومحتويات المقرر..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-title">
+              <span class="icon">📝</span>
+              ملاحظات إضافية
+            </div>
+            <p class="section-desc">أي ملاحظات أو تعليمات خاصة بالمقرر</p>
+
+            <div class="field">
+              <textarea name="notes" rows="3" placeholder="ملاحظات إضافية..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-title">
+              <span class="icon">📎</span>
+              ملف المنهج
+            </div>
+            <p class="section-desc">ارفع ملف المنهج الدراسي (PDF, DOC, ZIP)</p>
+
+            <label class="file-upload" for="syllabus_file">
+              <div class="icon">📄</div>
+              <div class="text">اضغط لرفع ملف المنهج</div>
+              <div class="hint">PDF, DOC, DOCX, ZIP — الحد الأقصى 10MB</div>
+              <input type="file" name="syllabus_file" id="syllabus_file" accept=".pdf,.doc,.docx,.zip">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <div class="form-actions-left">
+            <span>مقرر جديد</span>
+          </div>
+          <div class="form-actions-right">
+            <a href="{{ url_for('courses.courses') }}" class="btn btn-ghost">إلغاء</a>
+            <button type="submit" class="btn btn-success">💾 حفظ</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="edit-sidebar">
+
+      <div class="sidebar-card">
+        <h4>📊 معلومات سريعة</h4>
+        <div class="quick-info">
+          <div class="quick-row">
+            <span class="label">الرمز</span>
+            <span class="value" id="qs-code">—</span>
+          </div>
+          <div class="quick-row">
+            <span class="label">القسم</span>
+            <span class="value" id="qs-dept">—</span>
+          </div>
+          <div class="quick-row">
+            <span class="label">السنة</span>
+            <span class="value" id="qs-year">الأولى</span>
+          </div>
+          <div class="quick-row">
+            <span class="label">الساعات</span>
+            <span class="value" id="sidebar-hours">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <h4>✅ اكتمال البيانات</h4>
+        <div class="progress-section">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+          </div>
+          <div class="progress-text">
+            <span>تم ملء</span>
+            <span id="progress-percent">0%</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ========== TABS ==========
+document.querySelectorAll('.course-edit-page .tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    var tabName = this.dataset.tab;
+    document.querySelectorAll('.course-edit-page .tab').forEach(function(t) { t.classList.remove('active'); });
+    this.classList.add('active');
+    document.querySelectorAll('.course-edit-page .tab-content').forEach(function(c) { c.classList.remove('active'); });
+    document.querySelector('.course-edit-page .tab-content[data-tab="' + tabName + '"]').classList.add('active');
+  });
+});
+
+// ========== HOURS CALCULATOR ==========
+var theory = document.getElementById('theoryHours');
+var practical = document.getElementById('practicalHours');
+var total = document.getElementById('totalHours');
+var sidebarHours = document.getElementById('sidebar-hours');
+var progressFill = document.getElementById('progress-fill');
+var progressPercent = document.getElementById('progress-percent');
+
+function calcHours() {
+  var t = parseInt(theory.value) || 0;
+  var p = parseInt(practical.value) || 0;
+  var sum = t + p;
+  total.value = sum;
+  if (sidebarHours) sidebarHours.textContent = sum;
+  updateProgress();
+}
+
+theory.addEventListener('input', calcHours);
+practical.addEventListener('input', calcHours);
+
+// ========== QUICK SIDEBAR UPDATES ==========
+document.querySelector('.course-edit-page [name="code"]').addEventListener('input', function() {
+  var el = document.getElementById('qs-code');
+  if (el) el.textContent = this.value || '—';
+});
+document.querySelector('.course-edit-page [name="department"]').addEventListener('change', function() {
+  var el = document.getElementById('qs-dept');
+  if (el) el.textContent = this.options[this.selectedIndex].text || '—';
+});
+document.querySelector('.course-edit-page [name="year"]').addEventListener('change', function() {
+  var el = document.getElementById('qs-year');
+  var years = {1:'الأولى',2:'الثانية',3:'الثالثة',4:'الرابعة'};
+  if (el) el.textContent = years[this.value] || 'الأولى';
+});
+
+// ========== PROGRESS CALCULATOR ==========
+function updateProgress() {
+  var fields = [
+    document.querySelector('.course-edit-page [name="name"]').value,
+    document.querySelector('.course-edit-page [name="code"]').value,
+    document.querySelector('.course-edit-page [name="department"]').value,
+    document.querySelector('.course-edit-page [name="year"]').value,
+    parseInt(document.getElementById('theoryHours').value) > 0 || parseInt(document.getElementById('practicalHours').value) > 0,
+  ];
+  var filled = fields.filter(function(f) { return f; }).length;
+  var percent = Math.round((filled / fields.length) * 100);
+  if (progressFill) progressFill.style.width = percent + '%';
+  if (progressPercent) progressPercent.textContent = percent + '%';
+}
+
+document.querySelectorAll('.course-edit-page input, .course-edit-page select, .course-edit-page textarea').forEach(function(el) {
+  el.addEventListener('input', updateProgress);
+  el.addEventListener('change', updateProgress);
+});
+
+updateProgress();
+
+// ========== FILE UPLOAD ==========
+document.getElementById('syllabus_file').addEventListener('change', function() {
+  if (this.files.length > 0) {
+    var fileName = this.files[0].name;
+    var textEl = this.closest('.file-upload').querySelector('.text');
+    if (textEl) textEl.textContent = '✓ ' + fileName;
+    toast('📎 تم اختيار الملف');
+  }
+});
+
+// ========== TOAST ==========
+function toast(msg) {
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  var wrap = document.getElementById('toasts');
+  if (!wrap) return;
+  wrap.appendChild(t);
+  setTimeout(function() {
+    t.style.opacity = '0';
+    t.style.transform = 'translateY(-20px)';
+    t.style.transition = 'all .3s';
+    setTimeout(function() { t.remove(); }, 300);
+  }, 2500);
+}
+</script>
+{% endblock %}

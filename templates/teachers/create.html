@@ -1,0 +1,397 @@
+{% set active_page = 'teachers' %}
+{% extends 'base.html' %}
+{% block title %}نظام كلية التقنية الهندسية - إضافة محاضر{% endblock %}
+{% block body_attrs %}data-theme="light"{% endblock %}
+{% block content %}
+<style>
+.teacher-form-page { max-width: 820px; margin: 0 auto; }
+.teacher-form-page .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted, #6b7280); margin-bottom: 16px; }
+.teacher-form-page .breadcrumb a { color: var(--primary, #4f46e5); text-decoration: none; }
+.teacher-form-page .breadcrumb a:hover { text-decoration: underline; }
+.teacher-form-page .breadcrumb .sep { color: #d1d5db; }
+.teacher-form-page .page-title-block { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+.teacher-form-page .page-title-block .title-icon { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #4f46e5, #7c3aed); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; flex-shrink: 0; }
+.teacher-form-page .page-title-block h1 { font-size: 20px; font-weight: 700; color: var(--text-primary, #111827); margin: 0; }
+.teacher-form-page .page-title-block p { font-size: 13px; color: var(--text-muted, #6b7280); margin: 2px 0 0 0; }
+.teacher-form-page .form-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px; overflow: hidden; }
+.teacher-form-page .form-card-header { display: flex; align-items: center; gap: 10px; padding: 16px 24px; border-bottom: 1px solid #f3f4f6; font-weight: 700; font-size: 15px; color: #374151; background: #fafbfc; }
+.teacher-form-page .form-card-body { padding: 24px; }
+.teacher-form-page .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; }
+.teacher-form-page .form-grid .full-width { grid-column: 1 / -1; }
+.teacher-form-page .form-group { display: flex; flex-direction: column; gap: 6px; }
+.teacher-form-page .form-group label { font-size: 13px; font-weight: 600; color: #374151; }
+.teacher-form-page .form-group label .required { color: #ef4444; margin-right: 2px; }
+.teacher-form-page .form-group .form-input, .teacher-form-page .form-group .form-select { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; }
+.teacher-form-page .form-group .form-input:focus, .teacher-form-page .form-group .form-select:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+.teacher-form-page .form-group .form-hint { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+.teacher-form-page .form-group .form-input::placeholder { color: #9ca3af; }
+
+/* Course Assignment */
+.teacher-form-page .course-section { background: #fafbfd; border-radius: 10px; padding: 20px; }
+.teacher-form-page .dept-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.teacher-form-page .dept-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 20px; border: 1px solid #e5e7eb; background: #fff; font-size: 13px; font-weight: 500; color: #6b7280; cursor: pointer; transition: all 0.2s; }
+.teacher-form-page .dept-chip:hover { border-color: #4f46e5; color: #4f46e5; background: #f5f3ff; }
+.teacher-form-page .dept-chip.active { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+.teacher-form-page .dept-chip .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #f3f4f6; color: #6b7280; }
+.teacher-form-page .dept-chip.active .badge { background: rgba(255,255,255,0.2); color: #fff; }
+.teacher-form-page .course-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.teacher-form-page .course-toolbar .search-box { flex: 1; min-width: 180px; position: relative; }
+.teacher-form-page .course-toolbar .search-box input { width: 100%; padding: 8px 14px 8px 36px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; font-family: inherit; background: #fff; box-sizing: border-box; }
+.teacher-form-page .course-toolbar .search-box input:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+.teacher-form-page .course-toolbar .search-box .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 14px; }
+.teacher-form-page .course-toolbar .bulk-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid #e5e7eb; background: #fff; font-size: 12px; font-weight: 500; color: #6b7280; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+.teacher-form-page .course-toolbar .bulk-btn:hover { border-color: #4f46e5; color: #4f46e5; }
+.teacher-form-page .course-toolbar .counter { font-size: 13px; font-weight: 600; color: #4f46e5; margin-right: auto; }
+.teacher-form-page .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-bottom: 16px; max-height: 320px; overflow-y: auto; padding: 2px; }
+.teacher-form-page .course-card { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; cursor: pointer; transition: all 0.2s; }
+.teacher-form-page .course-card:hover { border-color: #4f46e5; box-shadow: 0 2px 8px rgba(79,70,229,0.08); transform: translateY(-1px); }
+.teacher-form-page .course-card.checked { background: #f5f3ff; border-color: #4f46e5; }
+.teacher-form-page .course-card .checkbox { width: 18px; height: 18px; border: 2px solid #d1d5db; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+.teacher-form-page .course-card.checked .checkbox { background: #4f46e5; border-color: #4f46e5; }
+.teacher-form-page .course-card.checked .checkbox::after { content: '✓'; color: #fff; font-size: 12px; font-weight: 700; }
+.teacher-form-page .course-card .course-info { display: flex; flex-direction: column; gap: 2px; }
+.teacher-form-page .course-card .course-name { font-size: 13px; font-weight: 600; color: #374151; }
+.teacher-form-page .course-card .course-code { font-size: 11px; color: #9ca3af; }
+.teacher-form-page .empty-grid-msg { grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: #9ca3af; font-size: 14px; }
+.teacher-form-page .selected-summary { border-top: 1px dashed #e5e7eb; padding-top: 14px; margin-top: 4px; }
+.teacher-form-page .selected-summary .summary-label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+.teacher-form-page .selected-summary .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.teacher-form-page .selected-summary .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #d1fae5; color: #065f46; border-radius: 6px; font-size: 12px; font-weight: 500; }
+.teacher-form-page .selected-summary .tag .remove { cursor: pointer; font-size: 14px; line-height: 1; opacity: 0.6; transition: opacity 0.2s; }
+.teacher-form-page .selected-summary .tag .remove:hover { opacity: 1; }
+
+/* Footer */
+.teacher-form-page .form-footer { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: #f9fafb; border-top: 1px solid #e5e7eb; border-radius: 0 0 14px 14px; }
+.teacher-form-page .form-footer .btn { padding: 10px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-family: inherit; }
+.teacher-form-page .form-footer .btn-cancel { background: transparent; border: 1px solid #d1d5db; color: #6b7280; }
+.teacher-form-page .form-footer .btn-cancel:hover { background: #f3f4f6; }
+.teacher-form-page .form-footer .btn-save { background: linear-gradient(135deg, #059669, #10b981); color: #fff; }
+.teacher-form-page .form-footer .btn-save:hover { box-shadow: 0 4px 12px rgba(5,150,105,0.3); transform: translateY(-1px); }
+.teacher-form-page .form-footer .btn-save:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* Toast */
+.toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast { padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.15); animation: toastIn 0.3s ease; pointer-events: auto; }
+.toast.error { background: #ef4444; }
+.toast.success { background: #059669; }
+.toast.warning { background: #d97706; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-12px); } }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .teacher-form-page .form-grid { grid-template-columns: 1fr; }
+  .teacher-form-page .courses-grid { grid-template-columns: 1fr; }
+  .teacher-form-page .page-title-block h1 { font-size: 17px; }
+}
+</style>
+
+<div class="teacher-form-page">
+  <div class="breadcrumb">
+    <a href="{{ url_for('teachers.list_teachers') }}">👥 أعضاء هيئة التدريس</a>
+    <span class="sep">›</span>
+    <span>إضافة عضو جديد</span>
+  </div>
+
+  <div class="page-title-block">
+    <div class="title-icon">➕</div>
+    <div>
+      <h1>إضافة عضو هيئة تدريس / محاضر</h1>
+      <p>أدخل بيانات العضو واختر المواد التي سيقوم بتدريسها</p>
+    </div>
+  </div>
+
+  <form method="post" id="teacherForm" onsubmit="return handleSubmit(event)">
+    <input type="hidden" name="selected_courses" id="selectedCoursesInput" value="">
+
+    <div class="form-card">
+      <div class="form-card-header">👤 المعلومات الشخصية</div>
+      <div class="form-card-body">
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label>الاسم الكامل <span class="required">*</span></label>
+            <input class="form-input" name="name" placeholder="الاسم الرباعي" required>
+          </div>
+          <div class="form-group">
+            <label>الرقم الأكاديمي <span class="required">*</span></label>
+            <input class="form-input" name="academic_number" placeholder="مثال: 2023001" required>
+            <div class="form-hint">رقم فريد للعضو</div>
+          </div>
+          <div class="form-group">
+            <label>الرقم الوطني <span class="required">*</span></label>
+            <input class="form-input" name="national_id" placeholder="مثال: 123456789" required>
+          </div>
+          <div class="form-group">
+            <label>رقم الهاتف</label>
+            <input class="form-input" name="phone" placeholder="مثال: 0912345678">
+          </div>
+          <div class="form-group">
+            <label>تاريخ التعاقد</label>
+            <input class="form-input" name="contract_date" type="date">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-header">🎓 المعلومات الأكاديمية</div>
+      <div class="form-card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>المؤهل العلمي <span class="required">*</span></label>
+            <select class="form-select" name="qualification" id="qualificationSelect" required>
+              <option value="">اختر المؤهل</option>
+              <option value="دبلوم">دبلوم</option>
+              <option value="بكالوريوس">بكالوريوس</option>
+              <option value="ماجستير">ماجستير</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>الدرجة العلمية <span class="required">*</span></label>
+            <select class="form-select" name="academic_rank" id="rankSelect" required>
+              <option value="">اختر الدرجة</option>
+              <option value="أستاذ">أستاذ</option>
+              <option value="أستاذ مشارك">أستاذ مشارك</option>
+              <option value="أستاذ مساعد">أستاذ مساعد</option>
+              <option value="محاضر">محاضر</option>
+              <option value="محاضر مساعد">محاضر مساعد</option>
+              <option value="أستاذ متعاون">أستاذ متعاون</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>الصنف / الفئة <span class="required">*</span></label>
+            <select class="form-select" name="classification" required>
+              <option value="">اختر الصنف</option>
+              <option value="عضو هيئة تدريس قار">عضو هيئة تدريس قار</option>
+              <option value="عضو هيئة تدريس متعاون">عضو هيئة تدريس متعاون</option>
+              <option value="معيد">معيد</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>القسم <span class="required">*</span></label>
+            <select class="form-select" name="department" id="departmentSelect" required>
+              <option value="">اختر القسم</option>
+              {% for d in departments %}
+              <option value="{{ d.name }}">{{ d.name }}</option>
+              {% endfor %}
+            </select>
+            <div class="form-hint">سيتم ترشيح المواد حسب القسم المختار</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-header">📚 إسناد المواد</div>
+      <div class="form-card-body">
+        <div class="course-section">
+          <div class="dept-chips" id="deptChips"></div>
+          <div class="course-toolbar">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="courseSearch" placeholder="ابحث في المواد..." oninput="filterCourses()">
+            </div>
+            <button type="button" class="bulk-btn" onclick="selectAll()">✓ تحديد الكل</button>
+            <button type="button" class="bulk-btn" onclick="deselectAll()">✕ إلغاء الكل</button>
+            <span class="counter" id="selectedCounter">0 مادة محددة</span>
+          </div>
+          <div class="courses-grid" id="coursesGrid"></div>
+          <div class="selected-summary" id="selectedSummary" style="display:none">
+            <div class="summary-label">✅ المواد المختارة:</div>
+            <div class="tags" id="selectedTags"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-footer">
+        <a href="{{ url_for('teachers.list_teachers') }}" class="btn btn-cancel">إلغاء</a>
+        <button type="submit" class="btn btn-save">💾 حفظ العضو</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+const coursesByDept = {{ courses_by_dept_json | safe }};
+const deptNames = Object.keys(coursesByDept);
+let activeDept = deptNames.length > 0 ? deptNames[0] : '';
+let selectedCourses = new Set();
+
+function renderChips() {
+  const container = document.getElementById('deptChips');
+  container.innerHTML = '';
+  deptNames.forEach(dept => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'dept-chip' + (dept === activeDept ? ' active' : '');
+    chip.innerHTML = `${dept} <span class="badge">${coursesByDept[dept].length}</span>`;
+    chip.onclick = () => { activeDept = dept; renderChips(); renderCourses(); };
+    container.appendChild(chip);
+  });
+}
+
+function renderCourses() {
+  const grid = document.getElementById('coursesGrid');
+  const query = document.getElementById('courseSearch').value.trim().toLowerCase();
+  const courses = coursesByDept[activeDept] || [];
+  const filtered = query ? courses.filter(c => c.name.toLowerCase().includes(query) || c.code.toLowerCase().includes(query)) : courses;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty-grid-msg">📭 لا توجد مواد في هذا القسم</div>';
+    return;
+  }
+
+  grid.innerHTML = '';
+  filtered.forEach(c => {
+    const isChecked = selectedCourses.has(c.name);
+    const card = document.createElement('div');
+    card.className = 'course-card' + (isChecked ? ' checked' : '');
+    card.innerHTML = `
+      <div class="checkbox"></div>
+      <div class="course-info">
+        <div class="course-name">${c.name}</div>
+        <div class="course-code">${c.code || ''}</div>
+      </div>
+    `;
+    card.onclick = () => toggleCourse(c.name);
+    grid.appendChild(card);
+  });
+}
+
+function toggleCourse(name) {
+  if (selectedCourses.has(name)) {
+    selectedCourses.delete(name);
+  } else {
+    selectedCourses.add(name);
+  }
+  renderCourses();
+  updateSummary();
+}
+
+function filterCourses() {
+  renderCourses();
+}
+
+function selectAll() {
+  const courses = coursesByDept[activeDept] || [];
+  courses.forEach(c => selectedCourses.add(c.name));
+  renderCourses();
+  updateSummary();
+}
+
+function deselectAll() {
+  const courses = coursesByDept[activeDept] || [];
+  courses.forEach(c => selectedCourses.delete(c.name));
+  renderCourses();
+  updateSummary();
+}
+
+function removeCourse(name) {
+  selectedCourses.delete(name);
+  renderCourses();
+  updateSummary();
+}
+
+function updateSummary() {
+  const summary = document.getElementById('selectedSummary');
+  const tags = document.getElementById('selectedTags');
+  const counter = document.getElementById('selectedCounter');
+  const names = Array.from(selectedCourses);
+  counter.textContent = `${names.length} مادة محددة`;
+  if (names.length === 0) {
+    summary.style.display = 'none';
+    return;
+  }
+  summary.style.display = 'block';
+  tags.innerHTML = '';
+  names.forEach(name => {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.innerHTML = `${name} <span class="remove" onclick="event.stopPropagation();removeCourse('${name.replace(/'/g, "\\'")}')">✕</span>`;
+    tags.appendChild(tag);
+  });
+}
+
+function showToast(type, msg) {
+  const container = document.getElementById('toastContainer') || (() => {
+    const el = document.createElement('div');
+    el.id = 'toastContainer';
+    el.className = 'toast-container';
+    document.body.appendChild(el);
+    return el;
+  })();
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'toastOut 0.3s ease forwards';
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
+}
+
+function handleSubmit(e) {
+  const names = Array.from(selectedCourses);
+  if (names.length === 0) {
+    showToast('warning', '⚠️ يرجى اختيار مادة واحدة على الأقل');
+    e.preventDefault();
+    return false;
+  }
+  document.getElementById('selectedCoursesInput').value = names.join(',');
+  return true;
+}
+
+/* Dynamic qualification → rank logic */
+const qualificationToRanks = {
+  'دبلوم': ['محاضر مساعد', 'أستاذ متعاون', 'معيد'],
+  'بكالوريوس': ['محاضر مساعد', 'محاضر', 'أستاذ متعاون'],
+  'ماجستير': ['محاضر', 'أستاذ مساعد', 'أستاذ متعاون']
+};
+
+function updateRanks() {
+  const qualification = document.getElementById('qualificationSelect').value;
+  const rankSelect = document.getElementById('rankSelect');
+  const current = rankSelect.value;
+  const allowed = qualificationToRanks[qualification] || [
+    'أستاذ', 'أستاذ مشارك', 'أستاذ مساعد', 'محاضر', 'محاضر مساعد', 'أستاذ متعاون'
+  ];
+  for (const opt of rankSelect.options) {
+    if (opt.value === '') continue;
+    opt.style.display = allowed.includes(opt.value) ? '' : 'none';
+    if (!allowed.includes(current)) rankSelect.value = '';
+  }
+}
+
+/* Sync department selection with course chips */
+document.getElementById('departmentSelect').addEventListener('change', function() {
+  const dept = this.value;
+  if (dept && deptNames.includes(dept)) {
+    activeDept = dept;
+  } else if (deptNames.length > 0) {
+    activeDept = deptNames[0];
+  }
+  renderChips();
+  renderCourses();
+});
+
+document.getElementById('qualificationSelect').addEventListener('change', updateRanks);
+window.addEventListener('DOMContentLoaded', function() {
+  updateRanks();
+  if (deptNames.length > 0) {
+    activeDept = deptNames[0];
+    renderChips();
+    renderCourses();
+    updateSummary();
+  }
+  /* Initialize Tom Select on stable selects (not qualification/rank which have dynamic filtering) */
+  if (typeof TomSelect !== 'undefined') {
+    var deptSelect = document.getElementById('departmentSelect');
+    if (deptSelect) new TomSelect(deptSelect, { create: false, placeholder: 'اختر القسم...' });
+    var classSelect = document.querySelector('select[name="classification"]');
+    if (classSelect) new TomSelect(classSelect, { create: false, placeholder: 'اختر الصنف...' });
+  }
+});
+</script>
+{% endblock %}
